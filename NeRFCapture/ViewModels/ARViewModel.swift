@@ -10,7 +10,7 @@ import Zip
 import Combine
 import ARKit
 import RealityKit
-
+import os.log
 enum AppError : Error {
     case projectAlreadyExists
     case manifestInitializationFailed
@@ -45,9 +45,13 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             .sink { x in
                 switch x {
                 case .Offline:
+                    os_log("This is a default log message")
+
 //                    self.appState.stream = false
                     print("Changed to offline")
                 case .Online:
+                    os_log("This is a default log message")
+
                     print("Changed to online")
                 }
             }
@@ -76,6 +80,22 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         session?.pause()
         let config = createARConfiguration()
         session?.run(config, options: [.resetTracking])
+    }
+    
+    func addBoxToScene() -> AnchorEntity {
+        guard let arView = arView else { return AnchorEntity(world: [0, 0, -1])}
+        
+        let box = MeshResource.generateBox(size: 1)
+        let material = SimpleMaterial(color: .green, isMetallic: false)
+        let boxEntity = ModelEntity(mesh: box, materials: [material])
+        
+        let anchor = AnchorEntity(world: [0, 0, -1]) // Position the box in front of the camera
+//        let anchor = AnchorEntity(plane: .horizontal)
+        
+        anchor.addChild(boxEntity)
+        return anchor
+        
+//        arView.scene.addAnchor(anchor)
     }
     
     

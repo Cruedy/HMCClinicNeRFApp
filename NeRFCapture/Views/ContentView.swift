@@ -13,6 +13,8 @@ import RealityKit
 struct ContentView : View {
     @StateObject private var viewModel: ARViewModel
     @State private var showSheet: Bool = false
+    @State public var boxVisible: Bool = false
+
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
@@ -21,7 +23,7 @@ struct ContentView : View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(viewModel).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {
@@ -84,6 +86,22 @@ struct ContentView : View {
                     if case .Online = viewModel.appState.appMode {
                         Spacer()
                         Button(action: {
+                            print("Before: \(boxVisible)")
+                            boxVisible.toggle()
+                            print("After: \(boxVisible)")
+                        }) {
+                            Text("Trigger Update 2")
+                                .padding(.horizontal,20)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+//                        .onChange(of: triggerUpdate) { triggerUpdate in
+//                            $viewModel.triggerUpdate = triggerUpdate
+//                             }
+                        
+                        Button(action: {
+                            print("reset cheat Before: \(boxVisible)")
                             viewModel.resetWorldOrigin()
                         }) {
                             Text("Reset")

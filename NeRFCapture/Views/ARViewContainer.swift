@@ -11,9 +11,13 @@ import ARKit
 
 struct ARViewContainer: UIViewRepresentable {
     @ObservedObject var viewModel: ARViewModel
+    @Binding var boxVisible: Bool
+
+
     
-    init(_ vm: ARViewModel) {
+    init(vm: ARViewModel, bv: Binding<Bool>) {
         viewModel = vm
+        _boxVisible = bv
     }
     
     func makeUIView(context: Context) -> ARView {
@@ -22,19 +26,67 @@ struct ARViewContainer: UIViewRepresentable {
         configuration.worldAlignment = .gravity
         configuration.isAutoFocusEnabled = true
 //        configuration.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats[4] // 1280x720
-        if ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) {
-            viewModel.appState.supportsDepth = true
-        }
+//        if ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) {
+////            viewModel.appState.supportsDepth = true
+//        }
         arView.debugOptions = [.showWorldOrigin]
         #if !targetEnvironment(simulator)
         arView.session.run(configuration)
         #endif
+//        placeBlueBlock()
+        
+//        let block = MeshResource.generateBox(size: 1)
+//        let material = SimpleMaterial(color: .blue, isMetallic:  false)
+//        let entity = ModelEntity(mesh: block, materials: [material])
+//        let anchor = AnchorEntity(plane: .horizontal)
+//        anchor.addChild(entity)
+//        arView.scene.addAnchor(anchor)
+//        viewModel.addBoxToScene()
+
         arView.session.delegate = viewModel
         viewModel.session = arView.session
         viewModel.arView = arView
         return arView
     }
     
-    func updateUIView(_ uiView: ARView, context: Context) {}
+    func updateUIView(_ uiView: ARView, context: Context) {
+        if (boxVisible) {
+            print("something changed OMG!")
+//            viewModel.addBoxToScene()
+            let boxAnchor = viewModel.addBoxToScene()
+            uiView.scene.anchors.append(boxAnchor)
+        } else {
+            print("nothing")
+            uiView.scene.anchors.removeAll()
+        }
+        
+    }
     
+//    func addBoxToScene() {
+////        guard let arView = arView else { return }
+//        
+//        let box = MeshResource.generateBox(size: 1)
+//        let material = SimpleMaterial(color: .green, isMetallic: false)
+//        let boxEntity = ModelEntity(mesh: box, materials: [material])
+//        
+//        let anchor = AnchorEntity(world: [0, 0, -1]) // Position the box in front of the camera
+////        let anchor = AnchorEntity(plane: .horizontal)
+//
+//        anchor.addChild(boxEntity)
+//        
+//        arView.scene.addAnchor(anchor)
+//    }
+//    
+    
+//    func placeBlueBlock(){
+//        let block = MeshResource.generateBox(size: 1)
+//        let material = SimpleMaterial(color: .blue, isMetallic: false)
+//        let entity = ModelEntity(mesh: block, materials: [material])
+//        
+//        let anchor = AnchorEntity(plane: .horizontal)
+//        anchor.addChild(entity)
+//        viewModel.arView?.scene.addAnchor(anchor)
+//        
+////        /*scene*/.add(anchor: anchor)
+//    }
 }
