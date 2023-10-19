@@ -82,12 +82,65 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         session?.run(config, options: [.resetTracking])
     }
     
+//    func createEmptyBoundingBox() -> {
+//        guard let arView = arView else {return ARAnchor()}
+//        let cubeGeometry = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
+//        let cubeNode = SCNNode(geometry: cubeGeometry)
+//        
+//        let anchor = ARAnchor(transform: cubeNode.simdTransform)
+//        
+//        return anchor
+////        arView.session.add(anchor: anchor)
+//        
+////        arView.session.rootNode.addChildNode(cubeNode)
+//    }
+//    
+    
+    func addNewBoxToScene() -> AnchorEntity{
+        guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
+        let worldOriginAnchor = AnchorEntity(world:.zero)
+        let positions: [SIMD3<Float>] = [[-0.5, -0.5, -2], [0.5, -0.5, -2], [0.5, 0.5, -2], [-0.5, 0.5, -2],
+                                         [-0.5, -0.5, -3], [0.5, -0.5, -3], [0.5, 0.5, -3], [-0.5, 0.5, -3]]
+        let colors: [Material.Color] = [.red, .white, .blue, .green]
+        
+        var descr = MeshDescriptor(name: "cube")
+        descr.positions = MeshBuffers.Positions(positions[0...7])
+        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [0, 1, 2, 3,  // front
+                                                          4, 5, 6, 7,  // back
+                                                          3, 2, 6, 7,  // top
+                                                          0, 1, 5, 4,  // bottom
+                                                          4, 0, 3, 7,  // left
+                                                          1, 5, 6, 2]) // right
+        let material = SimpleMaterial(color: .orange, isMetallic: false)
+        
+        let generatedModel = ModelEntity(
+           mesh: try! .generate(from: [descr]),
+           materials: [material]
+        )
+        
+        worldOriginAnchor.addChild(generatedModel)
+        return worldOriginAnchor
+    }
+    
     func addBoxToScene() -> AnchorEntity {
-        guard let arView = arView else { return AnchorEntity(world: [0, 0, -1])}
+        guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
         
         let box = MeshResource.generateBox(size: 1)
-        let material = SimpleMaterial(color: .green, isMetallic: false)
-        let boxEntity = ModelEntity(mesh: box, materials: [material])
+//        let material = SimpleMaterial(color: .green, isMetallic: false)
+        var wireframeMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+//        wireframeMaterial.tintColor = .white
+//        boxMesh.materials = [wireframeMaterial]
+        
+        
+//        wireframeMaterial.color = try! MaterialColorParameter.texture(TextureResource.load(named: "wireframe"))
+//        wireframematerial.color.tiling = .init(repeating: .one)
+//        wireframeMaterial.baseColor.mipFilter = .linear
+//        wireframeMaterial.baseColor.wrapMode = .repeat
+//        wireframeMaterial.metallic = 1
+//        wireframeMaterial.roughness = 1
+//        wireframeMaterial.alpha = 1
+        
+        let boxEntity = ModelEntity(mesh: box, materials: [wireframeMaterial])
         
         let anchor = AnchorEntity(world: [0, 0, -1]) // Position the box in front of the camera
 //        let anchor = AnchorEntity(plane: .horizontal)
