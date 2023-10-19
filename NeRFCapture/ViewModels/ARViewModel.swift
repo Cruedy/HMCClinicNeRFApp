@@ -96,29 +96,120 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 //    }
 //    
     
+    func createLine(corners: [[Float]], thickness: Float) -> MeshDescriptor{
+        var positions: [SIMD3<Float>] = []
+        
+        var descr = MeshDescriptor(name: "line")
+
+        for corner in corners {
+            positions.append(SIMD3<Float>([corner[0]+thickness, corner[1], corner[2]]))
+            positions.append(SIMD3<Float>([corner[0]-thickness, corner[1], corner[2]]))
+            positions.append(SIMD3<Float>([corner[0], corner[1]+thickness, corner[2]]))
+            positions.append(SIMD3<Float>([corner[0], corner[1]-thickness, corner[2]]))
+        }
+        descr.positions = MeshBuffers.Positions(positions[0...7])
+        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [1, 2, 0, 3,  // front
+                                                          5, 6, 4, 7,  // back
+                                                          2, 0, 4, 6,  // top
+                                                          2, 1, 5, 6,  // bottom
+                                                          0, 3, 7, 4,  // left
+                                                          1, 3, 7, 5]) // right
+        
+        return descr
+        
+    }
+    func createBoundingBox(corners: [[Float]], thickness: Float) -> [MeshDescriptor] {
+        let faces = [[0, 1, 2, 3],  // front
+                      [4, 5, 6, 7],  // back
+                      [3, 2, 6, 7],  // top
+                      [0, 1, 5, 4],  // bottom
+                      [4, 0, 3, 7],  // left
+                      [1, 5, 6, 2]]  // right
+        var line_descrs: [MeshDescriptor] = []
+        for face in faces {
+            var point1 = 3
+            for point2 in 0...3 {
+                print([corners[face[point1]],corners[face[point2]]])
+                line_descrs.append(createLine(corners: [corners[face[point1]],corners[face[point2]]], thickness:thickness))
+                point1 = point2
+            }
+        }
+        return line_descrs
+        
+//        var positions: [SIMD3<Float>] = []
+//        for corner in corners {
+//            positions.append([corner[0] + thickness, corner[1], corner[2]])
+//            positions.append([corner[0] - thickness, corner[1], corner[2]])
+//        }
+//    
+//        
+//        var descr = MeshDescriptor(name: "cube")
+//        descr.positions = MeshBuffers.Positions(positions[0...15])
+//        let groupings: [UInt8] = Array(repeating: 4, count: 12)
+//        let faces = [[0, 1, 2, 3],  // front
+//                      [4, 5, 6, 7],  // back
+//                      [3, 2, 6, 7],  // top
+//                      [0, 1, 5, 4],  // bottom
+//                      [4, 0, 3, 7],  // left
+//                      [1, 5, 6, 2]]  // right
+//        var orderings: [UInt32] = []
+//        for face in faces {
+//            var point1_idx = 3
+//            for point2_idx in 0...3 {
+//                let point1 = face[point1_idx]
+//                let point2 = face[point2_idx]
+//                orderings.append(UInt32(2*point1))
+//                orderings.append(UInt32(2*point1+1))
+//                orderings.append(UInt32(2*point2+1))
+//                orderings.append(UInt32(2*point2))
+//                point1_idx = point2_idx
+//            }
+//        }
+//        descr.primitives = .polygons(groupings, orderings)
+//        return descr
+    }
+    
     func addNewBoxToScene() -> AnchorEntity{
         guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
         let worldOriginAnchor = AnchorEntity(world:.zero)
-        let positions: [SIMD3<Float>] = [[-0.5, -0.5, -2], [0.5, -0.5, -2], [0.5, 0.5, -2], [-0.5, 0.5, -2],
+        let positions: [[Float]] = [[-0.5, -0.5, -2], [0.5, -0.5, -2], [0.5, 0.5, -2], [-0.5, 0.5, -2],
                                          [-0.5, -0.5, -3], [0.5, -0.5, -3], [0.5, 0.5, -3], [-0.5, 0.5, -3]]
-        let colors: [Material.Color] = [.red, .white, .blue, .green]
+//        let colors: [Material.Color] = [.red, .white, .blue, .green]
+//        
+//        var descr = MeshDescriptor(name: "cube")
+//        descr.positions = MeshBuffers.Positions(positions[0...7])
+//        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [0, 1, 2, 3,  // front
+//                                                          4, 5, 6, 7,  // back
+//                                                          3, 2, 6, 7,  // top
+//                                                          0, 1, 5, 4,  // bottom
+//                                                          4, 0, 3, 7,  // left
+//                                                          1, 5, 6, 2]) // right
         
-        var descr = MeshDescriptor(name: "cube")
-        descr.positions = MeshBuffers.Positions(positions[0...7])
-        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [0, 1, 2, 3,  // front
-                                                          4, 5, 6, 7,  // back
-                                                          3, 2, 6, 7,  // top
-                                                          0, 1, 5, 4,  // bottom
-                                                          4, 0, 3, 7,  // left
-                                                          1, 5, 6, 2]) // right
-        let material = SimpleMaterial(color: .orange, isMetallic: false)
+//        let positions: [SIMD3<Float>] = [[-0.5, -0.5, -2], [-0.4, -0.5, -2], [0.5, -0.5, -2], [0.4, -0.5, -2], [0.5, 0.5, -2], [0.4, 0.5, -2], [-0.5, 0.5, -2], [-0.4, 0.5, -2],
+//                                         [-0.5, -0.5, -3], [-0.4, -0.5, -3], [0.5, -0.5, -3], [0.4, -0.5, -3], [0.5, 0.5, -3], [0.4, 0.5, -3], [-0.5, 0.5, -3], [-0.4, 0.5, -3]]
+//        let colors: [Material.Color] = [.red, .white, .blue, .green]
+//        
+//        var descr = MeshDescriptor(name: "cube")
+//        descr.positions = MeshBuffers.Positions(positions[0...7])
+//        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [0, 1, 2, 3,  // front
+//                                                          4, 5, 6, 7,  // back
+//                                                          3, 2, 6, 7,  // top
+//                                                          0, 1, 5, 4,  // bottom
+//                                                          4, 0, 3, 7,  // left
+//                                                          1, 5, 6, 2]) // right
+        var descrs = createBoundingBox(corners: positions, thickness: 0.1)
+//        var descr = createLine(corners: [[-0.5, -0.5, -2], [0.5, -0.5, -2]], thickness: 0.01)
+        for descr in descrs {
+            let material = SimpleMaterial(color: .orange, isMetallic: false)
+            
+            let generatedModel = ModelEntity(
+               mesh: try! .generate(from: [descr]),
+               materials: [material]
+            )
+            
+            worldOriginAnchor.addChild(generatedModel)
+        }
         
-        let generatedModel = ModelEntity(
-           mesh: try! .generate(from: [descr]),
-           materials: [material]
-        )
-        
-        worldOriginAnchor.addChild(generatedModel)
         return worldOriginAnchor
     }
     
