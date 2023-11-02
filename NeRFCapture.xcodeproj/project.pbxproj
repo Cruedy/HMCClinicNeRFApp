@@ -15,6 +15,14 @@
 		0539EAB429654B0400C51AB9 /* cyclonedds in Frameworks */ = {isa = PBXBuildFile; productRef = 0539EAB329654B0400C51AB9 /* cyclonedds */; };
 		057A7AA82950092E000692A0 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 057A7AA72950092E000692A0 /* Shaders.metal */; };
 		410290802ACE4097008ACF35 /* CustomARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4102907F2ACE4097008ACF35 /* CustomARView.swift */; };
+		41421F552AF32A7F007C4CAC /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F542AF32A7F007C4CAC /* PhotoPicker.swift */; };
+		41421F572AF32A92007C4CAC /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F562AF32A92007C4CAC /* DataModel.swift */; };
+		41421F592AF32AA7007C4CAC /* ColumnStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F582AF32AA7007C4CAC /* ColumnStepper.swift */; };
+		41421F5B2AF32AB7007C4CAC /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F5A2AF32AB7007C4CAC /* DetailView.swift */; };
+		41421F5D2AF32ACD007C4CAC /* GridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F5C2AF32ACD007C4CAC /* GridItemView.swift */; };
+		41421F5F2AF32AE8007C4CAC /* FileManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F5E2AF32AE8007C4CAC /* FileManagerExtensions.swift */; };
+		41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */; };
+		41421F632AF32AFA007C4CAC /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F622AF32AFA007C4CAC /* Item.swift */; };
 		C0C52A90287E7F940011820F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C52A8F287E7F940011820F /* AppDelegate.swift */; };
 		C0C52A92287E7F940011820F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C52A91287E7F940011820F /* ContentView.swift */; };
 		C0C52A96287E7F960011820F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0C52A95287E7F960011820F /* Assets.xcassets */; };
@@ -49,6 +57,14 @@
 		052D2374287FD53A0083DC5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		057A7AA72950092E000692A0 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		4102907F2ACE4097008ACF35 /* CustomARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomARView.swift; sourceTree = "<group>"; };
+		41421F542AF32A7F007C4CAC /* PhotoPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		41421F562AF32A92007C4CAC /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
+		41421F582AF32AA7007C4CAC /* ColumnStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColumnStepper.swift; sourceTree = "<group>"; };
+		41421F5A2AF32AB7007C4CAC /* DetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
+		41421F5C2AF32ACD007C4CAC /* GridItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridItemView.swift; sourceTree = "<group>"; };
+		41421F5E2AF32AE8007C4CAC /* FileManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileManagerExtensions.swift; sourceTree = "<group>"; };
+		41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryApp.swift; sourceTree = "<group>"; };
+		41421F622AF32AFA007C4CAC /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		C0C52A8C287E7F940011820F /* NeRFCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NeRFCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0C52A8F287E7F940011820F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C0C52A91287E7F940011820F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -138,7 +154,15 @@
 				C0C52A95287E7F960011820F /* Assets.xcassets */,
 				C0C52A97287E7F960011820F /* Preview Content */,
 				057A7AA72950092E000692A0 /* Shaders.metal */,
+				41421F582AF32AA7007C4CAC /* ColumnStepper.swift */,
+				41421F562AF32A92007C4CAC /* DataModel.swift */,
+				41421F542AF32A7F007C4CAC /* PhotoPicker.swift */,
+				41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */,
+				41421F5A2AF32AB7007C4CAC /* DetailView.swift */,
+				41421F622AF32AFA007C4CAC /* Item.swift */,
+				41421F5C2AF32ACD007C4CAC /* GridItemView.swift */,
 				050A8EF9296E738200C5C638 /* DatasetWriter.swift */,
+				41421F5E2AF32AE8007C4CAC /* FileManagerExtensions.swift */,
 				050A8EFB296E8B8E00C5C638 /* DDSWriter.swift */,
 			);
 			path = NeRFCapture;
@@ -259,16 +283,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41421F632AF32AFA007C4CAC /* Item.swift in Sources */,
 				C0C52AAA287EC2470011820F /* ARViewContainer.swift in Sources */,
 				050A8EFA296E738300C5C638 /* DatasetWriter.swift in Sources */,
 				C0C52A92287E7F940011820F /* ContentView.swift in Sources */,
 				C0C52AAE287EC33D0011820F /* AppState.swift in Sources */,
+				41421F592AF32AA7007C4CAC /* ColumnStepper.swift in Sources */,
 				0512301F29499F50003915D9 /* NeRFCaptureData.c in Sources */,
+				41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */,
 				C0C52AAC287EC26A0011820F /* Manifest.swift in Sources */,
 				C0C52A90287E7F940011820F /* AppDelegate.swift in Sources */,
+				41421F572AF32A92007C4CAC /* DataModel.swift in Sources */,
+				41421F5B2AF32AB7007C4CAC /* DetailView.swift in Sources */,
 				050A8EFC296E8B8E00C5C638 /* DDSWriter.swift in Sources */,
+				41421F5F2AF32AE8007C4CAC /* FileManagerExtensions.swift in Sources */,
+				41421F5D2AF32ACD007C4CAC /* GridItemView.swift in Sources */,
 				057A7AA82950092E000692A0 /* Shaders.metal in Sources */,
 				C0C52AA3287EC19A0011820F /* Utils.swift in Sources */,
+				41421F552AF32A7F007C4CAC /* PhotoPicker.swift in Sources */,
 				410290802ACE4097008ACF35 /* CustomARView.swift in Sources */,
 				C0C52AA8287EC2390011820F /* ARViewModel.swift in Sources */,
 			);

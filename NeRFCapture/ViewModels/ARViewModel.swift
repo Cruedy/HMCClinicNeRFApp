@@ -24,10 +24,13 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     var cancellables = Set<AnyCancellable>()
     let datasetWriter: DatasetWriter
     let ddsWriter: DDSWriter
+    var bBoxPosition: [[Float]]
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter
         self.ddsWriter = ddsWriter
+        self.bBoxPosition = [[-0.5, 0.5, -2], [0.5, 0.5, -2], [0.5, -0.5, -2], [-0.5, -0.5, -2],
+                             [-0.5, 0.5, -3], [0.5, 0.5, -3], [0.5, -0.5, -3], [-0.5, -0.5, -3]]
         super.init()
         self.setupObservers()
         self.ddsWriter.setupDDS()
@@ -108,12 +111,18 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             positions.append(SIMD3<Float>([corner[0], corner[1]-thickness, corner[2]]))
         }
         descr.positions = MeshBuffers.Positions(positions[0...7])
-        descr.primitives = .polygons([4, 4, 4, 4, 4, 4], [1, 2, 0, 3,  // front
+        descr.primitives = .polygons([4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [1, 2, 0, 3,  // front
+                                                          3, 0, 2, 1,
                                                           5, 6, 4, 7,  // back
+                                                          7, 4, 6 , 5,
                                                           2, 0, 4, 6,  // top
+                                                          6, 4, 0, 2,
                                                           2, 1, 5, 6,  // bottom
+                                                          6, 5, 1, 2,
                                                           0, 3, 7, 4,  // left
-                                                          1, 3, 7, 5]) // right
+                                                          4, 7, 3, 0,
+                                                          1, 3, 7, 5,
+                                                         5, 7, 3, 1]) // right
         
         return descr
         
@@ -126,14 +135,41 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                       [4, 0, 3, 7],  // left
                       [1, 5, 6, 2]]  // right
         var line_descrs: [MeshDescriptor] = []
-        for face in faces {
-            var point1 = 3
-            for point2 in 0...3 {
-                print([corners[face[point1]],corners[face[point2]]])
-                line_descrs.append(createLine(corners: [corners[face[point1]],corners[face[point2]]], thickness:thickness))
-                point1 = point2
-            }
-        }
+        let top_left_front = corners[0]
+        let top_right_front = corners[1]
+        let bottom_right_front = corners[2]
+        let bottom_left_front = corners[3]
+        let top_left_back = corners[4]
+        let top_right_back = corners[5]
+        let bottom_right_back = corners[6]
+        let bottom_left_back = corners[7]
+
+        
+        line_descrs.append(createLine(corners: [top_left_front, top_right_front], thickness: thickness))
+        line_descrs.append(createLine(corners: [bottom_left_front, bottom_right_front], thickness: thickness))
+        line_descrs.append(createLine(corners: [top_left_front, bottom_left_front], thickness: thickness))
+        line_descrs.append(createLine(corners: [top_right_front, bottom_right_front], thickness: thickness))
+        
+        line_descrs.append(createLine(corners: [top_left_back, top_right_back], thickness: thickness))
+        line_descrs.append(createLine(corners: [bottom_left_back, bottom_right_back], thickness: thickness))
+        line_descrs.append(createLine(corners: [top_left_back, bottom_left_back], thickness: thickness))
+        line_descrs.append(createLine(corners: [top_right_back, bottom_right_back], thickness: thickness))
+//        
+        line_descrs.append(createLine(corners: [top_left_back, top_left_front], thickness: thickness))
+        line_descrs.append(createLine(corners: [bottom_left_back, bottom_left_front], thickness: thickness))
+        line_descrs.append(createLine(corners: [top_right_front, top_right_back], thickness: thickness))
+        line_descrs.append(createLine(corners: [bottom_right_front, bottom_right_back], thickness: thickness))
+
+        
+        
+//        for face in faces {
+//            var point1 = 3
+//            for point2 in 0...3 {
+//                print([corners[face[point1]],corners[face[point2]]])
+//                line_descrs.append(createLine(corners: [corners[face[point1]],corners[face[point2]]], thickness:thickness))
+//                point1 = point2
+//            }
+//        }
         return line_descrs
         
 //        var positions: [SIMD3<Float>] = []
@@ -169,11 +205,18 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 //        return descr
     }
     
+    func translate() {
+    
+    }
+    
     func addNewBoxToScene() -> AnchorEntity{
         guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
         let worldOriginAnchor = AnchorEntity(world:.zero)
-        let positions: [[Float]] = [[-0.5, -0.5, -2], [0.5, -0.5, -2], [0.5, 0.5, -2], [-0.5, 0.5, -2],
-                                         [-0.5, -0.5, -3], [0.5, -0.5, -3], [0.5, 0.5, -3], [-0.5, 0.5, -3]]
+//        let positions: [[Float]] = [[-0.5, -0.5, -2], [0.5, -0.5, -2], [0.5, 0.5, -2], [-0.5, 0.5, -2],
+//                                         [-0.5, -0.5, -3], [0.5, -0.5, -3], [0.5, 0.5, -3], [-0.5, 0.5, -3]]
+        
+//        let positions: [[Float]] = [[-0.5, 0.5, -2], [0.5, 0.5, -2], [0.5, -0.5, -2], [-0.5, -0.5, -2],
+//                                    [-0.5, 0.5, -3], [0.5, 0.5, -3], [0.5, -0.5, -3], [-0.5, -0.5, -3]]
 //        let colors: [Material.Color] = [.red, .white, .blue, .green]
 //        
 //        var descr = MeshDescriptor(name: "cube")
@@ -197,7 +240,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 //                                                          0, 1, 5, 4,  // bottom
 //                                                          4, 0, 3, 7,  // left
 //                                                          1, 5, 6, 2]) // right
-        var descrs = createBoundingBox(corners: positions, thickness: 0.1)
+        var descrs = createBoundingBox(corners: bBoxPosition, thickness: 0.01)
 //        var descr = createLine(corners: [[-0.5, -0.5, -2], [0.5, -0.5, -2]], thickness: 0.01)
         for descr in descrs {
             let material = SimpleMaterial(color: .orange, isMetallic: false)

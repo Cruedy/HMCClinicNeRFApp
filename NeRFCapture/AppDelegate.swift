@@ -8,11 +8,12 @@
 import UIKit
 import SwiftUI
 
+@available(iOS 16.0, *)
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var view: ContentView?
+    var view: ContentViewSwitcher?
     
     var appSettings = AppSettings()
     var datasetWriter = DatasetWriter()
@@ -22,7 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Create the SwiftUI view that provides the window contents.
         let viewModel = ARViewModel(datasetWriter: datasetWriter, ddsWriter: ddsWriter)
-        let contentView = ContentView(viewModel: viewModel)
+        // let contentView = ContentView(viewModel: viewModel)
+        let contentView = ContentViewSwitcher(viewModel: viewModel)
 
         // Use a UIHostingController as window root view controller.
         let window = UIWindow(frame: UIScreen.main.bounds)

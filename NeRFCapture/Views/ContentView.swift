@@ -9,11 +9,12 @@ import SwiftUI
 import ARKit
 import RealityKit
 
-
 struct ContentView : View {
     @StateObject private var viewModel: ARViewModel
     @State private var showSheet: Bool = false
     @State public var boxVisible: Bool = false
+    @State public var moveLeft: Bool = false
+    @State public var moveRight: Bool = false
 
     
     init(viewModel vm: ARViewModel) {
@@ -23,7 +24,7 @@ struct ContentView : View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {
@@ -82,6 +83,22 @@ struct ContentView : View {
             }
             VStack {
                 Spacer()
+                HStack(spacing: 20) {
+                    Button("Left") {
+                        
+                        moveLeft = true
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                            moveLeft = false
+                        }
+                    }
+                    Button("Right") {
+                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+                        moveRight = true
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                            moveRight = false
+                        }
+                    }
+                }
                 HStack(spacing: 20) {
                     if case .Online = viewModel.appState.appMode {
                         Spacer()
@@ -180,6 +197,106 @@ struct ContentView : View {
                 .padding()
             }
             .preferredColorScheme(.dark)
+        }
+    }
+}
+
+struct ContentView2 : View {
+    @EnvironmentObject var dataModel: DataModel
+
+    private static let initialColumns = 3
+    @State private var isAddingPhoto = false // This is where user retakes the photo
+    @State private var isEditing = false // This is where the user removes photos
+
+    @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
+    @State private var numColumns = initialColumns
+    
+    private var columnsTitle: String {
+        gridColumns.count > 1 ? "\(gridColumns.count) Columns" : "1 Column"
+    }
+    
+    var body: some View {
+        VStack {
+            if isEditing {
+                ColumnStepper(title: columnsTitle, range: 1...8, columns: $gridColumns)
+                .padding()
+            }
+            ScrollView {
+                LazyVGrid(columns: gridColumns) {
+                    ForEach(dataModel.items) { item in
+                        GeometryReader { geo in
+                            NavigationLink(destination: DetailView(item: item)) {
+                                GridItemView(size: geo.size.width, item: item)
+                            }
+                        }
+                        .cornerRadius(8.0)
+                        .aspectRatio(1, contentMode: .fit)
+                        .overlay(alignment: .topTrailing) {
+                            if isEditing {
+                                Button {
+                                    withAnimation {
+                                        dataModel.removeItem(item)
+                                    }
+                                } label: {
+                                    Image(systemName: "xmark.square.fill")
+                                                .font(Font.title)
+                                                .symbolRenderingMode(.palette)
+                                                .foregroundStyle(.white, .red)
+                                }
+                                .offset(x: 7, y: -7)
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+        .navigationBarTitle("Image Gallery")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isAddingPhoto) {
+            PhotoPicker()
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(isEditing ? "Done" : "Edit") {
+                    withAnimation { isEditing.toggle() }
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(isEditing ? "" : "Retake"){
+                    isAddingPhoto = true
+                }
+                // .disabled(isEditing)
+            }
+        }
+    }
+}
+
+@available(iOS 16.0, *)
+struct ContentViewSwitcher: View {
+    @StateObject private var viewModel: ARViewModel
+    @State private var showContentView1 = true
+    @StateObject var dataModel = DataModel()
+    
+    init(viewModel vm: ARViewModel) {
+        _viewModel = StateObject(wrappedValue: vm)
+    }
+    
+    var body: some View {
+        VStack {
+            if showContentView1 {
+                ContentView(viewModel: viewModel)
+            } else {
+                NavigationStack {
+                    ContentView2()
+                }
+                .environmentObject(dataModel)
+                .navigationViewStyle(.stack)
+            }
+            
+            Button("Switch View") {
+                showContentView1.toggle()
+            }
         }
     }
 }

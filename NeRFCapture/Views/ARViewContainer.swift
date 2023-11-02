@@ -12,12 +12,16 @@ import ARKit
 struct ARViewContainer: UIViewRepresentable {
     @ObservedObject var viewModel: ARViewModel
     @Binding var boxVisible: Bool
+    @Binding var moveLeft: Bool
+    @Binding var moveRight: Bool
 
 
     
-    init(vm: ARViewModel, bv: Binding<Bool>) {
+    init(vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>) {
         viewModel = vm
         _boxVisible = bv
+        _moveLeft = ml
+        _moveRight = mr
     }
     
     func makeUIView(context: Context) -> ARView {
@@ -59,6 +63,13 @@ struct ARViewContainer: UIViewRepresentable {
         } else {
             print("nothing")
             uiView.scene.anchors.removeAll()
+        }
+        
+        if (moveLeft) {
+            print("should move left")
+        }
+        if(moveRight){
+            print("should move right")
         }
         
     }

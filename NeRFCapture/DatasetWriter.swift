@@ -90,6 +90,8 @@ class DatasetWriter {
             .appendingPathComponent(projectName)
             .appendingPathComponent("transforms.json")
         
+        print(manifest_path)
+        
         writeManifestToPath(path: manifest_path)
         DispatchQueue.global().async {
             do {
