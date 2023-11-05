@@ -48,7 +48,7 @@ struct ContentView : View {
                         HStack() {
                             Spacer()
                             Picker("Mode", selection: $viewModel.appState.appMode) {
-                                Text("Online").tag(AppMode.Online)
+                                // Text("Online").tag(AppMode.Online)
                                 Text("Offline").tag(AppMode.Offline)
                             }
                             .frame(maxWidth: 200)
@@ -65,9 +65,9 @@ struct ContentView : View {
                         
                         VStack(alignment:.leading) {
                             Text("\(viewModel.appState.trackingState)")
-                            if case .Online = viewModel.appState.appMode {
-                                Text("\(viewModel.appState.ddsPeers) Connection(s)")
-                            }
+//                            if case .Online = viewModel.appState.appMode {
+//                                Text("\(viewModel.appState.ddsPeers) Connection(s)")
+//                            }
                             if case .Offline = viewModel.appState.appMode {
                                 if case .SessionStarted = viewModel.appState.writerState {
                                     Text("\(viewModel.datasetWriter.currentFrameCounter) Frames")
@@ -100,50 +100,62 @@ struct ContentView : View {
                     }
                 }
                 HStack(spacing: 20) {
-                    if case .Online = viewModel.appState.appMode {
-                        Spacer()
-                        Button(action: {
-                            print("Before: \(boxVisible)")
-                            boxVisible.toggle()
-                            print("After: \(boxVisible)")
-                        }) {
-                            Text("Trigger Update 2")
-                                .padding(.horizontal,20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
-//                        .onChange(of: triggerUpdate) { triggerUpdate in
-//                            $viewModel.triggerUpdate = triggerUpdate
-//                             }
-                        
-                        Button(action: {
-                            print("reset cheat Before: \(boxVisible)")
-                            viewModel.resetWorldOrigin()
-                        }) {
-                            Text("Reset")
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
-                        Button(action: {
-                            if let frame = viewModel.session?.currentFrame {
-                                viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-                            }
-                        }) {
-                            Text("Send")
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.capsule)
-                    }
+//                    if case .Online = viewModel.appState.appMode {
+//                        Spacer()
+//                        Button(action: {
+//                            print("Before: \(boxVisible)")
+//                            boxVisible.toggle()
+//                            print("After: \(boxVisible)")
+//                        }) {
+//                            Text("Trigger Update 2")
+//                                .padding(.horizontal,20)
+//                                .padding(.vertical, 5)
+//                        }
+//                        .buttonStyle(.bordered)
+//                        .buttonBorderShape(.capsule)
+////                        .onChange(of: triggerUpdate) { triggerUpdate in
+////                            $viewModel.triggerUpdate = triggerUpdate
+////                             }
+//                        
+//                        Button(action: {
+//                            print("reset cheat Before: \(boxVisible)")
+//                            viewModel.resetWorldOrigin()
+//                        }) {
+//                            Text("Reset")
+//                                .padding(.horizontal, 20)
+//                                .padding(.vertical, 5)
+//                        }
+//                        .buttonStyle(.bordered)
+//                        .buttonBorderShape(.capsule)
+//                        Button(action: {
+//                            if let frame = viewModel.session?.currentFrame {
+//                                viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+//                            }
+//                        }) {
+//                            Text("Send")
+//                                .padding(.horizontal, 20)
+//                                .padding(.vertical, 5)
+//                        }
+//                        .buttonStyle(.borderedProminent)
+//                        .buttonBorderShape(.capsule)
+//                    }
                     if case .Offline = viewModel.appState.appMode {
                         if viewModel.appState.writerState == .SessionNotStarted {
                             Spacer()
+                            Button(action: {
+                                print("Before: \(boxVisible)")
+                                boxVisible.toggle()
+                                print("After: \(boxVisible)")
+                            }) {
+                                Text("Trigger Update 2")
+                                    .padding(.horizontal,20)
+                                    .padding(.vertical, 5)
+                            }
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
                             
                             Button(action: {
+                                print("reset cheat Before: \(boxVisible)")
                                 viewModel.resetWorldOrigin()
                             }) {
                                 Text("Reset")
@@ -152,6 +164,29 @@ struct ContentView : View {
                             }
                             .buttonStyle(.bordered)
                             .buttonBorderShape(.capsule)
+                            
+                            Button(action: {
+                                    if let frame = viewModel.session?.currentFrame {
+                                        viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+                                    }
+                                }) {
+                                    Text("Send")
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 5)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .buttonBorderShape(.capsule)
+                            }
+                            
+//                            Button(action: {
+//                                viewModel.resetWorldOrigin()
+//                            }) {
+//                                Text("Reset")
+//                                    .padding(.horizontal, 20)
+//                                    .padding(.vertical, 5)
+//                            }
+//                            .buttonStyle(.bordered)
+//                            .buttonBorderShape(.capsule)
                             
                             Button(action: {
                                 do {
@@ -199,7 +234,7 @@ struct ContentView : View {
             .preferredColorScheme(.dark)
         }
     }
-}
+
 
 struct ContentView2 : View {
     @EnvironmentObject var dataModel: DataModel
@@ -262,12 +297,12 @@ struct ContentView2 : View {
                     withAnimation { isEditing.toggle() }
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(isEditing ? "" : "Retake"){
-                    isAddingPhoto = true
-                }
-                // .disabled(isEditing)
-            }
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                Button(isEditing ? "" : "Retake"){
+//                    isAddingPhoto = true
+//                }
+//                // .disabled(isEditing)
+//            }
         }
     }
 }
@@ -286,17 +321,23 @@ struct ContentViewSwitcher: View {
         VStack {
             if showContentView1 {
                 ContentView(viewModel: viewModel)
+                Button("Swatch") {
+                    showContentView1.toggle()
+                }
             } else {
                 NavigationStack {
                     ContentView2()
                 }
                 .environmentObject(dataModel)
                 .navigationViewStyle(.stack)
+                Button("Retake") {
+                    showContentView1.toggle()
+                }
             }
             
-            Button("Switch View") {
-                showContentView1.toggle()
-            }
+//            Button("Switch View") {
+//                showContentView1.toggle()
+//            }
         }
     }
 }

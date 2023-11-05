@@ -10,12 +10,13 @@ import Metal
 import MetalKit
 
 enum AppMode: Int, Codable {
-    case Online
+    // case Online
     case Offline
 }
 
 struct AppState {
-    var appMode: AppMode = .Online
+    // var appMode: AppMode = .Online
+    var appMode: AppMode = .Offline
     var writerState: DatasetWriter.SessionState = .SessionNotStarted
     
     var trackingState = ""
@@ -30,7 +31,8 @@ struct AppState {
 
 struct AppSettings: Codable {
     var zipDataset = true
-    var startingAppMode = AppMode.Online
+    // var startingAppMode = AppMode.Online
+    var statingAppMode = AppMode.Offline
 }
 
 

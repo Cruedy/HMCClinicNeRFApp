@@ -52,10 +52,10 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 
 //                    self.appState.stream = false
                     print("Changed to offline")
-                case .Online:
-                    os_log("This is a default log message")
-
-                    print("Changed to online")
+//                case .Online:
+//                    os_log("This is a default log message")
+//
+//                    print("Changed to online")
                 }
             }
             .store(in: &cancellables)
