@@ -204,10 +204,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 //        descr.primitives = .polygons(groupings, orderings)
 //        return descr
     }
-    
-    func translate() {
-    
-    }
+
     
     func addNewBoxToScene() -> AnchorEntity{
         guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
