@@ -90,6 +90,7 @@ class DatasetWriter {
             .appendingPathComponent(projectName)
             .appendingPathComponent("transforms.json")
         
+        print("this is the path")
         print(manifest_path)
         
         writeManifestToPath(path: manifest_path)
