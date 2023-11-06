@@ -12,7 +12,7 @@ struct ImageGalleryApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                ContentView2()
+                GridView()
             }
             .environmentObject(dataModel)
             .navigationViewStyle(.stack)
