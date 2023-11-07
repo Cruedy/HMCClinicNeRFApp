@@ -56,7 +56,10 @@ struct ARViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: ARView, context: Context) {
         if (boxVisible) {
             print("something changed OMG!")
-            let worldOriginAnchor = viewModel.addNewBoxToScene()
+            let boundingbox = BoundingBox(center: [0,0,0])
+            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+            
+//            let worldOriginAnchor = viewModel.addNewBoxToScene()
             uiView.scene.anchors.append(worldOriginAnchor)
 //            let boxAnchor = viewModel.addBoxToScene()
 //            uiView.scene.anchors.append(boxAnchor)
