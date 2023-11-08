@@ -23,6 +23,7 @@
 		41421F5F2AF32AE8007C4CAC /* FileManagerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F5E2AF32AE8007C4CAC /* FileManagerExtensions.swift */; };
 		41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */; };
 		41421F632AF32AFA007C4CAC /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F622AF32AFA007C4CAC /* Item.swift */; };
+		41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F642AF86401007C4CAC /* BoundingBox.swift */; };
 		C0C52A90287E7F940011820F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C52A8F287E7F940011820F /* AppDelegate.swift */; };
 		C0C52A92287E7F940011820F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C52A91287E7F940011820F /* ContentView.swift */; };
 		C0C52A96287E7F960011820F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0C52A95287E7F960011820F /* Assets.xcassets */; };
@@ -65,6 +66,7 @@
 		41421F5E2AF32AE8007C4CAC /* FileManagerExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileManagerExtensions.swift; sourceTree = "<group>"; };
 		41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryApp.swift; sourceTree = "<group>"; };
 		41421F622AF32AFA007C4CAC /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		41421F642AF86401007C4CAC /* BoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBox.swift; sourceTree = "<group>"; };
 		C0C52A8C287E7F940011820F /* NeRFCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NeRFCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0C52A8F287E7F940011820F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C0C52A91287E7F940011820F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				C0C52AA5287EC2040011820F /* Views */,
 				C0C52AA4287EC1FA0011820F /* ViewModels */,
 				C0C52A8F287E7F940011820F /* AppDelegate.swift */,
+				41421F642AF86401007C4CAC /* BoundingBox.swift */,
 				C0C52AA2287EC19A0011820F /* Utils.swift */,
 				C0C52A95287E7F960011820F /* Assets.xcassets */,
 				C0C52A97287E7F960011820F /* Preview Content */,
@@ -292,6 +295,7 @@
 				0512301F29499F50003915D9 /* NeRFCaptureData.c in Sources */,
 				41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */,
 				C0C52AAC287EC26A0011820F /* Manifest.swift in Sources */,
+				41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */,
 				C0C52A90287E7F940011820F /* AppDelegate.swift in Sources */,
 				41421F572AF32A92007C4CAC /* DataModel.swift in Sources */,
 				41421F5B2AF32AB7007C4CAC /* DetailView.swift in Sources */,
