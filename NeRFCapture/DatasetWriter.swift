@@ -83,7 +83,7 @@ class DatasetWriter {
             }
         }
     }
-    
+     
     func finalizeProject(zip: Bool = true) {
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
