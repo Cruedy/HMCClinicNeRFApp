@@ -1,5 +1,5 @@
 //
-//  TakingImagesView.swift
+//  originalContentView.swift
 //  NeRFCapture
 //
 //  Created by Rin Ha on 11/8/23.
@@ -9,7 +9,7 @@ import SwiftUI
 import ARKit
 import RealityKit
 
-struct TakingImagesView: View {
+struct originalContentView: View {
     @StateObject private var viewModel: ARViewModel
     @State private var showSheet: Bool = false
     @State public var boxVisible: Bool = false
@@ -234,3 +234,11 @@ struct TakingImagesView: View {
             .preferredColorScheme(.dark)
         }
 }
+#if DEBUG
+struct originalContentView_Previews : PreviewProvider {
+    static var previews: some View {
+        originalContentView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()))
+            .previewInterfaceOrientation(.portrait)
+    }
+}
+#endif
