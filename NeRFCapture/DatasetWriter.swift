@@ -89,9 +89,9 @@ class DatasetWriter {
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
             .appendingPathComponent("transforms.json")
-        
-        print("this is the path")
-        print(manifest_path)
+
+        if let documentDirectory = FileManager.default.documentDirectory {
+            let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }}
         
         writeManifestToPath(path: manifest_path)
         DispatchQueue.global().async {
