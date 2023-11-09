@@ -215,6 +215,7 @@ struct originalContentView: View {
 //                            }
 //                            .buttonStyle(.bordered)
 //                            .buttonBorderShape(.capsule)
+                            
                             Button(action: {
                                 if let frame = viewModel.session?.currentFrame {
                                     viewModel.datasetWriter.writeFrameToDisk(frame: frame)

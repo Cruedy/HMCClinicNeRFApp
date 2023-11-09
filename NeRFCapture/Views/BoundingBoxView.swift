@@ -11,6 +11,7 @@ import RealityKit
 
 struct BoundingBoxView: View {
     @StateObject private var viewModel: ARViewModel
+    @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
@@ -32,7 +33,7 @@ struct BoundingBoxView: View {
                             Picker("Mode", selection: $viewModel.appState.appMode) {
                                 Text("Offline").tag(AppMode.Offline)
                             }
-                            .navigationBarHidden(true) // prevents navigation bar from being shown in this view
+                            .navigationBarBackButtonHidden(true) // prevents navigation bar from being shown in this view
                             .frame(maxWidth: 200)
                             .padding(0)
                             .pickerStyle(.segmented)
@@ -94,44 +95,9 @@ struct BoundingBoxView: View {
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
                         
-//                        Button(action: {
-//                            print("reset cheat Before: \(boxVisible)")
-//                            viewModel.resetWorldOrigin()
-//                        }) {
-//                            Text("Reset")
-//                                .padding(.horizontal, 20)
-//                                .padding(.vertical, 5)
-//                        }
-//                        .buttonStyle(.bordered)
-//                        .buttonBorderShape(.capsule)
-                        
-//                        Button(action: {
-//                                if let frame = viewModel.session?.currentFrame {
-//                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-//                                }
-//                            }) {
-//                                Text("Send")
-//                                    .padding(.horizontal, 20)
-//                                    .padding(.vertical, 5)
-//                            }
-//                            .buttonStyle(.borderedProminent)
-//                            .buttonBorderShape(.capsule)
                     }
-                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel))
-//                    Button(action: {
-//                        do {
-//                            try viewModel.datasetWriter.initializeProject()
-//                        }
-//                        catch {
-//                            print("\(error)")
-//                        }
-//                    }) {
-//                        Text("Next")
-//                            .padding(.horizontal, 20)
-//                            .padding(.vertical, 5)
-//                    }
-//                    .buttonStyle(.borderedProminent)
-//                    .buttonBorderShape(.capsule)
+//                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel)
+//                        .navigationViewStyle(.stack)
                 }
                         
                 if viewModel.appState.writerState == .SessionStarted {
@@ -152,6 +118,14 @@ struct BoundingBoxView: View {
             .padding()
         }
         .preferredColorScheme(.dark)
+        .navigationBarTitle("Create Bounding Box")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel)
+                                .navigationViewStyle(.stack)
+            }
+        }
     }
 }
 

@@ -56,13 +56,16 @@ struct GridView : View {
                 }
                 .padding()
             }
-            Button(action: {
-                
-            }) {
-                Text("Done")
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 5)
-            }
+//            Button(action: {
+//
+//            }) {
+//                Text("Next")
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 5)
+//            }
+            NavigationLink("Next", destination: SendImagesToServerView())
+                .padding(.horizontal, 20)
+                .padding(.vertical, 5)
         }
         .navigationBarTitle("Image Gallery")
         .navigationBarTitleDisplayMode(.inline)
@@ -70,18 +73,13 @@ struct GridView : View {
             PhotoPicker()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "Done" : "Edit") {
                     withAnimation { isEditing.toggle() }
                 }
             }
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                Button(isEditing ? "" : "Retake"){
-//                    isAddingPhoto = true
-//                }
-//                // .disabled(isEditing)
-//            }
         }
+        
     }
 }
 

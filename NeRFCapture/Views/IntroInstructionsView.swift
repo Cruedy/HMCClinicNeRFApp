@@ -9,16 +9,24 @@ import SwiftUI
 
 struct IntroInstructionsView: View {
     @StateObject private var viewModel: ARViewModel
+    @StateObject var dataModel = DataModel()
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Intro Instructions")
-                NavigationLink("Go to Make Bounding Box", destination: BoundingBoxView(viewModel: viewModel))
+        VStack{
+            Text("How to Use App")
+
+        }
+        .preferredColorScheme(.dark)
+        .navigationBarTitle("Intro Instructions")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)
+                                .navigationViewStyle(.stack)
             }
         }
     }

@@ -11,10 +11,10 @@ import RealityKit
 
 struct TakingImagesView: View {
     @StateObject private var viewModel: ARViewModel
+    @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
-    @State public var boxVisible: Bool = false
-    @State public var moveLeft: Bool = false
-    @State public var moveRight: Bool = false
+    @State private var isLinkActive = false
+    @State private var showNavigationLink = false // Set this variable to control visibility
 
     
     init(viewModel vm: ARViewModel) {
@@ -24,33 +24,15 @@ struct TakingImagesView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
+//                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {
-//                            Button() {
-//                                showSheet.toggle()
-//                            } label: {
-//                                Image(systemName: "gearshape.fill")
-//                                    .imageScale(.large)
-//                            }
-//                            .padding(.leading, 16)
-//                            .buttonStyle(.borderless)
-//                            .sheet(isPresented: $showSheet) {
-//                                VStack() {
-//                                    Text("Settings")
-//                                    Spacer()
-//                                }
-//                                .presentationDetents([.medium])
-//                            }
-//                            Spacer()
-                        }
-                        HStack() {
                             Spacer()
                             Picker("Mode", selection: $viewModel.appState.appMode) {
-                                // Text("Online").tag(AppMode.Online)
                                 Text("Offline").tag(AppMode.Offline)
                             }
+                            .navigationBarBackButtonHidden(true) // prevents navigation bar from being shown in this view
                             .frame(maxWidth: 200)
                             .padding(0)
                             .pickerStyle(.segmented)
@@ -65,9 +47,7 @@ struct TakingImagesView: View {
                         
                         VStack(alignment:.leading) {
                             Text("\(viewModel.appState.trackingState)")
-//                            if case .Online = viewModel.appState.appMode {
-//                                Text("\(viewModel.appState.ddsPeers) Connection(s)")
-//                            }
+
                             if case .Offline = viewModel.appState.appMode {
                                 if case .SessionStarted = viewModel.appState.writerState {
                                     Text("\(viewModel.datasetWriter.currentFrameCounter) Frames")
@@ -83,154 +63,103 @@ struct TakingImagesView: View {
             }
             VStack {
                 Spacer()
-                HStack(spacing: 20) {
-                    Button("Left") {
-                        
-                        moveLeft = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveLeft = false
-                        }
-                    }
-                    Button("Right") {
-                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-                        moveRight = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveRight = false
-                        }
-                    }
-                }
-                HStack(spacing: 20) {
-//                    if case .Online = viewModel.appState.appMode {
-//                        Spacer()
-//                        Button(action: {
-//                            print("Before: \(boxVisible)")
-//                            boxVisible.toggle()
-//                            print("After: \(boxVisible)")
-//                        }) {
-//                            Text("Trigger Update 2")
-//                                .padding(.horizontal,20)
-//                                .padding(.vertical,
-//                        .buttonStyle(.bordered)
-//                        .buttonBorderShape(.capsule)
-////                        .onChange(of: triggerUpdate) { triggerUpdate in
-////                            $viewModel.triggerUpdate = triggerUpdate
-////                             }
+//                HStack(spacing: 20) {
+//                    Button("Left") {
 //
-//                        Button(action: {
-//                            print("reset cheat Before: \(boxVisible)")
-//                            viewModel.resetWorldOrigin()
-//                        }) {
-//                            Text("Reset")
-//                                .padding(.horizontal, 20)
-//                                .padding(.vertical, 5)
+//                        moveLeft = true
+//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+//                            moveLeft = false
 //                        }
-//                        .buttonStyle(.bordered)
-//                        .buttonBorderShape(.capsule)
-//                        Button(action: {
-//                            if let frame = viewModel.session?.currentFrame {
-//                                viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-//                            }
-//                        }) {
-//                            Text("Send")
-//                                .padding(.horizontal, 20)
-//                                .padding(.vertical, 5)
-//                        }
-//                        .buttonStyle(.borderedProminent)
-//                        .buttonBorderShape(.capsule)
 //                    }
-                    if case .Offline = viewModel.appState.appMode {
-                        if viewModel.appState.writerState == .SessionNotStarted {
-                            Spacer()
-                            Button(action: {
-                                print("Before: \(boxVisible)")
-                                boxVisible.toggle()
-                                print("After: \(boxVisible)")
-                            }) {
-                                Text("Trigger Update 2")
-                                    .padding(.horizontal,20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.bordered)
-                            .buttonBorderShape(.capsule)
-                            
-                            Button(action: {
-                                print("reset cheat Before: \(boxVisible)")
-                                viewModel.resetWorldOrigin()
-                            }) {
-                                Text("Reset")
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.bordered)
-                            .buttonBorderShape(.capsule)
-                            
-                            Button(action: {
-                                    if let frame = viewModel.session?.currentFrame {
-                                        viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-                                    }
-                                }) {
-                                    Text("Send")
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 5)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .buttonBorderShape(.capsule)
-                            }
-                            
-//                            Button(action: {
-//                                viewModel.resetWorldOrigin()
-//                            }) {
-//                                Text("Reset")
-//                                    .padding(.horizontal, 20)
-//                                    .padding(.vertical, 5)
-//                            }
-//                            .buttonStyle(.bordered)
-//                            .buttonBorderShape(.capsule)
-                            
-                            Button(action: {
-                                do {
-                                    try viewModel.datasetWriter.initializeProject()
-                                }
-                                catch {
-                                    print("\(error)")
-                                }
-                            }) {
-                                Text("Start")
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .buttonBorderShape(.capsule)
-                        }
+//                    Button("Right") {
+//                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+//                        moveRight = true
+//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+//                            moveRight = false
+//                        }
+//                    }
+//                }
+                if case .Offline = viewModel.appState.appMode {
+                    if viewModel.appState.writerState == .SessionNotStarted {
+                        Spacer()
                         
-                        if viewModel.appState.writerState == .SessionStarted {
-                            Spacer()
-//                            Spacer()
-//                            Button(action: {
-//                                viewModel.datasetWriter.finalizeProject()
+                        Button(action: {
+                            viewModel.resetWorldOrigin()
+                        }) {
+                            Text("Reset")
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        
+                        Button(action: {
+                            do {
+                                try viewModel.datasetWriter.initializeProject()
+                            }
+                            catch {
+                                print("\(error)")
+                            }
+                        }) {
+                            Text("Start")
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        
+//                        Button(action: {
+//                                if let frame = viewModel.session?.currentFrame {
+//                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+//                                }
 //                            }) {
-//                                Text("End")
+//                                Text("Send")
 //                                    .padding(.horizontal, 20)
 //                                    .padding(.vertical, 5)
 //                            }
-//                            .buttonStyle(.bordered)
+//                            .buttonStyle(.borderedProminent)
 //                            .buttonBorderShape(.capsule)
-                            Button(action: {
-                                if let frame = viewModel.session?.currentFrame {
-                                    viewModel.datasetWriter.writeFrameToDisk(frame: frame)
-                                }
-                            }) {
-                                Text("Save Frame")
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .buttonBorderShape(.capsule)
-                        }
+                        
+//                        NavigationLink("Next", destination: GridView()).environmentObject(dataModel)
+//                                        .navigationViewStyle(.stack)
                     }
                 }
-                .padding()
+                        
+                if viewModel.appState.writerState == .SessionStarted {
+                    Spacer()
+                    Button(action: {
+                        viewModel.datasetWriter.finalizeProject()
+                    }) {
+                        Text("End")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    
+                    Button(action: {
+                        if let frame = viewModel.session?.currentFrame {
+                            viewModel.datasetWriter.writeFrameToDisk(frame: frame)
+                        }
+                    }) {
+                        Text("Save Frame")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.capsule)
+                }
             }
-            .preferredColorScheme(.dark)
+            .padding()
         }
+        .preferredColorScheme(.dark)
+        .navigationBarTitle("Take Images")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink("Next", destination: GridView()).environmentObject(dataModel)
+                                .navigationViewStyle(.stack)
+            }
+        }
+    }
 }
