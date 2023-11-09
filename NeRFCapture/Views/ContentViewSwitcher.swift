@@ -1,8 +1,8 @@
 //
-//  ContentViewSwitcher.swift
+//  GridView.swift
 //  NeRFCapture
 //
-//  Created by Rin Ha on 11/5/23.
+//  Created by Clinic on 11/8/23.
 //
 
 import SwiftUI
