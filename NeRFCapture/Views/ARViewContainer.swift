@@ -14,7 +14,7 @@ struct ARViewContainer: UIViewRepresentable {
     @Binding var boxVisible: Bool
     @Binding var moveLeft: Bool
     @Binding var moveRight: Bool
-
+    let boundingbox = BoundingBox(center: [0,0,0])
 
     
     init(vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>) {
@@ -56,7 +56,8 @@ struct ARViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: ARView, context: Context) {
         if (boxVisible) {
             print("something changed OMG!")
-            let boundingbox = BoundingBox(center: [0,0,0])
+            boundingbox.update_center([0.1,0.1,0.1])
+//            boundingbox.update_scale([0.5, 0.5, 0.5])
             let worldOriginAnchor = boundingbox.addNewBoxToScene()
             
 //            let worldOriginAnchor = viewModel.addNewBoxToScene()
@@ -69,9 +70,17 @@ struct ARViewContainer: UIViewRepresentable {
         }
         
         if (moveLeft) {
+            boundingbox.update_center(([0,-1,0]))
+            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+            uiView.scene.anchors.append(worldOriginAnchor)
+
             print("should move left")
         }
         if(moveRight){
+            boundingbox.update_center(([0,1,0]))
+            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+            uiView.scene.anchors.append(worldOriginAnchor)
+            
             print("should move right")
         }
         

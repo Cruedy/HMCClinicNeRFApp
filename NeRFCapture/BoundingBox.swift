@@ -11,6 +11,8 @@ import RealityKit
 class BoundingBox {
     var center: [Float] = []
     var positions: [[Float]] = []
+    var rot_z = 0 // in radians
+    var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
         
 //        [[-0.5, 0.5, -2], [0.5, 0.5, -2], [0.5, -0.5, -2], [-0.5, -0.5, -2],
@@ -26,14 +28,14 @@ class BoundingBox {
     }
     
     func pos_from_center(_ point:[Float]) -> [[Float]]{
-        var top_left_front = pairwise_add(point, [-1, 1, -1])
-        var top_right_front = pairwise_add(point, [1, 1, -1])
-        var bot_right_front = pairwise_add(point, [1, -1, -1])
-        var bot_left_front = pairwise_add(point, [-1, -1, -1])
-        var top_left_back = pairwise_add(point, [-1, 1, 1])
-        var top_right_back = pairwise_add(point, [1, 1, 1])
-        var bot_right_back = pairwise_add(point, [1, -1, 1])
-        var bot_left_back = pairwise_add(point, [-1, -1, 1])
+        var top_left_front = pairwise_add(point, [-1*scale[0], 1*scale[1], -1*scale[2]])
+        var top_right_front = pairwise_add(point, [1*scale[0], 1*scale[1], -1*scale[2]])
+        var bot_right_front = pairwise_add(point, [1*scale[0], -1*scale[1], -1*scale[2]])
+        var bot_left_front = pairwise_add(point, [-1*scale[0], -1*scale[1], -1*scale[2]])
+        var top_left_back = pairwise_add(point, [-1*scale[0], 1*scale[1], 1*scale[2]])
+        var top_right_back = pairwise_add(point, [1*scale[0], 1*scale[1], 1*scale[2]])
+        var bot_right_back = pairwise_add(point, [1*scale[0], -1*scale[1], 1*scale[2]])
+        var bot_left_back = pairwise_add(point, [-1*scale[0], -1*scale[1], 1*scale[2]])
         return [top_left_front, top_right_front, bot_right_front, bot_left_front,
                 top_left_back,  top_right_back,  bot_right_back,  bot_left_back]
     }
@@ -43,6 +45,15 @@ class BoundingBox {
         var result: [Float] = []
         for i in 0...a.count-1 {
             result.append(a[i]+b[i])
+        }
+        return result
+    }
+    
+    func pairwise_mult(_ a: [Float], _ b: [Float]) -> [Float] {
+        assert(a.count == b.count)
+        var result: [Float] = []
+        for i in 0...a.count-1 {
+            result.append(a[i]*b[i])
         }
         return result
     }
@@ -115,7 +126,7 @@ class BoundingBox {
     func addNewBoxToScene() -> AnchorEntity{
 //        guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
         let worldOriginAnchor = AnchorEntity(world:.zero)
-
+        self.positions = self.pos_from_center(self.center)
         var descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
         for descr in descrs {
             let material = SimpleMaterial(color: .orange, isMetallic: false)
@@ -129,6 +140,18 @@ class BoundingBox {
         }
         self.entity_anchor = worldOriginAnchor
         return worldOriginAnchor
+    }
+    
+    func update_center(_ offset:[Float]) {
+        self.center = pairwise_add(self.center, offset)
+    }
+    
+    func update_scale(_ scale_mult:[Float]) {
+        self.scale = pairwise_mult(self.scale, scale_mult)
+    }
+    
+    func set_scale(_ new_scale:[Float]) {
+        self.scale = new_scale
     }
     
     
