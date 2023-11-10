@@ -16,18 +16,20 @@ struct IntroInstructionsView: View {
     }
     
     var body: some View {
-        VStack{
+        VStack {  // Main UI portion
+            // TODO: Fill with instructions for using the app
             Text("How to Use App")
-
         }
         .preferredColorScheme(.dark)
+        // --- Navigation Bar ---
         .navigationBarTitle("Intro Instructions")
         .navigationBarTitleDisplayMode(.inline)
+        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)
+                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
                                 .navigationViewStyle(.stack)
             }
         }
-    }
-}
+    }  // End of body
+}  // End of view

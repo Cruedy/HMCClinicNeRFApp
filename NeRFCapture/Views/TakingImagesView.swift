@@ -13,6 +13,10 @@ struct TakingImagesView: View {
     @StateObject private var viewModel: ARViewModel
     @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
+    @State public var boxVisible: Bool = false
+    @State public var moveLeft: Bool = false
+    @State public var moveRight: Bool = false
+    // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
     @State private var showNavigationLink = false // Set this variable to control visibility
 
@@ -24,15 +28,16 @@ struct TakingImagesView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-//                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
-                        HStack() {
+                        HStack() {  // HStack because originally showed Offline/Online mode
                             Spacer()
+                            
+                            // Shows mode is Offline
                             Picker("Mode", selection: $viewModel.appState.appMode) {
                                 Text("Offline").tag(AppMode.Offline)
                             }
-                            .navigationBarBackButtonHidden(true) // prevents navigation bar from being shown in this view
                             .frame(maxWidth: 200)
                             .padding(0)
                             .pickerStyle(.segmented)
@@ -45,6 +50,7 @@ struct TakingImagesView: View {
                     HStack() {
                         Spacer()
                         
+                        // Relevant information about image collection session
                         VStack(alignment:.leading) {
                             Text("\(viewModel.appState.trackingState)")
 
@@ -60,29 +66,18 @@ struct TakingImagesView: View {
                         }.padding()
                     }
                 }
-            }
+            }  // End of inner ZStack
+            
             VStack {
                 Spacer()
-//                HStack(spacing: 20) {
-//                    Button("Left") {
-//
-//                        moveLeft = true
-//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-//                            moveLeft = false
-//                        }
-//                    }
-//                    Button("Right") {
-//                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-//                        moveRight = true
-//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-//                            moveRight = false
-//                        }
-//                    }
-//                }
+
                 if case .Offline = viewModel.appState.appMode {
+                    
+                    // View when not taking images
                     if viewModel.appState.writerState == .SessionNotStarted {
                         Spacer()
                         
+                        // Button to reset world origin
                         Button(action: {
                             viewModel.resetWorldOrigin()
                         }) {
@@ -93,6 +88,7 @@ struct TakingImagesView: View {
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
                         
+                        // Button to start image collection session
                         Button(action: {
                             do {
                                 try viewModel.datasetWriter.initializeProject()
@@ -108,25 +104,27 @@ struct TakingImagesView: View {
                         .buttonStyle(.borderedProminent)
                         .buttonBorderShape(.capsule)
                         
-//                        Button(action: {
-//                                if let frame = viewModel.session?.currentFrame {
-//                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-//                                }
-//                            }) {
-//                                Text("Send")
-//                                    .padding(.horizontal, 20)
-//                                    .padding(.vertical, 5)
-//                            }
-//                            .buttonStyle(.borderedProminent)
-//                            .buttonBorderShape(.capsule)
+                        // Button to send the data
+                        Button(action: {
+                                if let frame = viewModel.session?.currentFrame {
+                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+                                }
+                            }) {
+                                Text("Send")
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 5)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .buttonBorderShape(.capsule)
                         
-//                        NavigationLink("Next", destination: GridView()).environmentObject(dataModel)
-//                                        .navigationViewStyle(.stack)
-                    }
+                    }   // End of case SessionNotStarted
                 }
-                        
+                
+                // View when taking images
                 if viewModel.appState.writerState == .SessionStarted {
                     Spacer()
+                    
+                    // Button to end the image collection session
                     Button(action: {
                         viewModel.datasetWriter.finalizeProject()
                     }) {
@@ -137,6 +135,7 @@ struct TakingImagesView: View {
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
                     
+                    // Button to save the current frame
                     Button(action: {
                         if let frame = viewModel.session?.currentFrame {
                             viewModel.datasetWriter.writeFrameToDisk(frame: frame)
@@ -148,18 +147,23 @@ struct TakingImagesView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
-                }
+                }  // End of case SessionStarted
             }
             .padding()
-        }
+            
+        }  // End of main ZStack
         .preferredColorScheme(.dark)
+        // --- Navigation Bar ---
         .navigationBarTitle("Take Images")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink("Next", destination: GridView()).environmentObject(dataModel)
                                 .navigationViewStyle(.stack)
             }
         }
-    }
-}
+        
+    }  // End of body
+}   // End of TakingImagesView

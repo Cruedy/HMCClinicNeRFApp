@@ -28,40 +28,26 @@ struct BoundingBoxView: View {
                 ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
-                        HStack() {
+                        HStack() {  // HStack because originally showed Offline/Online mode
+                            // TODO: Make this show different views for translating/rotating/resizing bounding box
                             Spacer()
+                            
+                            // Shows mode is Offline
                             Picker("Mode", selection: $viewModel.appState.appMode) {
                                 Text("Offline").tag(AppMode.Offline)
                             }
-                            .navigationBarBackButtonHidden(true) // prevents navigation bar from being shown in this view
                             .frame(maxWidth: 200)
                             .padding(0)
                             .pickerStyle(.segmented)
                             .disabled(viewModel.appState.writerState
                                       != .SessionNotStarted)
-                            
+    
                             Spacer()
                         }
                     }.padding(8)
-                    HStack() {
-                        Spacer()
-                        
-                        VStack(alignment:.leading) {
-                            Text("\(viewModel.appState.trackingState)")
-
-                            if case .Offline = viewModel.appState.appMode {
-                                if case .SessionStarted = viewModel.appState.writerState {
-                                    Text("\(viewModel.datasetWriter.currentFrameCounter) Frames")
-                                }
-                            }
-                            
-                            if viewModel.appState.supportsDepth {
-                                Text("Depth Supported")
-                            }
-                        }.padding()
-                    }
                 }
-            }
+            }   // End of inner ZStack
+            
             VStack {
                 Spacer()
                 HStack(spacing: 20) {
@@ -80,9 +66,11 @@ struct BoundingBoxView: View {
                         }
                     }
                 }
+                // Offline Mode
                 if case .Offline = viewModel.appState.appMode {
                     if viewModel.appState.writerState == .SessionNotStarted {
                         Spacer()
+                        // Button to create bounding box
                         Button(action: {
                             print("Before: \(boxVisible)")
                             boxVisible.toggle()
@@ -94,40 +82,28 @@ struct BoundingBoxView: View {
                         }
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
-                        
                     }
-//                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel)
-//                        .navigationViewStyle(.stack)
                 }
-                        
-                if viewModel.appState.writerState == .SessionStarted {
-                    Spacer()
-                    Button(action: {
-                        if let frame = viewModel.session?.currentFrame {
-                            viewModel.datasetWriter.writeFrameToDisk(frame: frame)
-                        }
-                    }) {
-                        Text("Save Frame")
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
-                }
-            }
+                
+            }  // End of inner VStack
             .padding()
-        }
+            
+        } // End of main ZStack
         .preferredColorScheme(.dark)
+        // --- Navigation Bar ---
         .navigationBarTitle("Create Bounding Box")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel)
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
                                 .navigationViewStyle(.stack)
             }
         }
-    }
-}
+        
+    }  // End of body
+}  // End of BoundingBoxVieew
 
 #if DEBUG
 struct BoundingBox_Previews : PreviewProvider {

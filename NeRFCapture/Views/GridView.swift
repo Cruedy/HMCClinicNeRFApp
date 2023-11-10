@@ -27,6 +27,8 @@ struct GridView : View {
                 ColumnStepper(title: columnsTitle, range: 1...8, columns: $gridColumns)
                 .padding()
             }
+            
+            // View that shows all the images
             ScrollView {
                 LazyVGrid(columns: gridColumns) {
                     ForEach(dataModel.items) { item in
@@ -56,22 +58,19 @@ struct GridView : View {
                 }
                 .padding()
             }
-//            Button(action: {
-//
-//            }) {
-//                Text("Next")
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 5)
-//            }
+            
+            // Place navigation link at the bottom of the scroll view
             NavigationLink("Next", destination: SendImagesToServerView())
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
-        }
+        }  // End of main VStack
+        // --- Navigation Bar ---
         .navigationBarTitle("Image Gallery")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isAddingPhoto) {
             PhotoPicker()
         }
+        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "Done" : "Edit") {
