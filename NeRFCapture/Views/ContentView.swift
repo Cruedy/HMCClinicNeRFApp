@@ -15,6 +15,7 @@ struct ContentView : View {
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
     @State public var moveRight: Bool = false
+    @State public var rotate_45: Bool = false
 
     
     init(viewModel vm: ARViewModel) {
@@ -24,7 +25,7 @@ struct ContentView : View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_45).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {
@@ -83,22 +84,22 @@ struct ContentView : View {
             }
             VStack {
                 Spacer()
-                HStack(spacing: 20) {
-                    Button("Left") {
-                        
-                        moveLeft = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveLeft = false
-                        }
-                    }
-                    Button("Right") {
-                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-                        moveRight = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveRight = false
-                        }
-                    }
-                }
+//                HStack(spacing: 20) {
+//                    Button("Left") {
+//                        
+//                        moveLeft = true
+//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+//                            moveLeft = false
+//                        }
+//                    }
+//                    Button("Right") {
+//                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+//                        moveRight = true
+//                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+//                            moveRight = false
+//                        }
+//                    }
+//                }
                 HStack(spacing: 20) {
 //                    if case .Online = viewModel.appState.appMode {
 //                        Spacer()
@@ -147,7 +148,7 @@ struct ContentView : View {
                                 boxVisible.toggle()
                                 print("After: \(boxVisible)")
                             }) {
-                                Text("Trigger Update 2")
+                                Text("Bounding Box")
                                     .padding(.horizontal,20)
                                     .padding(.vertical, 5)
                             }
@@ -155,7 +156,46 @@ struct ContentView : View {
                             .buttonBorderShape(.capsule)
                             
                             Button(action: {
-                                print("reset cheat Before: \(boxVisible)")
+                                print("move left")
+                                moveLeft.toggle()
+                                DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                                            moveLeft = false
+                                                        }
+                            }) {
+                                Text("Left")
+                                    .padding(.horizontal,20)
+                                    .padding(.vertical, 5)
+                            }
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+                            
+                            Button(action: {
+                                print("move right")
+                                moveRight.toggle()
+                                DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                                            moveRight = false
+                                                        }
+                            }) {
+                                Text("Right")
+                                    .padding(.horizontal,20)
+                                    .padding(.vertical, 5)
+                            }
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+                            
+                            Button(action: {
+                                print("rotate")
+                                rotate_45.toggle()
+                                DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                    rotate_45 = false
+                                                        }
+                            }) {
+                                Text("Rotate")
+                                    .padding(.horizontal,20)
+                                    .padding(.vertical, 5)
+                            }
+                            
+                            Button(action: {
                                 viewModel.resetWorldOrigin()
                             }) {
                                 Text("Reset")

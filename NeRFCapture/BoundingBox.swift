@@ -6,12 +6,13 @@
 //
 
 import ARKit
+import Foundation
 import RealityKit
 
 class BoundingBox {
     var center: [Float] = []
     var positions: [[Float]] = []
-    var rot_z = 0 // in radians
+    var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
         
@@ -27,15 +28,23 @@ class BoundingBox {
         return entity_anchor.position
     }
     
+    func rot_about_y(angle: Float, point: [Float]) -> simd_float3 {
+        let rot_matrix =  simd_float3x3(rows: [simd_float3([cos(angle), 0, sin(angle)]),
+                                               simd_float3([0,1,0]),
+                                               simd_float3([-sin(angle), 0, cos(angle)])])
+        let point_a = simd_float3(point)
+        return rot_matrix*point_a
+    }
+    
     func pos_from_center(_ point:[Float]) -> [[Float]]{
-        var top_left_front = pairwise_add(point, [-1*scale[0], 1*scale[1], -1*scale[2]])
-        var top_right_front = pairwise_add(point, [1*scale[0], 1*scale[1], -1*scale[2]])
-        var bot_right_front = pairwise_add(point, [1*scale[0], -1*scale[1], -1*scale[2]])
-        var bot_left_front = pairwise_add(point, [-1*scale[0], -1*scale[1], -1*scale[2]])
-        var top_left_back = pairwise_add(point, [-1*scale[0], 1*scale[1], 1*scale[2]])
-        var top_right_back = pairwise_add(point, [1*scale[0], 1*scale[1], 1*scale[2]])
-        var bot_right_back = pairwise_add(point, [1*scale[0], -1*scale[1], 1*scale[2]])
-        var bot_left_back = pairwise_add(point, [-1*scale[0], -1*scale[1], 1*scale[2]])
+        var top_left_front = pairwise_add(simd_float3(point), rot_about_y(angle:self.rot_y , point: [-1*scale[0], 1*scale[1], -1*scale[2]]))
+        var top_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], 1*scale[1], -1*scale[2]]))
+        var bot_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], -1*scale[1], -1*scale[2]]))
+        var bot_left_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], -1*scale[1], -1*scale[2]]))
+        var top_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], 1*scale[1], 1*scale[2]]))
+        var top_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], 1*scale[1], 1*scale[2]]))
+        var bot_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], -1*scale[1], 1*scale[2]]))
+        var bot_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], -1*scale[1], 1*scale[2]]))
         return [top_left_front, top_right_front, bot_right_front, bot_left_front,
                 top_left_back,  top_right_back,  bot_right_back,  bot_left_back]
     }
@@ -44,6 +53,13 @@ class BoundingBox {
         assert(a.count == b.count)
         var result: [Float] = []
         for i in 0...a.count-1 {
+            result.append(a[i]+b[i])
+        }
+        return result
+    }
+    func pairwise_add(_ a: simd_float3, _ b: simd_float3) -> [Float] {
+        var result: [Float] = []
+        for i in 0...3-1 {
             result.append(a[i]+b[i])
         }
         return result
@@ -154,5 +170,8 @@ class BoundingBox {
         self.scale = new_scale
     }
     
+    func update_angle(_ offset: Float) {
+        self.rot_y += offset
+    }
     
 }
