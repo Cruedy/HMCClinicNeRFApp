@@ -16,6 +16,7 @@ struct TakingImagesView: View {
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
     @State public var moveRight: Bool = false
+    @State public var rotate_45: Bool = false
     // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
     @State private var showNavigationLink = false // Set this variable to control visibility
@@ -28,7 +29,7 @@ struct TakingImagesView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_45).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode

@@ -16,6 +16,8 @@ struct BoundingBoxView: View {
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
     @State public var moveRight: Bool = false
+    @State public var rotate_45: Bool = false
+
 
     
     init(viewModel vm: ARViewModel) {
@@ -25,7 +27,7 @@ struct BoundingBoxView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_45).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
@@ -50,22 +52,6 @@ struct BoundingBoxView: View {
             
             VStack {
                 Spacer()
-                HStack(spacing: 20) {
-                    Button("Left") {
-                        
-                        moveLeft = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveLeft = false
-                        }
-                    }
-                    Button("Right") {
-                        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-                        moveRight = true
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                            moveRight = false
-                        }
-                    }
-                }
                 // Offline Mode
                 if case .Offline = viewModel.appState.appMode {
                     if viewModel.appState.writerState == .SessionNotStarted {
@@ -82,6 +68,46 @@ struct BoundingBoxView: View {
                         }
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
+                        
+                        Button(action: {
+                            print("move left")
+                            moveLeft.toggle()
+                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                                        moveLeft = false
+                                                    }
+                        }) {
+                            Text("Left")
+                                .padding(.horizontal,20)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        
+                        Button(action: {
+                            print("move right")
+                            moveRight.toggle()
+                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                                        moveRight = false
+                                                    }
+                        }) {
+                            Text("Right")
+                                .padding(.horizontal,20)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        
+                        Button(action: {
+                            print("rotate")
+                            rotate_45.toggle()
+                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                rotate_45 = false
+                                                    }
+                        }) {
+                            Text("Rotate")
+                                .padding(.horizontal,20)
+                                .padding(.vertical, 5)
+                        }
                     }
                 }
                 
@@ -93,8 +119,7 @@ struct BoundingBoxView: View {
         // --- Navigation Bar ---
         .navigationBarTitle("Create Bounding Box")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-        // --- Tool Bar ---
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
