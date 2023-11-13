@@ -91,7 +91,12 @@ class DatasetWriter {
             .appendingPathComponent("transforms.json")
 
         if let documentDirectory = FileManager.default.documentDirectory {
-            let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }}
+            let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }
+            print("heres directory")
+            print(documentDirectory)
+        }
+        
+//        dataModel.initializeGallery()
         
         writeManifestToPath(path: manifest_path)
 //        DispatchQueue.global().async {
