@@ -14,16 +14,18 @@ struct ARViewContainer: UIViewRepresentable {
     @Binding var boxVisible: Bool
     @Binding var moveLeft: Bool
     @Binding var moveRight: Bool
-    @Binding var rotate45: Bool
+    @Binding var rotate_angle: Float
+    @Binding var slider: [Float]
     let boundingbox = BoundingBox(center: [0,0,0])
 
     
-    init(vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>, rot: Binding<Bool>) {
+    init(vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>, rot: Binding<Float>, slider: Binding<[Float]>) {
         viewModel = vm
         _boxVisible = bv
         _moveLeft = ml
         _moveRight = mr
-        _rotate45 = rot
+        _rotate_angle = rot
+        _slider = slider
     }
     
     func makeUIView(context: Context) -> ARView {
@@ -56,23 +58,6 @@ struct ARViewContainer: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: ARView, context: Context) {
-        if (boxVisible) {
-            print("something changed OMG!")
-            uiView.scene.anchors.removeAll()
-
-//            boundingbox.update_center([0.1,0.1,0.1])
-            boundingbox.set_scale([0.3, 0.3, 0.3])
-            let worldOriginAnchor = boundingbox.addNewBoxToScene()
-            
-//            let worldOriginAnchor = viewModel.addNewBoxToScene()
-            uiView.scene.anchors.append(worldOriginAnchor)
-//            let boxAnchor = viewModel.addBoxToScene()
-//            uiView.scene.anchors.append(boxAnchor)
-        } else {
-            print("nothing")
-            uiView.scene.anchors.removeAll()
-        }
-        
         if (moveLeft) {
             uiView.scene.anchors.removeAll()
             print(uiView.cameraTransform.matrix)
@@ -85,8 +70,8 @@ struct ARViewContainer: UIViewRepresentable {
 //            print(world_movement)
 //            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
             boundingbox.update_center([-0.1, 0, 0])
-            let worldOriginAnchor = boundingbox.addNewBoxToScene()
-            uiView.scene.anchors.append(worldOriginAnchor)
+//            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+//            uiView.scene.anchors.append(worldOriginAnchor)
 
             print("should move left")
         }
@@ -102,19 +87,36 @@ struct ARViewContainer: UIViewRepresentable {
 //            print(world_movement)
 //            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
             boundingbox.update_center([0.1, 0, 0])
-            let worldOriginAnchor = boundingbox.addNewBoxToScene()
-            uiView.scene.anchors.append(worldOriginAnchor)
+//            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+//            uiView.scene.anchors.append(worldOriginAnchor)
             
             print("should move right")
         }
-        if(rotate45){
+//        if(rotate45){
+//            uiView.scene.anchors.removeAll()
+//            boundingbox.update_angle(Float.pi/4)
+////            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+////            uiView.scene.anchors.append(worldOriginAnchor)
+//            
+//            print("should rotate 45 degrees counterclockwise")
+//            
+//        }
+        boundingbox.set_angle(rotate_angle/180*3.1415926)
+        boundingbox.set_scale(slider)
+        
+        if (boxVisible) {
+            print("something changed OMG!")
             uiView.scene.anchors.removeAll()
-            boundingbox.update_angle(Float.pi/4)
+
             let worldOriginAnchor = boundingbox.addNewBoxToScene()
+            
+//            let worldOriginAnchor = viewModel.addNewBoxToScene()
             uiView.scene.anchors.append(worldOriginAnchor)
-            
-            print("should rotate 45 degrees counterclockwise")
-            
+//            let boxAnchor = viewModel.addBoxToScene()
+//            uiView.scene.anchors.append(boxAnchor)
+        } else {
+            print("nothing")
+            uiView.scene.anchors.removeAll()
         }
         
     }

@@ -165,9 +165,12 @@ class BoundingBox {
     func update_scale(_ scale_mult:[Float]) {
         self.scale = pairwise_mult(self.scale, scale_mult)
     }
-    
+        
     func set_scale(_ new_scale:[Float]) {
         self.scale = new_scale
+    }
+    func set_angle(_ new_angle: Float) {
+        self.rot_y = new_angle
     }
     
     func update_angle(_ offset: Float) {

@@ -16,8 +16,14 @@ struct BoundingBoxView: View {
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
     @State public var moveRight: Bool = false
-    @State public var rotate_45: Bool = false
+    @State public var rotate_angle: Float = 0
+    
+    @State public var slider_xyz: [Float] = [1,1,1]
 
+    @State public var mode =  0
+    private let translateMode = 0
+    private let rotateMode = 1
+    private let scaleMode = 2
 
     
     init(viewModel vm: ARViewModel) {
@@ -27,7 +33,7 @@ struct BoundingBoxView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_45).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
@@ -56,58 +62,141 @@ struct BoundingBoxView: View {
                 if case .Offline = viewModel.appState.appMode {
                     if viewModel.appState.writerState == .SessionNotStarted {
                         Spacer()
-                        // Button to create bounding box
-                        Button(action: {
-                            print("Before: \(boxVisible)")
-                            boxVisible.toggle()
-                            print("After: \(boxVisible)")
-                        }) {
-                            Text("Create Bounding Box")
-                                .padding(.horizontal,20)
-                                .padding(.vertical, 5)
+                        HStack{
+                            // Button to create bounding box
+                            VStack{
+                                // manage the state specific buttons
+                                if mode == translateMode{
+                                    Button(action: {
+                                        print("move left")
+                                        moveLeft.toggle()
+                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                            moveLeft = false
+                                        }
+                                    }) {
+                                        Text("Left")
+                                            .padding(.horizontal,20)
+                                            .padding(.vertical, 5)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .buttonBorderShape(.capsule)
+                                    
+                                    Button(action: {
+                                        print("move right")
+                                        moveRight.toggle()
+                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+                                            moveRight = false
+                                        }
+                                    }) {
+                                        Text("Right")
+                                            .padding(.horizontal,20)
+                                            .padding(.vertical, 5)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .buttonBorderShape(.capsule)
+                                }
+                                else if mode == rotateMode{
+//                                    Button(action: {
+//                                        print("rotate")
+//                                        rotate_45.toggle()
+//                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
+//                                            rotate_45 = false
+//                                        }
+//                                    }) {
+//                                        Text("Rotate 45")
+//                                            .padding(.horizontal,20)
+//                                            .padding(.vertical, 5)
+//                                    }
+//                                    .buttonStyle(.bordered)
+//                                    .buttonBorderShape(.capsule)
+                                    Slider(
+                                        value: $rotate_angle,
+                                        in: 0...359.5,
+                                        step: 0.5
+                                    )
+                                    Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
+                                }
+                                else if mode == scaleMode{
+                                    Slider(
+                                        value: $slider_xyz[0],
+                                        in: 0...5,
+                                        step: 0.1
+                                    )
+                                    Text("\(slider_xyz[0], specifier: "X: %.2f")")
+                                    
+                                    Slider(
+                                        value: $slider_xyz[1],
+                                        in: 0...5,
+                                        step: 0.1
+                                    )
+                                    Text("\(slider_xyz[1], specifier: "Y: %.2f")")
+                                    
+                                    Slider(
+                                        value: $slider_xyz[2],
+                                        in: 0...5,
+                                        step: 0.1
+                                    )
+                                    Text("\(slider_xyz[2], specifier: "Z: %.2f")")
+                                }
+                            }
+                            
+                            VStack{
+                                // manage state
+                                Button(action: {
+                                    print("Before: \(boxVisible)")
+                                    boxVisible.toggle()
+                                    print("After: \(boxVisible)")
+                                }) {
+                                    Text("Create Bounding Box")
+                                        .padding(.horizontal,20)
+                                        .padding(.vertical, 5)
+                                }
+                                .buttonStyle(.bordered)
+                                .buttonBorderShape(.capsule)
+                                
+                                
+                                Button(action: {
+                                    print("enter translate mode")
+                                    self.mode = translateMode
+                                    
+                                }) {
+                                    Text("Move")
+                                        .padding(.horizontal,20)
+                                        .padding(.vertical, 5)
+                                }
+                                .buttonStyle(.bordered)
+                                .buttonBorderShape(.capsule)
+                                
+                                Button(action: {
+                                    print("enter rotate mode")
+                                    self.mode = rotateMode
+                                    
+                                }) {
+                                    Text("Rotate")
+                                        .padding(.horizontal,20)
+                                        .padding(.vertical, 5)
+                                }
+                                .buttonStyle(.bordered)
+                                .buttonBorderShape(.capsule)
+                                
+                                Button(action: {
+                                    print("enter scale mode")
+                                    self.mode = scaleMode
+                                    
+                                }) {
+                                    Text("Scale")
+                                        .padding(.horizontal,20)
+                                        .padding(.vertical, 5)
+                                }
+                                .buttonStyle(.bordered)
+                                .buttonBorderShape(.capsule)
+
+                            }
                         }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
                         
-                        Button(action: {
-                            print("move left")
-                            moveLeft.toggle()
-                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                                                        moveLeft = false
-                                                    }
-                        }) {
-                            Text("Left")
-                                .padding(.horizontal,20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
                         
-                        Button(action: {
-                            print("move right")
-                            moveRight.toggle()
-                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                                                        moveRight = false
-                                                    }
-                        }) {
-                            Text("Right")
-                                .padding(.horizontal,20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
                         
-                        Button(action: {
-                            print("rotate")
-                            rotate_45.toggle()
-                            DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                                rotate_45 = false
-                                                    }
-                        }) {
-                            Text("Rotate")
-                                .padding(.horizontal,20)
-                                .padding(.vertical, 5)
-                        }
+                        
                     }
                 }
                 
