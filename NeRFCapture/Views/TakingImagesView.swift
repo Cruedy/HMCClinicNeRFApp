@@ -129,7 +129,7 @@ struct TakingImagesView: View {
                     
                     // Button to end the image collection session
                     Button(action: {
-                        viewModel.datasetWriter.finalizeProject()
+                        viewModel.datasetWriter.finalizeSession()
                     }) {
                         Text("End")
                             .padding(.horizontal, 20)

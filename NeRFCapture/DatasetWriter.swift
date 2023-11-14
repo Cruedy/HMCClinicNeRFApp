@@ -83,6 +83,29 @@ class DatasetWriter {
             }
         }
     }
+    
+    func finalizeSession() {
+        writerState = .SessionNotStarted
+        let manifest_path = getDocumentsDirectory()
+            .appendingPathComponent(projectName)
+            .appendingPathComponent("transforms.json")
+
+        if let documentDirectory = FileManager.default.documentDirectory {
+            let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }}
+        
+        writeManifestToPath(path: manifest_path)
+//        DispatchQueue.global().async {
+//            do {
+//                if zip {
+//                    let _ = try Zip.quickZipFiles([self.projectDir], fileName: self.projectName)
+//                }
+//                try FileManager.default.removeItem(at: self.projectDir)
+//            }
+//            catch {
+//                print("Could not zip")
+//            }
+//        }
+    }
      
     func finalizeProject(zip: Bool = true) {
         writerState = .SessionNotStarted
