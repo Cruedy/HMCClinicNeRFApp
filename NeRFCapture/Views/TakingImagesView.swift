@@ -11,7 +11,8 @@ import RealityKit
 
 struct TakingImagesView: View {
     @StateObject private var viewModel: ARViewModel
-    @StateObject var dataModel = DataModel()
+    @EnvironmentObject var dataModel: DataModel
+//    @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
     @State public var boxVisible: Bool = false
     @State public var moveLeft: Bool = false
@@ -126,11 +127,12 @@ struct TakingImagesView: View {
                 // View when taking images
                 if viewModel.appState.writerState == .SessionStarted {
                     Spacer()
-                    
                     // Button to end the image collection session
                     Button(action: {
                         viewModel.datasetWriter.finalizeSession()
                         dataModel.initializeGallery()
+                        print("taking images items")
+                        print(dataModel.items)
                     }) {
                         Text("End")
                             .padding(.horizontal, 20)

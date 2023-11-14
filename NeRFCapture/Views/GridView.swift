@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GridView : View {
+//    @StateObject var dataModel = DataModel()
     @EnvironmentObject var dataModel: DataModel
 
     private static let initialColumns = 3
@@ -27,7 +28,11 @@ struct GridView : View {
                 ColumnStepper(title: columnsTitle, range: 1...8, columns: $gridColumns)
                 .padding()
             }
-            
+            Text("Hello")
+                .onAppear(){
+                    print("grid view items")
+                    print(dataModel.items)
+                }
             // View that shows all the images
             ScrollView {
                 LazyVGrid(columns: gridColumns) {
