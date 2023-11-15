@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Zip
 
 
 struct SendImagesToServerView: View {

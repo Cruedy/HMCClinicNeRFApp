@@ -19,6 +19,7 @@ struct BoundingBoxView: View {
     @State public var rotate_angle: Float = 0
     
     @State public var slider_xyz: [Float] = [1,1,1]
+//    @State public var arViewContainer: ARViewContainer
 
     @State public var mode =  0
     private let translateMode = 0
@@ -34,6 +35,7 @@ struct BoundingBoxView: View {
         ZStack{
             ZStack(alignment: .topTrailing) {
                 ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
+//                _arViewContainer.edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
@@ -211,7 +213,7 @@ struct BoundingBoxView: View {
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel,  bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider_xyz)).environmentObject(dataModel) // Link to Taking Images View
                                 .navigationViewStyle(.stack)
             }
         }

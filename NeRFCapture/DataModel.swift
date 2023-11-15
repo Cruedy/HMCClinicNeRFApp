@@ -35,8 +35,6 @@ class DataModel: ObservableObject {
                 let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.hasDirectoryPath}
                 for url in urls {
                     let sub = FileManager.default.getContentsOfDirectory(url).filter{$0.hasDirectoryPath}
-                    print("sub")
-                    print(sub)
                     let subDirectory = FileManager.default.getContentsOfDirectory(sub[0]).filter{$0.isImage}
                     for image in subDirectory{
                         if image.absoluteString.contains("depth") == false {
@@ -44,8 +42,6 @@ class DataModel: ObservableObject {
                             items.append(item)
                         }
                     }
-                    print("items")
-                    print(items)
                 }
             }
     }

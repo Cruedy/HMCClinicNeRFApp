@@ -14,19 +14,31 @@ struct TakingImagesView: View {
     @EnvironmentObject var dataModel: DataModel
 //    @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
-    @State public var boxVisible: Bool = false
-    @State public var moveLeft: Bool = false
-    @State public var moveRight: Bool = false
-    @State public var rotate_angle: Float = 0.0
-    @State public var slider: [Float] = [1,1,1]
+//    @State public var boxVisible: Bool = false
+//    @State public var moveLeft: Bool = false
+//    @State public var moveRight: Bool = false
+//    @State public var rotate_angle: Float = 0.0
+//    @State public var slider: [Float] = [1,1,1]
+    
+    @Binding var boxVisible: Bool
+    @Binding var moveLeft: Bool
+    @Binding var moveRight: Bool
+    @Binding var rotate_angle: Float
+    @Binding var slider: [Float]
 
     // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
     @State private var showNavigationLink = false // Set this variable to control visibility
 
     
-    init(viewModel vm: ARViewModel) {
+    init(viewModel vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>, rot: Binding<Float>, slider: Binding<[Float]>) {
         _viewModel = StateObject(wrappedValue: vm)
+        _boxVisible = bv
+        _moveLeft = ml
+        _moveRight = mr
+        _rotate_angle = rot
+        _slider = slider
+        
     }
     
     var body: some View {
@@ -131,8 +143,6 @@ struct TakingImagesView: View {
                     Button(action: {
                         viewModel.datasetWriter.finalizeSession()
                         dataModel.initializeGallery()
-                        print("taking images items")
-                        print(dataModel.items)
                     }) {
                         Text("End")
                             .padding(.horizontal, 20)
@@ -166,7 +176,7 @@ struct TakingImagesView: View {
         // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: GridView()).environmentObject(dataModel)
+                NavigationLink("Next", destination: GridView(viewModel: viewModel)).environmentObject(dataModel)
                                 .navigationViewStyle(.stack)
             }
         }

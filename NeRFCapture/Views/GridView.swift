@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GridView : View {
 //    @StateObject var dataModel = DataModel()
+    @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
 
     private static let initialColumns = 3
@@ -28,11 +29,6 @@ struct GridView : View {
                 ColumnStepper(title: columnsTitle, range: 1...8, columns: $gridColumns)
                 .padding()
             }
-            Text("Hello")
-                .onAppear(){
-                    print("grid view items")
-                    print(dataModel.items)
-                }
             // View that shows all the images
             ScrollView {
                 LazyVGrid(columns: gridColumns) {
@@ -63,11 +59,14 @@ struct GridView : View {
                 }
                 .padding()
             }
-            
-            // Place navigation link at the bottom of the scroll view
-            NavigationLink("Next", destination: SendImagesToServerView())
-                .padding(.horizontal, 20)
-                .padding(.vertical, 5)
+            Button(action: {
+                viewModel.datasetWriter.finalizeProject()
+            }, label: {
+                // Place navigation link at the bottom of the scroll view
+                NavigationLink("Next", destination: SendImagesToServerView())
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 5)
+            })
         }  // End of main VStack
         // --- Navigation Bar ---
         .navigationBarTitle("Image Gallery")
@@ -77,7 +76,12 @@ struct GridView : View {
         }
         // --- Tool Bar ---
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: {
+                    viewModel.datasetWriter.finalizeProject()
+                }){
+                    Text("Prepare Files")
+                }.padding(.horizontal, 10)
                 Button(isEditing ? "Done" : "Edit") {
                     withAnimation { isEditing.toggle() }
                 }
@@ -87,9 +91,9 @@ struct GridView : View {
     }
 }
 
-struct GridView_Previews: PreviewProvider {
-    static var previews: some View {
-        GridView().environmentObject(DataModel())
-            .previewDevice("iPad (8th generation)")
-    }
-}
+//struct GridView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        GridView().environmentObject(DataModel())
+//            .previewDevice("iPad (8th generation)")
+//    }
+//}

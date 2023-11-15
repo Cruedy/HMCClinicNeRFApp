@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct IntroInstructionsView: View {
-    @StateObject private var viewModel: ARViewModel
+    @StateObject var viewModel: ARViewModel
     @StateObject var dataModel = DataModel()
     
     init(viewModel vm: ARViewModel) {
