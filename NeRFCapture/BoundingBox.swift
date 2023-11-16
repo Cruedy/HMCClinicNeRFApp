@@ -145,7 +145,8 @@ class BoundingBox {
         self.positions = self.pos_from_center(self.center)
         var descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
         for descr in descrs {
-            let material = SimpleMaterial(color: .orange, isMetallic: false)
+//            let material = SimpleMaterial(color: .orange, isMetallic: false)
+            let material = UnlitMaterial(color: .orange)
             
             let generatedModel = ModelEntity(
                mesh: try! .generate(from: [descr]),
@@ -171,6 +172,9 @@ class BoundingBox {
     }
     func set_angle(_ new_angle: Float) {
         self.rot_y = new_angle
+    }
+    func set_center(_ new_center:[Float]) {
+        self.center = new_center
     }
     
     func update_angle(_ offset: Float) {

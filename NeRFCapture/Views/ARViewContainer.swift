@@ -12,18 +12,17 @@ import ARKit
 struct ARViewContainer: UIViewRepresentable {
     @ObservedObject var viewModel: ARViewModel
     @Binding var boxVisible: Bool
-    @Binding var moveLeft: Bool
-    @Binding var moveRight: Bool
+    @Binding var box_center: [Float]
     @Binding var rotate_angle: Float
     @Binding var slider: [Float]
     let boundingbox = BoundingBox(center: [0,0,0])
+//    var center: [Float] = [0,0,0]
 
     
-    init(vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>, rot: Binding<Float>, slider: Binding<[Float]>) {
+    init(vm: ARViewModel, bv: Binding<Bool>, cet: Binding<[Float]>, rot: Binding<Float>, slider: Binding<[Float]>) {
         viewModel = vm
         _boxVisible = bv
-        _moveLeft = ml
-        _moveRight = mr
+        _box_center = cet
         _rotate_angle = rot
         _slider = slider
     }
@@ -58,54 +57,57 @@ struct ARViewContainer: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: ARView, context: Context) {
-        if (moveLeft) {
-            uiView.scene.anchors.removeAll()
-            print(uiView.cameraTransform.matrix)
-//            print(uiView.cameraTransform.matrix * [-0.1, 0, 0, 1])
-//            var transform = uiView.cameraTransform.matrix
-//            transform[0][3] = 0
-//            transform[1][3] = 0
-//            transform[2][3] = 0
-//            var world_movement = transform * [-0.1, 0, 0, 1]
-//            print(world_movement)
-//            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
-            boundingbox.update_center([-0.1, 0, 0])
-//            let worldOriginAnchor = boundingbox.addNewBoxToScene()
-//            uiView.scene.anchors.append(worldOriginAnchor)
-
-            print("should move left")
-        }
-        if(moveRight){
-            uiView.scene.anchors.removeAll()
-            print(uiView.cameraTransform.matrix)
-//            print(uiView.cameraTransform.matrix * [0.1, 0, 0, 1])
-//            var transform = uiView.cameraTransform.matrix
-//            transform[0][3] = 0
-//            transform[1][3] = 0
-//            transform[2][3] = 0
-//            var world_movement = transform * [0.1, 0, 0, 1]
-//            print(world_movement)
-//            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
-            boundingbox.update_center([0.1, 0, 0])
-//            let worldOriginAnchor = boundingbox.addNewBoxToScene()
-//            uiView.scene.anchors.append(worldOriginAnchor)
-            
-            print("should move right")
-        }
+//        if (moveLeft) {
+//            uiView.scene.anchors.removeAll()
+//            print(uiView.cameraTransform.matrix)
+////            print(uiView.cameraTransform.matrix * [-0.1, 0, 0, 1])
+////            var transform = uiView.cameraTransform.matrix
+////            transform[0][3] = 0
+////            transform[1][3] = 0
+////            transform[2][3] = 0
+////            var world_movement = transform * [-0.1, 0, 0, 1]
+////            print(world_movement)
+////            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
+//            boundingbox.update_center([-0.1, 0, 0])
+////            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+////            uiView.scene.anchors.append(worldOriginAnchor)
+//
+//            print("should move left")
+//        }
+//        if(moveRight){
+//            uiView.scene.anchors.removeAll()
+//            print(uiView.cameraTransform.matrix)
+////            print(uiView.cameraTransform.matrix * [0.1, 0, 0, 1])
+////            var transform = uiView.cameraTransform.matrix
+////            transform[0][3] = 0
+////            transform[1][3] = 0
+////            transform[2][3] = 0
+////            var world_movement = transform * [0.1, 0, 0, 1]
+////            print(world_movement)
+////            boundingbox.update_center([world_movement[0], world_movement[1], world_movement[2]])
+////            center = boundingbox.pairwise_add(boundingbox.center, [0.1, 0, 0])
+//            boundingbox.update_center([0.1, 0, 0])
+////            let worldOriginAnchor = boundingbox.addNewBoxToScene()
+////            uiView.scene.anchors.append(worldOriginAnchor)
+//            
+//            print("should move right")
+//        }
 //        if(rotate45){
 //            uiView.scene.anchors.removeAll()
 //            boundingbox.update_angle(Float.pi/4)
 ////            let worldOriginAnchor = boundingbox.addNewBoxToScene()
 ////            uiView.scene.anchors.append(worldOriginAnchor)
-//            
+//
 //            print("should rotate 45 degrees counterclockwise")
-//            
+//
 //        }
+        boundingbox.set_center(box_center)
         boundingbox.set_angle(rotate_angle/180*3.1415926)
         boundingbox.set_scale(slider)
         
         if (boxVisible) {
             print("something changed OMG!")
+            
             uiView.scene.anchors.removeAll()
 
             let worldOriginAnchor = boundingbox.addNewBoxToScene()
@@ -123,29 +125,29 @@ struct ARViewContainer: UIViewRepresentable {
     
 //    func addBoxToScene() {
 ////        guard let arView = arView else { return }
-//        
+//
 //        let box = MeshResource.generateBox(size: 1)
 //        let material = SimpleMaterial(color: .green, isMetallic: false)
 //        let boxEntity = ModelEntity(mesh: box, materials: [material])
-//        
+//
 //        let anchor = AnchorEntity(world: [0, 0, -1]) // Position the box in front of the camera
 ////        let anchor = AnchorEntity(plane: .horizontal)
 //
 //        anchor.addChild(boxEntity)
-//        
+//
 //        arView.scene.addAnchor(anchor)
 //    }
-//    
+//
     
 //    func placeBlueBlock(){
 //        let block = MeshResource.generateBox(size: 1)
 //        let material = SimpleMaterial(color: .blue, isMetallic: false)
 //        let entity = ModelEntity(mesh: block, materials: [material])
-//        
+//
 //        let anchor = AnchorEntity(plane: .horizontal)
 //        anchor.addChild(entity)
 //        viewModel.arView?.scene.addAnchor(anchor)
-//        
+//
 ////        /*scene*/.add(anchor: anchor)
 //    }
 }

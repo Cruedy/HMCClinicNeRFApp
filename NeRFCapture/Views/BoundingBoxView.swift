@@ -14,11 +14,11 @@ struct BoundingBoxView: View {
     @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
     @State public var boxVisible: Bool = false
-    @State public var moveLeft: Bool = false
-    @State public var moveRight: Bool = false
+//    @State public var moveLeft: Bool = false
+//    @State public var moveRight: Bool = false
+    @State public var box_center: [Float] = [0,0,0]
     @State public var rotate_angle: Float = 0
-    
-    @State public var slider_xyz: [Float] = [1,1,1]
+    @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
 //    @State public var arViewContainer: ARViewContainer
 
     @State public var mode =  0
@@ -34,7 +34,7 @@ struct BoundingBoxView: View {
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
 //                _arViewContainer.edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
@@ -59,24 +59,21 @@ struct BoundingBoxView: View {
             }   // End of inner ZStack
             
             VStack {
-                Spacer()
                 // Offline Mode
                 if case .Offline = viewModel.appState.appMode {
                     if viewModel.appState.writerState == .SessionNotStarted {
-                        Spacer()
-                        HStack{
-                            // Button to create bounding box
-                            VStack{
-                                // manage the state specific buttons
-                                if mode == translateMode{
+                        VStack{
+                            Spacer()
+                            HStack{
+                                Spacer()
+                                VStack{
+                                    // Button to create bounding box
                                     Button(action: {
-                                        print("move left")
-                                        moveLeft.toggle()
-                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                                            moveLeft = false
-                                        }
+                                        print("Before: \(boxVisible)")
+                                        boxVisible.toggle()
+                                        print("After: \(boxVisible)")
                                     }) {
-                                        Text("Left")
+                                        Text("Create Bounding Box")
                                             .padding(.horizontal,20)
                                             .padding(.vertical, 5)
                                     }
@@ -84,33 +81,128 @@ struct BoundingBoxView: View {
                                     .buttonBorderShape(.capsule)
                                     
                                     Button(action: {
-                                        print("move right")
-                                        moveRight.toggle()
-                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-                                            moveRight = false
-                                        }
+                                        print("enter translate mode")
+                                        self.mode = translateMode
+                                        
                                     }) {
-                                        Text("Right")
+                                        Text("Move")
                                             .padding(.horizontal,20)
                                             .padding(.vertical, 5)
                                     }
                                     .buttonStyle(.bordered)
                                     .buttonBorderShape(.capsule)
+                                    
+                                    Button(action: {
+                                        print("enter rotate mode")
+                                        self.mode = rotateMode
+                                        
+                                    }) {
+                                        Text("Rotate")
+                                            .padding(.horizontal,20)
+                                            .padding(.vertical, 5)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .buttonBorderShape(.capsule)
+                                    
+                                    Button(action: {
+                                        print("enter scale mode")
+                                        self.mode = scaleMode
+                                        
+                                    }) {
+                                        Text("Scale")
+                                            .padding(.horizontal,20)
+                                            .padding(.vertical, 5)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .buttonBorderShape(.capsule)
+                                    
+                                }
+                            }
+                            HStack{
+                                if mode == translateMode{
+                                    // start of move state
+                                    VStack{
+                                        Spacer()
+                                        // Start of left right forward back
+                                        Button(action: {
+                                            print("move forward")
+                                            box_center = [box_center[0], box_center[1], box_center[2]-0.1]
+                                        }) {
+                                            Text("Forward (-Z)")
+                                                .padding(.horizontal,20)
+                                                .padding(.vertical, 5)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .buttonBorderShape(.capsule)
+                                        
+                                        HStack{
+                                            Button(action: {
+                                                print("move left")
+                                                box_center = [box_center[0]-0.1, box_center[1], box_center[2]]
+                                            }) {
+                                                Text("Left (-X)")
+                                                    .padding(.horizontal,20)
+                                                    .padding(.vertical, 5)
+                                            }
+                                            .buttonStyle(.bordered)
+                                            .buttonBorderShape(.capsule)
+                                            
+                                            Button(action: {
+                                                print("move right")
+                                                box_center = [box_center[0]+0.1, box_center[1], box_center[2]]
+                                            }) {
+                                                Text("Right (+X)")
+                                                    .padding(.horizontal,20)
+                                                    .padding(.vertical, 5)
+                                            }
+                                            .buttonStyle(.bordered)
+                                            .buttonBorderShape(.capsule)
+                                        }
+                                        
+                                        Button(action: {
+                                            print("move Back")
+                                            box_center = [box_center[0], box_center[1], box_center[2]+0.1]
+                                        }) {
+                                            Text("Back (+Z)")
+                                                .padding(.horizontal,20)
+                                                .padding(.vertical, 5)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .buttonBorderShape(.capsule)
+                                        // End of left right forward back
+                                    }
+                                    Spacer()
+                                    VStack{
+                                        Spacer()
+                                        // up and down
+                                        Button(action: {
+                                            print("move up")
+                                            box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
+                                        }) {
+                                            Text("Up (+Y)")
+                                                .padding(.horizontal,20)
+                                                .padding(.vertical, 5)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .buttonBorderShape(.capsule)
+                                        
+                                        Button(action: {
+                                            print("move down")
+                                            box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
+                                        }) {
+                                            Text("Down (-Y)")
+                                                .padding(.horizontal,20)
+                                                .padding(.vertical, 5)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .buttonBorderShape(.capsule)
+                                        
+                                        // end of up and down
+                                    }
+                                    
+                                    // end of move state
                                 }
                                 else if mode == rotateMode{
-//                                    Button(action: {
-//                                        print("rotate")
-//                                        rotate_45.toggle()
-//                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01){
-//                                            rotate_45 = false
-//                                        }
-//                                    }) {
-//                                        Text("Rotate 45")
-//                                            .padding(.horizontal,20)
-//                                            .padding(.vertical, 5)
-//                                    }
-//                                    .buttonStyle(.bordered)
-//                                    .buttonBorderShape(.capsule)
                                     Slider(
                                         value: $rotate_angle,
                                         in: 0...359.5,
@@ -141,64 +233,8 @@ struct BoundingBoxView: View {
                                     Text("\(slider_xyz[2], specifier: "Z: %.2f")")
                                 }
                             }
-                            
-                            VStack{
-                                // manage state
-                                Button(action: {
-                                    print("Before: \(boxVisible)")
-                                    boxVisible.toggle()
-                                    print("After: \(boxVisible)")
-                                }) {
-                                    Text("Create Bounding Box")
-                                        .padding(.horizontal,20)
-                                        .padding(.vertical, 5)
-                                }
-                                .buttonStyle(.bordered)
-                                .buttonBorderShape(.capsule)
-                                
-                                
-                                Button(action: {
-                                    print("enter translate mode")
-                                    self.mode = translateMode
-                                    
-                                }) {
-                                    Text("Move")
-                                        .padding(.horizontal,20)
-                                        .padding(.vertical, 5)
-                                }
-                                .buttonStyle(.bordered)
-                                .buttonBorderShape(.capsule)
-                                
-                                Button(action: {
-                                    print("enter rotate mode")
-                                    self.mode = rotateMode
-                                    
-                                }) {
-                                    Text("Rotate")
-                                        .padding(.horizontal,20)
-                                        .padding(.vertical, 5)
-                                }
-                                .buttonStyle(.bordered)
-                                .buttonBorderShape(.capsule)
-                                
-                                Button(action: {
-                                    print("enter scale mode")
-                                    self.mode = scaleMode
-                                    
-                                }) {
-                                    Text("Scale")
-                                        .padding(.horizontal,20)
-                                        .padding(.vertical, 5)
-                                }
-                                .buttonStyle(.bordered)
-                                .buttonBorderShape(.capsule)
-
-                            }
+    
                         }
-                        
-                        
-                        
-                        
                     }
                 }
                 
@@ -213,7 +249,7 @@ struct BoundingBoxView: View {
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel,  bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider_xyz)).environmentObject(dataModel) // Link to Taking Images View
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
                                 .navigationViewStyle(.stack)
             }
         }

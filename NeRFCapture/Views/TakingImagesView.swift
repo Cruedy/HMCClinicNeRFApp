@@ -14,37 +14,38 @@ struct TakingImagesView: View {
     @EnvironmentObject var dataModel: DataModel
 //    @StateObject var dataModel = DataModel()
     @State private var showSheet: Bool = false
-//    @State public var boxVisible: Bool = false
+    @State public var boxVisible: Bool = false
 //    @State public var moveLeft: Bool = false
 //    @State public var moveRight: Bool = false
-//    @State public var rotate_angle: Float = 0.0
-//    @State public var slider: [Float] = [1,1,1]
+    @State public var box_center: [Float] = [0,0,0]
+    @State public var rotate_angle: Float = 0.0
+    @State public var slider: [Float] = [1,1,1]
     
-    @Binding var boxVisible: Bool
-    @Binding var moveLeft: Bool
-    @Binding var moveRight: Bool
-    @Binding var rotate_angle: Float
-    @Binding var slider: [Float]
+//    @Binding var boxVisible: Bool
+//    @Binding var moveLeft: Bool
+//    @Binding var moveRight: Bool
+//    @Binding var rotate_angle: Float
+//    @Binding var slider: [Float]
 
     // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
     @State private var showNavigationLink = false // Set this variable to control visibility
 
     
-    init(viewModel vm: ARViewModel, bv: Binding<Bool>, ml: Binding<Bool>, mr: Binding<Bool>, rot: Binding<Float>, slider: Binding<[Float]>) {
+    init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
-        _boxVisible = bv
-        _moveLeft = ml
-        _moveRight = mr
-        _rotate_angle = rot
-        _slider = slider
+//        _boxVisible = bv
+//        _moveLeft = ml
+//        _moveRight = mr
+//        _rotate_angle = rot
+//        _slider = slider
         
     }
     
     var body: some View {
         ZStack{
             ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, ml: $moveLeft, mr: $moveRight, rot: $rotate_angle, slider: $slider).edgesIgnoringSafeArea(.all)
+                ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider).edgesIgnoringSafeArea(.all)
                 VStack() {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
@@ -183,3 +184,4 @@ struct TakingImagesView: View {
         
     }  // End of body
 }   // End of TakingImagesView
+
