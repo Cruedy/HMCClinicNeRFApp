@@ -61,12 +61,12 @@ struct GridView : View {
             }
             Button(action: {
                 viewModel.datasetWriter.finalizeProject()
-            }, label: {
-                // Place navigation link at the bottom of the scroll view
-                NavigationLink("Next", destination: SendImagesToServerView())
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 5)
-            })
+            }){
+                Text("Prepare Files")
+            }
+            NavigationLink("Next", destination: SendImagesToServerView())
+                .padding(.horizontal, 20)
+                .padding(.vertical, 5)
         }  // End of main VStack
         // --- Navigation Bar ---
         .navigationBarTitle("Image Gallery")
@@ -77,11 +77,6 @@ struct GridView : View {
         // --- Tool Bar ---
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: {
-                    viewModel.datasetWriter.finalizeProject()
-                }){
-                    Text("Prepare Files")
-                }.padding(.horizontal, 10)
                 Button(isEditing ? "Done" : "Edit") {
                     withAnimation { isEditing.toggle() }
                 }
