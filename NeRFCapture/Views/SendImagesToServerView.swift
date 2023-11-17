@@ -14,7 +14,7 @@ struct SendImagesToServerView: View {
     var body: some View {
         VStack{  // Main UI portion
             // TODO: Fill with instructions for sending images to the server
-            Text("Give images to Josh+Rohan")
+            Text("Send images to server")
         }
         .preferredColorScheme(.dark)
         // --- Navigation Bar ---

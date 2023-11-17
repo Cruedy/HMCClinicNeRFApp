@@ -17,12 +17,33 @@ struct IntroInstructionsView: View {
     
     var body: some View {
         VStack {  // Main UI portion
-            // TODO: Fill with instructions for using the app
-            Text("How to Use App")
+            Spacer()
+            // Steps
+            VStack {
+                Text("Steps:").bold().underline().font(.headline)
+                    .padding(.bottom, -8)
+                List(instructions, id: \.self) { instruction in
+                    Text(instruction)
+                }
+                .listStyle(GroupedListStyle())
+                        
+            }
+            
+            // Best photogrammetry practices
+            VStack {
+                Spacer()
+                Text("For Best Results:").bold().underline()
+                List(bestPractices, id: \.self) { bestPractice in
+                    Text(bestPractice)
+                }
+                .listStyle(GroupedListStyle())
+//                Spacer()
+            }
+//            Spacer()
         }
         .preferredColorScheme(.dark)
         // --- Navigation Bar ---
-        .navigationBarTitle("Intro Instructions")
+        .navigationBarTitle("Instructions")
         .navigationBarTitleDisplayMode(.inline)
         // --- Tool Bar ---
         .toolbar {
@@ -32,4 +53,17 @@ struct IntroInstructionsView: View {
             }
         }
     }  // End of body
+    
+    let instructions = [
+        "1) Place bounding box around the object.",
+        "2) Take about 50-100 images of the object, covering all angles.",
+        "3) Check image quality and delete any blurry images. Take more images if necessary.",
+        "4) When you're happy with your images, send them to HMC Wayfair Clinic.",
+    ]
+    
+    let bestPractices = [
+        "1) Try to get uniform/consistent lighting (favor natural lighting).",
+        "2) Capture the object from all angles (i.e. above, below, different side).",
+        "3) For more detailed areas, you can get closer to take more photos."
+    ]
 }  // End of view
