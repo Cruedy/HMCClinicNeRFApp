@@ -32,6 +32,8 @@ struct ARViewContainer: UIViewRepresentable {
         let configuration = viewModel.createARConfiguration()
         configuration.worldAlignment = .gravity
         configuration.isAutoFocusEnabled = true
+        configuration.planeDetection = [.horizontal]
+        configuration.environmentTexturing = .automatic
 //        configuration.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats[4] // 1280x720
 //        if ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) {
 ////            viewModel.appState.supportsDepth = true
@@ -40,15 +42,6 @@ struct ARViewContainer: UIViewRepresentable {
         #if !targetEnvironment(simulator)
         arView.session.run(configuration)
         #endif
-//        placeBlueBlock()
-        
-//        let block = MeshResource.generateBox(size: 1)
-//        let material = SimpleMaterial(color: .blue, isMetallic:  false)
-//        let entity = ModelEntity(mesh: block, materials: [material])
-//        let anchor = AnchorEntity(plane: .horizontal)
-//        anchor.addChild(entity)
-//        arView.scene.addAnchor(anchor)
-//        viewModel.addBoxToScene()
 
         arView.session.delegate = viewModel
         viewModel.session = arView.session

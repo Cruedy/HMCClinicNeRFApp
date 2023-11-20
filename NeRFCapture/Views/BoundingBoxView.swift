@@ -126,7 +126,11 @@ struct BoundingBoxView: View {
                                         // Start of left right forward back
                                         Button(action: {
                                             print("move forward")
-                                            box_center = [box_center[0], box_center[1], box_center[2]-0.1]
+//                                            box_center = [box_center[0], box_center[1], box_center[2]-0.1]
+                                            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+
+                                            box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
+
                                         }) {
                                             Text("Forward (-Z)")
                                                 .padding(.horizontal,20)
@@ -138,7 +142,16 @@ struct BoundingBoxView: View {
                                         HStack{
                                             Button(action: {
                                                 print("move left")
-                                                box_center = [box_center[0]-0.1, box_center[1], box_center[2]]
+                                                ActionManager.shared.actionStream.send(.heartbeat("HELLO WORLD"))
+                                                let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                                                if (viewModel.arView?.session.currentFrame?.camera.eulerAngles.y != nil)
+                                                {
+                                                    print(viewModel.arView?.session.currentFrame?.camera.eulerAngles.y ?? -1)
+                                                }
+                                                else {
+                                                    print("hmm dont see angle")
+                                                }
+                                                box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
                                             }) {
                                                 Text("Left (-X)")
                                                     .padding(.horizontal,20)
@@ -149,7 +162,9 @@ struct BoundingBoxView: View {
                                             
                                             Button(action: {
                                                 print("move right")
-                                                box_center = [box_center[0]+0.1, box_center[1], box_center[2]]
+                                                let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+
+                                                box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
                                             }) {
                                                 Text("Right (+X)")
                                                     .padding(.horizontal,20)
@@ -161,7 +176,8 @@ struct BoundingBoxView: View {
                                         
                                         Button(action: {
                                             print("move Back")
-                                            box_center = [box_center[0], box_center[1], box_center[2]+0.1]
+                                            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                                            box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
                                         }) {
                                             Text("Back (+Z)")
                                                 .padding(.horizontal,20)
