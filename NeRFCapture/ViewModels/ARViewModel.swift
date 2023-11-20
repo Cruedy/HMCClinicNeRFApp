@@ -21,16 +21,16 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     var session: ARSession? = nil
     var arView: ARView? = nil
 //    let frameSubject = PassthroughSubject<ARFrame, Never>()
+    let boundingbox = BoundingBox(center: [0,0,0])
     var cancellables = Set<AnyCancellable>()
     let datasetWriter: DatasetWriter
     let ddsWriter: DDSWriter
-    var bBoxPosition: [[Float]]
+    var boundingBoxAnchor: AnchorEntity? = nil
+    var boxVisible = false
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter
         self.ddsWriter = ddsWriter
-        self.bBoxPosition = [[-0.5, 0.5, -2], [0.5, 0.5, -2], [0.5, -0.5, -2], [-0.5, -0.5, -2],
-                             [-0.5, 0.5, -3], [0.5, 0.5, -3], [0.5, -0.5, -3], [-0.5, -0.5, -3]]
         super.init()
         self.subscribeToActionStream()
         self.setupObservers()
@@ -75,11 +75,22 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                 .sink { [weak self] action in
                     
                     switch action {
-                        
                     case .heartbeat(let data):
-                        print("got something")
                         print(data)
-                        
+                    case .display_box(let boxVisible):
+                        self?.display_box(boxVisible: boxVisible)
+                        self?.boxVisible = boxVisible
+                    case .update_center(let center_offset):
+                        self?.update_center(center_offset: center_offset)
+                        self?.display_box(boxVisible: self!.boxVisible)
+                    case .update_rotate(let new_angle):
+                        self?.update_rotate(angle: new_angle)
+                        self?.display_box(boxVisible: self!.boxVisible)
+
+                    case .update_scale(let new_scale):
+                        self?.update_scale(scale: new_scale)
+                        self?.display_box(boxVisible: self!.boxVisible)
+
                     }
                 }
                 .store(in: &cancellables)
@@ -94,6 +105,35 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             configuration.frameSemantics = .sceneDepth
         }
         return configuration
+    }
+    func display_box(boxVisible: Bool) {
+        if (boxVisible){
+            if boundingBoxAnchor != nil{
+                arView?.scene.removeAnchor(boundingBoxAnchor!)
+            }
+            boundingBoxAnchor = boundingbox.addNewBoxToScene()
+            arView?.scene.anchors.append(boundingBoxAnchor!)
+        } else {
+            if boundingBoxAnchor != nil{
+                arView?.scene.removeAnchor(boundingBoxAnchor!)
+            }
+        }
+    }
+    func update_center(center_offset: [Float]){
+        print("got movement")
+        boundingbox.set_center(center_offset) // a bit of a misnomer rn this should be the actual position not offset
+
+    }
+    
+    func update_rotate(angle: Float){
+        print("got angle")
+        boundingbox.set_angle(angle/180*3.1415926)
+    }
+    
+    func update_scale(scale: [Float]){
+        print("got scale")
+        boundingbox.set_scale(scale)
+
     }
     
     func resetWorldOrigin() {
@@ -116,6 +156,10 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
 
 enum Actions {
     case heartbeat(String)
+    case display_box(Bool)
+    case update_center([Float])
+    case update_rotate(Float)
+    case update_scale([Float])
 }
 
 

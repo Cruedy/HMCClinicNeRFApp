@@ -141,8 +141,8 @@ class BoundingBox {
     
     func addNewBoxToScene() -> AnchorEntity{
 //        guard let arView = arView else { return AnchorEntity(world: [0, 2, -1])}
-//        let worldOriginAnchor = AnchorEntity(world:.zero)
-        let worldOriginAnchor = AnchorEntity(plane:.horizontal)
+        let worldOriginAnchor = AnchorEntity(world:.zero)
+//        let worldOriginAnchor = AnchorEntity(plane:.horizontal)
         self.positions = self.pos_from_center(self.center)
         var descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
         for descr in descrs {

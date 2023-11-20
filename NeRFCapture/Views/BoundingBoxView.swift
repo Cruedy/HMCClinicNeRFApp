@@ -71,6 +71,7 @@ struct BoundingBoxView: View {
                                     Button(action: {
                                         print("Before: \(boxVisible)")
                                         boxVisible.toggle()
+                                        ActionManager.shared.actionStream.send(.display_box(boxVisible))
                                         print("After: \(boxVisible)")
                                     }) {
                                         Text("Create Bounding Box")
@@ -126,10 +127,9 @@ struct BoundingBoxView: View {
                                         // Start of left right forward back
                                         Button(action: {
                                             print("move forward")
-//                                            box_center = [box_center[0], box_center[1], box_center[2]-0.1]
                                             let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-
                                             box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
+                                            ActionManager.shared.actionStream.send(.update_center(box_center))
 
                                         }) {
                                             Text("Forward (-Z)")
@@ -143,15 +143,11 @@ struct BoundingBoxView: View {
                                             Button(action: {
                                                 print("move left")
                                                 ActionManager.shared.actionStream.send(.heartbeat("HELLO WORLD"))
+                                                
                                                 let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                                                if (viewModel.arView?.session.currentFrame?.camera.eulerAngles.y != nil)
-                                                {
-                                                    print(viewModel.arView?.session.currentFrame?.camera.eulerAngles.y ?? -1)
-                                                }
-                                                else {
-                                                    print("hmm dont see angle")
-                                                }
                                                 box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
+                                                ActionManager.shared.actionStream.send(.update_center(box_center))
+                                                
                                             }) {
                                                 Text("Left (-X)")
                                                     .padding(.horizontal,20)
@@ -163,8 +159,9 @@ struct BoundingBoxView: View {
                                             Button(action: {
                                                 print("move right")
                                                 let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-
                                                 box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
+                                                ActionManager.shared.actionStream.send(.update_center(box_center))
+
                                             }) {
                                                 Text("Right (+X)")
                                                     .padding(.horizontal,20)
@@ -178,6 +175,8 @@ struct BoundingBoxView: View {
                                             print("move Back")
                                             let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                                             box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
+                                            ActionManager.shared.actionStream.send(.update_center(box_center))
+
                                         }) {
                                             Text("Back (+Z)")
                                                 .padding(.horizontal,20)
@@ -194,6 +193,8 @@ struct BoundingBoxView: View {
                                         Button(action: {
                                             print("move up")
                                             box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
+                                            ActionManager.shared.actionStream.send(.update_center(box_center))
+
                                         }) {
                                             Text("Up (+Y)")
                                                 .padding(.horizontal,20)
@@ -205,6 +206,8 @@ struct BoundingBoxView: View {
                                         Button(action: {
                                             print("move down")
                                             box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
+                                            ActionManager.shared.actionStream.send(.update_center(box_center))
+
                                         }) {
                                             Text("Down (-Y)")
                                                 .padding(.horizontal,20)
@@ -222,31 +225,54 @@ struct BoundingBoxView: View {
                                     Slider(
                                         value: $rotate_angle,
                                         in: 0...359.5,
-                                        step: 0.5
+                                        step: 0.5,
+                                        onEditingChanged: { editing in
+                                            if !editing {
+                                                ActionManager.shared.actionStream.send(.update_rotate(rotate_angle))
+                                            }
+                                        }
+
                                     )
                                     Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
+
                                 }
                                 else if mode == scaleMode{
                                     Slider(
                                         value: $slider_xyz[0],
                                         in: 0...5,
-                                        step: 0.1
+                                        step: 0.1,
+                                        onEditingChanged: { editing in
+                                            if !editing {
+                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+                                            }
+                                        }
                                     )
                                     Text("\(slider_xyz[0], specifier: "X: %.2f")")
                                     
                                     Slider(
                                         value: $slider_xyz[1],
                                         in: 0...5,
-                                        step: 0.1
+                                        step: 0.1,
+                                        onEditingChanged: { editing in
+                                            if !editing {
+                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+                                            }
+                                        }
                                     )
                                     Text("\(slider_xyz[1], specifier: "Y: %.2f")")
                                     
                                     Slider(
                                         value: $slider_xyz[2],
                                         in: 0...5,
-                                        step: 0.1
+                                        step: 0.1,
+                                        onEditingChanged: { editing in
+                                            if !editing {
+                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+                                            }
+                                        }
                                     )
                                     Text("\(slider_xyz[2], specifier: "Z: %.2f")")
+
                                 }
                             }
     
