@@ -21,10 +21,10 @@ struct BoundingBoxView: View {
     @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
 //    @State public var arViewContainer: ARViewContainer
 
-    @State public var mode =  0
-    private let translateMode = 0
-    private let rotateMode = 1
-    private let scaleMode = 2
+    @State public var mode =  MovementModes.translate
+//    private let translateMode = 0
+//    private let rotateMode = 1
+//    private let scaleMode = 2
 
     
     init(viewModel vm: ARViewModel) {
@@ -46,6 +46,14 @@ struct BoundingBoxView: View {
                             Picker("Mode", selection: $viewModel.appState.appMode) {
                                 Text("Offline").tag(AppMode.Offline)
                             }
+                            
+                            Picker("Translation Mode", selection: $mode) {
+                                Text("Translate").tag(MovementModes.translate)
+                                Text("Rotate").tag(MovementModes.rotate)
+                                Text("Scale").tag(MovementModes.scale)
+                                Text("Extend").tag(MovementModes.extend)
+
+                            }
                             .frame(maxWidth: 200)
                             .padding(0)
                             .pickerStyle(.segmented)
@@ -61,224 +69,44 @@ struct BoundingBoxView: View {
             VStack {
                 // Offline Mode
                 if case .Offline = viewModel.appState.appMode {
-                    if viewModel.appState.writerState == .SessionNotStarted {
-                        VStack{
+                    VStack{
+                        Spacer()
+
+                        HStack{
                             Spacer()
-                            HStack{
-                                Spacer()
-                                VStack{
-                                    // Button to create bounding box
-                                    Button(action: {
-                                        print("Before: \(boxVisible)")
-                                        boxVisible.toggle()
-                                        ActionManager.shared.actionStream.send(.display_box(boxVisible))
-                                        print("After: \(boxVisible)")
-                                    }) {
-                                        Text("Create Bounding Box")
-                                            .padding(.horizontal,20)
-                                            .padding(.vertical, 5)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .buttonBorderShape(.capsule)
-                                    
-                                    Button(action: {
-                                        print("enter translate mode")
-                                        self.mode = translateMode
-                                        
-                                    }) {
-                                        Text("Move")
-                                            .padding(.horizontal,20)
-                                            .padding(.vertical, 5)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .buttonBorderShape(.capsule)
-                                    
-                                    Button(action: {
-                                        print("enter rotate mode")
-                                        self.mode = rotateMode
-                                        
-                                    }) {
-                                        Text("Rotate")
-                                            .padding(.horizontal,20)
-                                            .padding(.vertical, 5)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .buttonBorderShape(.capsule)
-                                    
-                                    Button(action: {
-                                        print("enter scale mode")
-                                        self.mode = scaleMode
-                                        
-                                    }) {
-                                        Text("Scale")
-                                            .padding(.horizontal,20)
-                                            .padding(.vertical, 5)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .buttonBorderShape(.capsule)
-                                    
-                                }
+                            Button(action: {
+                                print("Before: \(boxVisible)")
+                                boxVisible.toggle()
+                                ActionManager.shared.actionStream.send(.display_box(boxVisible))
+                                ActionManager.shared.actionStream.send(.update_center(box_center))
+                                ActionManager.shared.actionStream.send(.update_rotate(rotate_angle))
+                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+
+                                print("After: \(boxVisible)")
+                            }) {
+                                Text("Create Bounding Box")
+                                    .padding(.horizontal,20)
+                                    .padding(.vertical, 5)
                             }
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+                        }
+                        
                             HStack{
-                                if mode == translateMode{
+                                if mode == MovementModes.translate{
                                     // start of move state
-                                    VStack{
-                                        Spacer()
-                                        // Start of left right forward back
-                                        Button(action: {
-                                            print("move forward")
-                                            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                                            box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
-                                            ActionManager.shared.actionStream.send(.update_center(box_center))
-
-                                        }) {
-                                            Text("Forward (-Z)")
-                                                .padding(.horizontal,20)
-                                                .padding(.vertical, 5)
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .buttonBorderShape(.capsule)
-                                        
-                                        HStack{
-                                            Button(action: {
-                                                print("move left")
-                                                ActionManager.shared.actionStream.send(.heartbeat("HELLO WORLD"))
-                                                
-                                                let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                                                box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
-                                                ActionManager.shared.actionStream.send(.update_center(box_center))
-                                                
-                                            }) {
-                                                Text("Left (-X)")
-                                                    .padding(.horizontal,20)
-                                                    .padding(.vertical, 5)
-                                            }
-                                            .buttonStyle(.bordered)
-                                            .buttonBorderShape(.capsule)
-                                            
-                                            Button(action: {
-                                                print("move right")
-                                                let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                                                box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                                                ActionManager.shared.actionStream.send(.update_center(box_center))
-
-                                            }) {
-                                                Text("Right (+X)")
-                                                    .padding(.horizontal,20)
-                                                    .padding(.vertical, 5)
-                                            }
-                                            .buttonStyle(.bordered)
-                                            .buttonBorderShape(.capsule)
-                                        }
-                                        
-                                        Button(action: {
-                                            print("move Back")
-                                            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                                            box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
-                                            ActionManager.shared.actionStream.send(.update_center(box_center))
-
-                                        }) {
-                                            Text("Back (+Z)")
-                                                .padding(.horizontal,20)
-                                                .padding(.vertical, 5)
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .buttonBorderShape(.capsule)
-                                        // End of left right forward back
-                                    }
-                                    Spacer()
-                                    VStack{
-                                        Spacer()
-                                        // up and down
-                                        Button(action: {
-                                            print("move up")
-                                            box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
-                                            ActionManager.shared.actionStream.send(.update_center(box_center))
-
-                                        }) {
-                                            Text("Up (+Y)")
-                                                .padding(.horizontal,20)
-                                                .padding(.vertical, 5)
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .buttonBorderShape(.capsule)
-                                        
-                                        Button(action: {
-                                            print("move down")
-                                            box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
-                                            ActionManager.shared.actionStream.send(.update_center(box_center))
-
-                                        }) {
-                                            Text("Down (-Y)")
-                                                .padding(.horizontal,20)
-                                                .padding(.vertical, 5)
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .buttonBorderShape(.capsule)
-                                        
-                                        // end of up and down
-                                    }
-                                    
-                                    // end of move state
+                                    MovementControlsView(center: $box_center, vm: viewModel)
                                 }
-                                else if mode == rotateMode{
-                                    Slider(
-                                        value: $rotate_angle,
-                                        in: 0...359.5,
-                                        step: 0.5,
-                                        onEditingChanged: { editing in
-                                            if !editing {
-                                                ActionManager.shared.actionStream.send(.update_rotate(rotate_angle))
-                                            }
-                                        }
-
-                                    )
-                                    Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
-
+                                else if mode == MovementModes.rotate{
+                                    RotateControlsView(angle: $rotate_angle)
                                 }
-                                else if mode == scaleMode{
-                                    Slider(
-                                        value: $slider_xyz[0],
-                                        in: 0...5,
-                                        step: 0.1,
-                                        onEditingChanged: { editing in
-                                            if !editing {
-                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
-                                            }
-                                        }
-                                    )
-                                    Text("\(slider_xyz[0], specifier: "X: %.2f")")
-                                    
-                                    Slider(
-                                        value: $slider_xyz[1],
-                                        in: 0...5,
-                                        step: 0.1,
-                                        onEditingChanged: { editing in
-                                            if !editing {
-                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
-                                            }
-                                        }
-                                    )
-                                    Text("\(slider_xyz[1], specifier: "Y: %.2f")")
-                                    
-                                    Slider(
-                                        value: $slider_xyz[2],
-                                        in: 0...5,
-                                        step: 0.1,
-                                        onEditingChanged: { editing in
-                                            if !editing {
-                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
-                                            }
-                                        }
-                                    )
-                                    Text("\(slider_xyz[2], specifier: "Z: %.2f")")
-
+                                else if mode == MovementModes.scale{
+                                    ScaleControlsView(xyz: $slider_xyz)
                                 }
                             }
-    
                         }
                     }
-                }
+//                }
                 
             }  // End of inner VStack
             .padding()
@@ -297,7 +125,200 @@ struct BoundingBoxView: View {
         }
         
     }  // End of body
-}  // End of BoundingBoxVieew
+}  // End of BoundingBoxView
+
+
+struct MovementControlsView : View
+    {
+        @ObservedObject var viewModel: ARViewModel
+        @Binding var box_center: [Float]
+        init(center: Binding<[Float]>, vm: ARViewModel){
+            _box_center = center
+            viewModel = vm
+        }
+        var body: some View {
+            VStack{
+                Spacer()
+                // Start of left right forward back
+                Button(action: {
+                    print("move forward")
+                    let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                    box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
+                    ActionManager.shared.actionStream.send(.update_center(box_center))
+
+                }) {
+                    Text("Forward (-Z)")
+                        .padding(.horizontal,20)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                
+                HStack{
+                    Button(action: {
+                        print("move left")
+                        ActionManager.shared.actionStream.send(.heartbeat("HELLO WORLD"))
+                        
+                        let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                        box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
+                        ActionManager.shared.actionStream.send(.update_center(box_center))
+                        
+                    }) {
+                        Text("Left (-X)")
+                            .padding(.horizontal,20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    
+                    Button(action: {
+                        print("move right")
+                        let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                        box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
+                        ActionManager.shared.actionStream.send(.update_center(box_center))
+
+                    }) {
+                        Text("Right (+X)")
+                            .padding(.horizontal,20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                }
+                
+                Button(action: {
+                    print("move Back")
+                    let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
+                    box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
+                    ActionManager.shared.actionStream.send(.update_center(box_center))
+
+                }) {
+                    Text("Back (+Z)")
+                        .padding(.horizontal,20)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                // End of left right forward back
+            }
+            Spacer()
+            VStack{
+                Spacer()
+                // up and down
+                Button(action: {
+                    print("move up")
+                    box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
+                    ActionManager.shared.actionStream.send(.update_center(box_center))
+
+                }) {
+                    Text("Up (+Y)")
+                        .padding(.horizontal,20)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                
+                Button(action: {
+                    print("move down")
+                    box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
+                    ActionManager.shared.actionStream.send(.update_center(box_center))
+
+                }) {
+                    Text("Down (-Y)")
+                        .padding(.horizontal,20)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                
+                // end of up and down
+            }
+            
+            // end of move state
+        }
+        
+    }
+
+struct RotateControlsView : View {
+//    @ObservedObject var viewModel: ARViewModel
+    @Binding var rotate_angle: Float
+    init(angle: Binding<Float>){
+        _rotate_angle = angle
+//        viewModel = vm
+    }
+    var body: some View {
+        Slider(
+            value: $rotate_angle,
+            in: 0...359.5,
+            step: 0.5,
+            onEditingChanged: { editing in
+                if !editing {
+                    ActionManager.shared.actionStream.send(.update_rotate(rotate_angle))
+                }
+            }
+
+        )
+        Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
+    }
+}
+
+struct ScaleControlsView : View {
+    //    @ObservedObject var viewModel: ARViewModel
+        @Binding var slider_xyz: [Float]
+        init(xyz: Binding<[Float]>){
+            _slider_xyz = xyz
+    //        viewModel = vm
+        }
+    
+    var body: some View{
+        Slider(
+            value: $slider_xyz[0],
+            in: 0...5,
+            step: 0.1,
+            onEditingChanged: { editing in
+                if !editing {
+                    ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+                }
+            }
+        )
+        Text("\(slider_xyz[0], specifier: "X: %.2f m")")
+        
+        Slider(
+            value: $slider_xyz[1],
+            in: 0...5,
+            step: 0.1,
+//                                        onEditingChanged: { editing in
+//                                            if !editing {
+//                                                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+//                                            }
+//                                        }
+            onEditingChanged: { _ in
+                ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+            }
+        )
+        Text("\(slider_xyz[1], specifier: "Y: %.2f m")")
+        
+        
+        Slider(
+            value: $slider_xyz[2],
+            in: 0...5,
+            step: 0.1,
+            onEditingChanged: { editing in
+                if !editing {
+                    ActionManager.shared.actionStream.send(.update_scale(slider_xyz))
+                }
+            }
+        )
+        Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
+    }
+}
+    
+enum MovementModes {
+    case translate
+    case rotate
+    case scale
+    case extend
+}
 
 #if DEBUG
 struct BoundingBox_Previews : PreviewProvider {
