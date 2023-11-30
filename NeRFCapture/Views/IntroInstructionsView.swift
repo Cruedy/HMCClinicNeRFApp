@@ -7,14 +7,21 @@
 
 import SwiftUI
 
-struct IntroInstructionsView: View {
-    @StateObject var viewModel: ARViewModel
-    @StateObject var dataModel = DataModel()
-    
-    init(viewModel vm: ARViewModel) {
-        _viewModel = StateObject(wrappedValue: vm)
+struct HelpButton: View {
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "questionmark.circle")
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundColor(.blue)
+        }
+        .padding()
     }
-    
+}
+
+struct InstructionsView: View {
     var body: some View {
         VStack {  // Main UI portion
             Spacer()
@@ -26,7 +33,7 @@ struct IntroInstructionsView: View {
                     Text(instruction)
                 }
                 .listStyle(GroupedListStyle())
-                        
+                
             }
             
             // Best photogrammetry practices
@@ -37,23 +44,15 @@ struct IntroInstructionsView: View {
                     Text(bestPractice)
                 }
                 .listStyle(GroupedListStyle())
-//                Spacer()
+                //                Spacer()
             }
-//            Spacer()
+            //            Spacer()
         }
         .preferredColorScheme(.dark)
         // --- Navigation Bar ---
         .navigationBarTitle("Instructions")
         .navigationBarTitleDisplayMode(.inline)
-        // --- Tool Bar ---
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
-                                .navigationViewStyle(.stack)
-            }
-        }
-    }  // End of body
-    
+    }
     let instructions = [
         "1) Place bounding box around the object.",
         "2) Take about 50-100 images of the object, covering all angles.",
@@ -66,4 +65,26 @@ struct IntroInstructionsView: View {
         "2) Capture the object from all angles (i.e. above, below, different side).",
         "3) For more detailed areas, you can get closer to take more photos."
     ]
+}
+
+struct IntroInstructionsView: View {
+    @StateObject var viewModel: ARViewModel
+    @StateObject var dataModel = DataModel()
+    
+    init(viewModel vm: ARViewModel) {
+        _viewModel = StateObject(wrappedValue: vm)
+    }
+    
+    var body: some View {
+        VStack{
+            InstructionsView()
+        }
+        // --- Tool Bar ---
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
+                                .navigationViewStyle(.stack)
+            }
+        }
+    }  // End of body
 }  // End of view

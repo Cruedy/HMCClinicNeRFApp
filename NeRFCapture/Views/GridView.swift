@@ -19,6 +19,8 @@ struct GridView : View {
     @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
     @State private var numColumns = initialColumns
     
+    @State private var showingInstructions = false
+    
     private var columnsTitle: String {
         gridColumns.count > 1 ? "\(gridColumns.count) Columns" : "1 Column"
     }
@@ -67,6 +69,15 @@ struct GridView : View {
             NavigationLink("Next", destination: SendImagesToServerView())
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
+            
+            HelpButton {
+                showingInstructions = true
+            }
+            .sheet(isPresented: $showingInstructions) {
+                VStack {
+                    InstructionsView()
+                }
+            }
         }  // End of main VStack
         // --- Navigation Bar ---
         .navigationBarTitle("Image Gallery")

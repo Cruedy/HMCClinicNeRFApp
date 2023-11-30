@@ -30,7 +30,8 @@ struct TakingImagesView: View {
     // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
     @State private var showNavigationLink = false // Set this variable to control visibility
-
+    
+    @State private var showingInstructions = false
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
@@ -165,6 +166,15 @@ struct TakingImagesView: View {
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
                 }  // End of case SessionStarted
+                
+                HelpButton {
+                    showingInstructions = true
+                }
+                .sheet(isPresented: $showingInstructions) {
+                    VStack {
+                        InstructionsView()
+                    }
+                }
             }
             .padding()
             
