@@ -26,6 +26,7 @@ struct BoundingBoxView: View {
 //    private let rotateMode = 1
 //    private let scaleMode = 2
 
+    @State private var showingInstructions = false
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
@@ -106,8 +107,15 @@ struct BoundingBoxView: View {
                             }
                         }
                     }
-//                }
                 
+                HelpButton {
+                    showingInstructions = true
+                }
+                .sheet(isPresented: $showingInstructions) {
+                    VStack {
+                        InstructionsView()
+                    }
+                }
             }  // End of inner VStack
             .padding()
             
@@ -116,7 +124,8 @@ struct BoundingBoxView: View {
         // --- Navigation Bar ---
         .navigationBarTitle("Create Bounding Box")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown        // --- Tool Bar ---
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
