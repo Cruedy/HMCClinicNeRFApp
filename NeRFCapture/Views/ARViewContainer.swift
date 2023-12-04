@@ -28,6 +28,10 @@ struct ARViewContainer: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> ARView {
+        if viewModel.arView != nil {
+            return viewModel.arView!
+        }
+    
         let arView = ARView(frame: .zero)
         let configuration = viewModel.createARConfiguration()
         configuration.worldAlignment = .gravity
