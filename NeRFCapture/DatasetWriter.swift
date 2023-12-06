@@ -188,47 +188,20 @@ class DatasetWriter {
         
         switch deviceOrientation{
         case .portrait:
-            angle = 0
+            angle = CGFloat.pi/2
             break
         case .portraitUpsideDown:
-            angle = .pi
+            angle = -CGFloat.pi/2
             break
         case .landscapeLeft:
-            angle = .pi/2.0
+            angle = 0
             break
         case .landscapeRight:
-            angle = -.pi/2.0
+            angle = CGFloat.pi
             break
         default:
             break
         }
-        
-        print("angle")
-        print(angle)
-        
-        if angle == 0.0 {
-            print("here")
-            manifest.h = Int(frame.camera.imageResolution.width)
-            manifest.w = Int(frame.camera.imageResolution.height)
-            manifest.flX =  frame.camera.intrinsics[1, 1]
-            manifest.flY =  frame.camera.intrinsics[0, 0]
-            manifest.cx =  frame.camera.intrinsics[2, 1]
-            manifest.cy =  frame.camera.intrinsics[2, 0]
-        }
-        
-        if manifest.w == 0 {
-//            print("here also")
-//            manifest.w = Int(frame.camera.imageResolution.height)
-//            manifest.h = Int(frame.camera.imageResolution.width)
-            manifest.w = Int(frame.camera.imageResolution.width)
-            manifest.h = Int(frame.camera.imageResolution.height)
-            manifest.flX =  frame.camera.intrinsics[0, 0]
-            manifest.flY =  frame.camera.intrinsics[1, 1]
-            manifest.cx =  frame.camera.intrinsics[2, 0]
-            manifest.cy =  frame.camera.intrinsics[2, 1]
-        }
-        
-        print(manifest.cx)
         
         let useDepth = frame.sceneDepth != nil && useDepthIfAvailable
         
@@ -236,17 +209,17 @@ class DatasetWriter {
         let rgbBuffer = pixelBufferToUIImage(pixelBuffer: frame.capturedImage)
         let depthBuffer = useDepth ? pixelBufferToUIImage(pixelBuffer: frame.sceneDepth!.depthMap).resizeImageTo(size:  frame.camera.imageResolution) : nil
         
-        let rotatedRGBBuffer = rotateImage(rgbBuffer, withAngle: angle)
-        let rotatedDepthBuffer = useDepth ? rotateImage(depthBuffer!, withAngle: angle) : nil
-        
-        
         DispatchQueue.global().async {
             do {
-                let rotatedRGBData = rotatedRGBBuffer?.pngData()
-                try rotatedRGBData?.write(to: fileName)
+                if let rotatedRGBBuffer = self.rotateImage(rgbBuffer, angle: angle){
+                    let rotatedRGBData = rotatedRGBBuffer.pngData()
+                    try rotatedRGBData?.write(to: fileName)
+                }
                 if useDepth {
-                    let rotatedDepthData = rotatedRGBBuffer?.pngData()
-                    try rotatedDepthData?.write(to: depthFileName)
+                    if let rotatedDepthBuffer = self.rotateImage(depthBuffer!, angle: angle){
+                        let rotatedDepthData = rotatedDepthBuffer.pngData()
+                        try rotatedDepthData?.write(to: depthFileName)
+                    }
                 }
             }
             catch {
@@ -259,65 +232,37 @@ class DatasetWriter {
         currentFrameCounter += 1
     }
     
-    func rotateImage(_ image: UIImage, withAngle angle: CGFloat) -> UIImage? {
-        // Convert angle in degrees to radians
-        let radians = angle / 180.0 * CGFloat.pi
-        // Define the new size
-        var newSize = CGRect(origin: CGPoint.zero, size: image.size)
-            .applying(CGAffineTransform(rotationAngle: radians))
-            .integral.size
-        // Ensure newSize is positive
-        newSize.width = abs(newSize.width)
-        newSize.height = abs(newSize.height)
-        // Create a new graphics context
-        UIGraphicsBeginImageContextWithOptions(newSize, false, image.scale)
-        guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        // Move the origin to the middle of the image so we will rotate and scale around the center.
-        context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
-        // Rotate the image context
-        context.rotate(by: radians)
-        // Now, draw the rotated/scaled image into the context
-        image.draw(in: CGRect(x: -image.size.width / 2, y: -image.size.height / 2, width: image.size.width, height: image.size.height))
-        let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return rotatedImage
+    fileprivate struct PhotoData {
+        var thumbnailImage: UIImage
+        var thumbnailSize: (width: Int, height: Int)
+        var imageData: Data
+        var imageSize: (width: Int, height: Int)
     }
     
-//    func rotateImage(_ image: UIImage, by angle: CGFloat, basedOn deviceOrientation: UIDeviceOrientation) -> UIImage? {
-//        guard let cgImage = image.cgImage else {
-//            return nil
-//        }
-//
-//        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
-//        var transform = CGAffineTransform.identity
-//
-//        // Apply rotation based on the specified angle
-//        transform = transform.rotated(by: angle)
-//
-//        // Adjust rotation based on device orientation
-//        switch deviceOrientation {
-//        case .landscapeLeft:
-//            transform = transform.rotated(by: .pi / 2.0)
-//        case .landscapeRight:
-//            transform = transform.rotated(by: -.pi / 2.0)
-//        case .portraitUpsideDown:
-//            transform = transform.rotated(by: .pi)
-//        default:
-//            break
-//        }
-//
-//        if let context = CGContext(data: nil, width: Int(imageSize.width), height: Int(imageSize.height),
-//                                   bitsPerComponent: cgImage.bitsPerComponent, bytesPerRow: 0,
-//                                   space: cgImage.colorSpace!, bitmapInfo: cgImage.bitmapInfo.rawValue) {
-//
-//            context.concatenate(transform)
-//            context.draw(cgImage, in: CGRect(origin: .zero, size: imageSize))
-//
-//            if let rotatedImage = context.makeImage() {
-//                return UIImage(cgImage: rotatedImage)
-//            }
-//        }
-//
-//        return nil
-//    }
+    func rotateImage(_ image: UIImage, angle: CGFloat) -> UIImage? {
+        // Calculate the new size of the image after rotation
+            let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: image.size))
+            let t = CGAffineTransform(rotationAngle: angle)
+            rotatedViewBox.transform = t
+            let rotatedSize = rotatedViewBox.frame.size
+
+            // Begin a new image context
+            UIGraphicsBeginImageContext(rotatedSize)
+            guard let bitmap = UIGraphicsGetCurrentContext() else { return nil }
+
+            // Move the origin to the middle of the image so we will rotate and scale around the center.
+            bitmap.translateBy(x: rotatedSize.width / 2, y: rotatedSize.height / 2)
+
+            // Rotate the image context
+            bitmap.rotate(by: angle)
+
+            // Now, draw the rotated/scaled image into the context
+            bitmap.scaleBy(x: 1.0, y: -1.0)
+            bitmap.draw(image.cgImage!, in: CGRect(x: -image.size.width / 2, y: -image.size.height / 2, width: image.size.width, height: image.size.height))
+
+            let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+
+            return rotatedImage
+    }
 }
