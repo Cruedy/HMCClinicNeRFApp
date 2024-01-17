@@ -16,10 +16,7 @@ class BoundingBox {
     var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
-        
-//        [[-0.5, 0.5, -2], [0.5, 0.5, -2], [0.5, -0.5, -2], [-0.5, -0.5, -2],
-//                             [-0.5, 0.5, -3], [0.5, 0.5, -3], [0.5, -0.5, -3], [-0.5, -0.5, -3]]
-    
+
     // Initialize the bounding box with a center point
     init(center point: [Float]){
         self.center = point
@@ -122,13 +119,6 @@ class BoundingBox {
     
     // Helper function to create bounding box lines
     func createBoundingBox(corners: [[Float]], thickness: Float) -> [MeshDescriptor] {
-        // seems like we don't need this will be deleting this chunk soon
-//        let faces = [[0, 1, 2, 3],  // front
-//                      [4, 5, 6, 7],  // back
-//                      [3, 2, 6, 7],  // top
-//                      [0, 1, 5, 4],  // bottom
-//                      [4, 0, 3, 7],  // left
-//                      [1, 5, 6, 2]]  // right
         
         var line_descrs: [MeshDescriptor] = []
         
