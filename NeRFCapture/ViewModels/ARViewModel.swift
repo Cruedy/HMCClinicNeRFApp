@@ -37,6 +37,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         self.ddsWriter.setupDDS()
     }
     
+    // TODO: this could be deleted?
     func setupObservers() {
         datasetWriter.$writerState.sink {x in self.appState.writerState = x} .store(in: &cancellables)
         datasetWriter.$currentFrameCounter.sink { x in self.appState.numFrames = x }.store(in: &cancellables)
@@ -48,27 +49,16 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             .removeDuplicates()
             .sink { x in
                 switch x {
+                    // we will only have offline mode
                 case .Offline:
                     os_log("This is a default log message")
-
-//                    self.appState.stream = false
                     print("Changed to offline")
-//                case .Online:
-//                    os_log("This is a default log message")
-//
-//                    print("Changed to online")
                 }
             }
             .store(in: &cancellables)
-        
-//        frameSubject.throttle(for: 0.5, scheduler: RunLoop.main, latest: true).sink {
-//            f in
-//            if self.appState.stream && self.appState.appMode == .Online {
-//                self.ddsWriter.writeFrameToTopic(frame: f)
-//            }
-//        }.store(in: &cancellables)
     }
     
+    // Actions from BoundingBoxView to update the boundingbox
     func subscribeToActionStream() {
             ActionManager.shared
                 .actionStream
@@ -77,25 +67,34 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                     switch action {
                     case .heartbeat(let data):
                         print(data)
+                        
                     case .display_box(let boxVisible):
                         self?.display_box(boxVisible: boxVisible)
                         self?.boxVisible = boxVisible
-                    case .update_center(let center_offset):
-                        self?.update_center(center_offset: center_offset)
+                        
+                    case .set_center(let new_center):
+                        self?.set_center(new_center: new_center)
                         self?.display_box(boxVisible: self!.boxVisible)
-                    case .update_rotate(let new_angle):
-                        self?.update_rotate(angle: new_angle)
-                        self?.display_box(boxVisible: self!.boxVisible)
-
-                    case .update_scale(let new_scale):
-                        self?.update_scale(scale: new_scale)
+                        
+                    case .set_angle(let new_angle):
+                        self?.set_angle(new_angle: new_angle)
                         self?.display_box(boxVisible: self!.boxVisible)
 
+                    case .set_scale(let new_scale):
+                        self?.set_scale(new_scale: new_scale)
+                        self?.display_box(boxVisible: self!.boxVisible)
+                    
+                    case .extend_sides(let scale_update):
+                        self?.extend_sides(offset: scale_update)
+                        self?.display_box(boxVisible: self!.boxVisible)
+                        
+                    case .shrink_sides(let scale_update):
+                        self?.shrink_sides(offset: scale_update)
+                        self?.display_box(boxVisible: self!.boxVisible)
                     }
                 }
                 .store(in: &cancellables)
         }
-        
     
     func createARConfiguration() -> ARWorldTrackingConfiguration {
         let configuration = ARWorldTrackingConfiguration()
@@ -119,21 +118,31 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             }
         }
     }
-    func update_center(center_offset: [Float]){
+    func set_center(new_center: [Float]){
         print("got movement")
-        boundingbox.set_center(center_offset) // a bit of a misnomer rn this should be the actual position not offset
+        boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
 
     }
     
-    func update_rotate(angle: Float){
+    func set_angle(new_angle: Float){
         print("got angle")
-        boundingbox.set_angle(angle/180*3.1415926)
+        boundingbox.set_angle(new_angle/180*3.1415926)
     }
     
-    func update_scale(scale: [Float]){
+    func set_scale(new_scale: [Float]){
         print("got scale")
-        boundingbox.set_scale(scale)
+        boundingbox.set_scale(new_scale)
 
+    }
+    
+    func extend_sides(offset: [Float]){
+        print("extending side")
+        boundingbox.extend_side(offset)
+    }
+    
+    func shrink_sides(offset: [Float]){
+        print("shrink side")
+        boundingbox.shrink_side(offset)
     }
     
     func resetWorldOrigin() {
@@ -152,14 +161,20 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
         self.appState.trackingState = trackingStateToString(camera.trackingState)
     }
+    
+    func get_bbox_scales() -> [Float] {
+        return self.boundingbox.scale
+    }
 }
 
 enum Actions {
     case heartbeat(String)
     case display_box(Bool)
-    case update_center([Float])
-    case update_rotate(Float)
-    case update_scale([Float])
+    case set_center([Float])
+    case set_angle(Float)
+    case set_scale([Float])
+    case extend_sides([Float])
+    case shrink_sides([Float])
 }
 
 
