@@ -13,7 +13,7 @@ Collecting NeRF datasets is difficult. NeRF Capture is an iOS application that a
 These instructions help the user when they initially open up the app. It breaks down what the user should do in future steps and recommends how they can can get the best resulting model. There is a *next* button in the top right of the view to take the user to the next view.
 
 ## Bounding Box View
-<img src="docs/assets_readme/docs/assets_readme/BoundingBoxView.PNG" height="342"/>
+<img src="docs/assets_readme/BoundingBoxView.PNG" height="342"/>
 
 In this view the user can create an edit a bounding box to closely surround the object that they are taking pictures of. The user can:
 * move the box around
