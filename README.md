@@ -23,7 +23,7 @@ In this view the user can create an edit a bounding box to closely surround the 
 This will help the app track the location of the object in each frame, and help the server process the model faster.
 
 ## Taking Images View
-<img src="docs/assets_readme/TakingImagesView.PNG" height="342"/>
+<img src="docs/assets_readme/ImageTaking.PNG" height="342"/>
 
 In this view the user can take images. According to the *Intro Instructions* it is recommended that the user takes between 50-100 images. In order to initiate the image taking session, the user has to first press the *Start* button. Once the *Start* button is pressed, the *Reset*, *Start*, and *Send* buttons will be replaced by *End* and *Save Frame* buttons.
 
