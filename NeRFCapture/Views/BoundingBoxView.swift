@@ -323,7 +323,7 @@ struct ExtendControlsView : View {
                     ActionManager.shared.actionStream.send(.extend_sides([0,0,-0.1]))
                     
                 }) {
-                    Text("front (-X)")
+                    Text("front")
                         .padding(.horizontal,20)
                         .padding(.vertical, 5)
                 }
@@ -384,7 +384,7 @@ struct ExtendControlsView : View {
                     print("front")
                     //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,-0.1]))
+                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,0.1]))
                     
                 }) {
                     Text("front")
@@ -428,7 +428,7 @@ struct ExtendControlsView : View {
                     print("shrink back")
                     //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,0.1]))
+                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,-0.1]))
                     
                 }) {
                     Text("back")

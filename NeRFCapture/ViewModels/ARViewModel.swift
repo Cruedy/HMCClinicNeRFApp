@@ -137,7 +137,9 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     
     func extend_sides(offset: [Float]){
         print("extending side")
+        boundingbox.print_props()
         boundingbox.extend_side(offset)
+        boundingbox.print_props()
     }
     
     func shrink_sides(offset: [Float]){
