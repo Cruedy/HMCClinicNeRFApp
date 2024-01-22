@@ -247,14 +247,10 @@ struct RotateControlsView : View {
         Slider(
             value: $rotate_angle,
             in: 0...359.5,
-            step: 0.5,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
-                }
-            }
+            step: 0.5
 
-        )
+        ).onChange(of: rotate_angle) {new_angle in ActionManager.shared.actionStream.send(.set_angle(new_angle))}
+
         Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
     }
 }
@@ -269,38 +265,23 @@ struct ScaleControlsView : View {
         Slider(
             value: $slider_xyz[0],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[0], specifier: "X: %.2f m")")
         
         Slider(
             value: $slider_xyz[1],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[1], specifier: "Y: %.2f m")")
         
         
         Slider(
             value: $slider_xyz[2],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
     }
 }

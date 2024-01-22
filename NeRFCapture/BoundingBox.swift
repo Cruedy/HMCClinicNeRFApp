@@ -12,6 +12,7 @@ import RealityKit
 class BoundingBox {
     // Properties to store bounding box information
     var center: [Float] = [] // x is left-right, z is forward-back, y is down-up (respective to the neg side-pos side)
+    // Coordinate axes in ARKit: https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity
     var positions: [[Float]] = []
     var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
