@@ -38,36 +38,17 @@ In this view the user can check the images they took, delete usable images, and 
 
 <img src="docs/assets_readme/ImageDetail.PNG" height="342"/>
 
-## Online Mode
+Once the user looks at the images and figures out which one(s) they want to delete, they can click the *Edit* button in the top right corner to get this view:
 
-<img src="docs/assets_readme/NeRFCaptureScreenshot.png" height="342"/>
+<img src="docs/assets_readme/EditImages.PNG" height="342"/>
 
-Use the Reset button to reset the coordinate system to the current position of the camera. This takes a while; wait until the tracking initialized before moving away.
+In this view they can delete the images that are too blurry/don't have a good new view of the object. If they want to retake images to replace the ones they deleted, they can press the *Take Images* button in the top left corner. To move on, they can press the *Next* button at the bottom of the page.
 
-Switch the app to online mode. On the computer running InstantNGP, make sure that CycloneDDS is installed in the same python environment that is running pyngp. OpenCV and Pillow are needed to save and resize images.
+## Send Images to Server View
 
-```
-pip install cyclonedds
-```
+<img src="docs/assets_readme/SendImagesToServer.PNG" height="342"/>
 
-Check that the computer can see the device on your network by running in your terminal:
-
-```
-cyclonedds ps
-```
-
-Instructions found in [here](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md#NeRFCapture)
-
-
-## Offline Mode
-
-In Offline mode, clicking start initializes the dataset. Take a few images then click End when you're done. The dataset can be found as a zip file in your Files App in the format that InstantNGP expects. Unzip the dataset and drag and drop it into InstantNGP. We have found it farely difficult to get files transferred from an iOS device to another computer so we recommend running the app in Online mode and collecting the dataset with the nerfcapture2nerf.py script found in InstantNGP.
-
-<img src="docs/assets_readme/NeRFCaptureFile1.png" height="342"/>
-<img src="docs/assets_readme/NeRFCaptureFile2.png" height="342"/>
-
-
-If you use this software in your research, please consider citing it. 
+This view is currently just a placeholder for the progress bar that shows how much model creation time is left.
 
 
 
