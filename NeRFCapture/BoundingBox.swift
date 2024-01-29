@@ -11,7 +11,8 @@ import RealityKit
 
 class BoundingBox {
     // Properties to store bounding box information
-    var center: [Float] = []
+    var center: [Float] = [] // x is left-right, z is forward-back, y is down-up (respective to the neg side-pos side)
+    // Coordinate axes in ARKit: https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity
     var positions: [[Float]] = []
     var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
@@ -22,6 +23,58 @@ class BoundingBox {
         self.center = point
         self.positions = pos_from_center(point)
     }
+    
+    func print_props() -> Void{
+        print("""
+
+BoundingBox:
+center: \(center)
+positions: \(positions)
+rot_y: \(rot_y)
+scale: \(scale)
+
+""")
+    }
+    
+    func encode_as_json() -> BoundingBoxManifest
+    {
+//        let bounding_box_center = BoundingBoxManifest.XYZ(x: center[0], y: center[1], z: center[2])
+        let bounding_box_center = array_to_XYZ(array: self.center)
+        let rad_rot_about_y = rot_y
+        let bounding_box_positions = BoundingBoxManifest.Corners(top_left_front: array_to_XYZ(array: self.positions[0]),
+                                                                top_right_front: array_to_XYZ(array: self.positions[1]),
+                                                                bot_right_front: array_to_XYZ(array: self.positions[2]),
+                                                                bot_left_front: array_to_XYZ(array: self.positions[3]),
+                                                                top_left_back: array_to_XYZ(array: self.positions[4]),
+                                                                top_right_back: array_to_XYZ(array: self.positions[5]),
+                                                                bot_right_back: array_to_XYZ(array: self.positions[6]),
+                                                                bot_left_back: array_to_XYZ(array: self.positions[7]))
+        
+        let entity_anchor_4x4 = simd_float4x4_to_array(matrix: entity_anchor.transform.matrix)
+        
+        let sampleBoundingBox = BoundingBoxManifest(center: bounding_box_center,
+                                                    rad_rot_about_y: rad_rot_about_y,
+                                                    positions: bounding_box_positions,
+                                                    entity_anchor_4x4: entity_anchor_4x4)
+        return sampleBoundingBox
+    }
+    
+    func simd_float4x4_to_array(matrix: simd_float4x4) -> [[Float]]
+    {
+      var array = [[Float]](repeating: [Float](repeating: 0.0, count: 4), count: 4)
+      for i in 0..<4 {
+        for j in 0..<4 {
+          array[i][j] = matrix[i][j]
+        }
+      }
+      return array
+    }
+    
+    func array_to_XYZ(array: [Float]) -> BoundingBoxManifest.XYZ
+    {
+        return BoundingBoxManifest.XYZ(x:array[0], y:array[1], z:array[2])
+    }
+    
     
     // Get the position relative to the camera
     func pos_relative_to_camera() -> SIMD3<Float>{
@@ -40,14 +93,15 @@ class BoundingBox {
     // Calculate positions of the bounding box corners relative to the center
     func pos_from_center(_ point:[Float]) -> [[Float]]{
         // Calculate corner positions based on rotation and scaling
-        var top_left_front = pairwise_add(simd_float3(point), rot_about_y(angle:self.rot_y , point: [-1*scale[0], 1*scale[1], -1*scale[2]]))
-        var top_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], 1*scale[1], -1*scale[2]]))
-        var bot_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], -1*scale[1], -1*scale[2]]))
-        var bot_left_front = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], -1*scale[1], -1*scale[2]]))
-        var top_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], 1*scale[1], 1*scale[2]]))
-        var top_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], 1*scale[1], 1*scale[2]]))
-        var bot_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [1*scale[0], -1*scale[1], 1*scale[2]]))
-        var bot_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: self.rot_y, point: [-1*scale[0], -1*scale[1], 1*scale[2]]))
+        
+        var top_left_front = pairwise_add(simd_float3(point), rot_about_y(angle:rot_y , point: [-1.0*scale[0]/2.0, 1.0*scale[1]/2.0, -1.0*scale[2]/2.0]))
+        var top_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, -1*scale[2]/2]))
+        var bot_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, -1*scale[1]/2, -1*scale[2]/2]))
+        var bot_left_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, -1*scale[1]/2, -1*scale[2]/2]))
+        var top_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
+        var top_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
+        var bot_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, -1*scale[1]/2, 1*scale[2]/2]))
+        var bot_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, -1*scale[1]/2, 1*scale[2]/2]))
         return [top_left_front, top_right_front, bot_right_front, bot_left_front,
                 top_left_back,  top_right_back,  bot_right_back,  bot_left_back]
     }
@@ -200,14 +254,17 @@ class BoundingBox {
     
     // Extend and shrink sides
     func extend_side(_ offset: [Float]){
-        self.scale = pairwise_add(self.scale, [abs(offset[0]), abs(offset[1]), abs(offset[2])])
-        let new_center = pairwise_add(simd_float3(self.center), rot_about_y(angle: self.rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
-        self.center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
+        scale = pairwise_add(scale, [abs(offset[0]), abs(offset[1]), abs(offset[2])])
+        let new_center = pairwise_add(simd_float3(center), rot_about_y(angle: rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
+        center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
+        positions = pos_from_center(center)
+        
     }
     func shrink_side(_ offset: [Float]){
-        self.scale = pairwise_add(self.scale, [-1*abs(offset[0]), -1*abs(offset[1]), -1*abs(offset[2])])
-        let new_center = pairwise_add(simd_float3(self.center), rot_about_y(angle: self.rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
-        self.center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
+        scale = pairwise_add(scale, [-1*abs(offset[0]), -1*abs(offset[1]), -1*abs(offset[2])])
+        let new_center = pairwise_add(simd_float3(center), rot_about_y(angle: rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
+        center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
+        positions = pos_from_center(center)
     }
     
 }

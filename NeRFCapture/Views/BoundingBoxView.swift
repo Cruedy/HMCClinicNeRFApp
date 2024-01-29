@@ -247,14 +247,10 @@ struct RotateControlsView : View {
         Slider(
             value: $rotate_angle,
             in: 0...359.5,
-            step: 0.5,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
-                }
-            }
+            step: 0.5
 
-        )
+        ).onChange(of: rotate_angle) {new_angle in ActionManager.shared.actionStream.send(.set_angle(new_angle))}
+
         Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
     }
 }
@@ -269,39 +265,109 @@ struct ScaleControlsView : View {
         Slider(
             value: $slider_xyz[0],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[0], specifier: "X: %.2f m")")
         
         Slider(
             value: $slider_xyz[1],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[1], specifier: "Y: %.2f m")")
         
         
         Slider(
             value: $slider_xyz[2],
             in: 0...5,
-            step: 0.1,
-            onEditingChanged: { editing in
-                if !editing {
-                    ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                }
-            }
-        )
+            step: 0.1
+        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
         Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
+    }
+}
+
+//
+//struct PressAndHoldButton: View {
+//    @State private var timer: Timer?
+//    @State var isLongPressing = false
+//    // function action
+//    
+//    // init(action: a function){
+//    // action = action
+//    //}
+//    var body: some View {
+//        VStack {
+//            
+//            Button(action: {
+//                print("tap")
+//                if(self.isLongPressing){
+//                    //this tap was caused by the end of a longpress gesture, so stop our fastforwarding
+//                    self.isLongPressing.toggle()
+//                    self.timer?.invalidate()
+//                    
+//                } else {
+//                    //just a regular tap
+//                    print("just Once")
+//                    //do action
+//                    
+//                }
+//            }, label: {
+//                Image(systemName: self.isLongPressing ? "chevron.right.2": "chevron.right")
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(width: 30, height: 30)
+//                
+//            })
+//            .simultaneousGesture(LongPressGesture(minimumDuration: 0.2).onEnded { _ in
+//                print("long press")
+//                self.isLongPressing = true
+//                //or fastforward has started to start the timer
+//                self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { _ in
+//                    print("your holding")
+//                    // do action
+//                })
+//            })
+//        }
+//    }
+//}
+
+struct PressAndHoldButton: View {
+    @State private var timer: Timer?
+    @State var isLongPressing = false
+    var action: (() -> Void) // Function to perform when button is held
+    var title: String
+    init(action: @escaping () -> Void, title: String) {
+        self.action = action
+        self.title = title
+    }
+    
+    var body: some View {
+        VStack {
+            Button(action: {
+                if self.isLongPressing {
+                    // This tap was caused by the end of a long press gesture, so stop our fast forwarding
+                    self.isLongPressing.toggle()
+                    self.timer?.invalidate()
+                } else {
+                    // Perform the action once
+                    self.action()
+                }
+            }) {
+                Text(self.title)
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .simultaneousGesture(LongPressGesture(minimumDuration: 0.2).onEnded { _ in
+                self.isLongPressing = true
+                // To start the timer
+                self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { _ in
+                    // Perform the action continuously
+                    self.action()
+                })
+            })
+        }
     }
 }
 
@@ -315,129 +381,23 @@ struct ExtendControlsView : View {
             VStack{
                 Spacer()
                 Text("Extend Side")
-                // Start of left right forward back
-                Button(action: {
-                    print("extend front")
-                    //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                    //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.extend_sides([0,0,-0.1]))
-                    
-                }) {
-                    Text("front (-X)")
-                        .padding(.horizontal,20)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0,0,-0.1]))}, title:"front")
                 HStack{
-                    Button(action: {
-                        print("extend left")
-                        //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                        //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.extend_sides([-0.1,0,0]))
-                        
-                    }) {
-                        Text("left")
-                            .padding(.horizontal,20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
-                    
-                    Button(action: {
-                        print("extend right")
-                        //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                        //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.extend_sides([0.1,0,0]))
-                        
-                    }) {
-                        Text("right")
-                            .padding(.horizontal,20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
+                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([-0.1,0,0]))}, title:"left")
+                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0.1,0,0]))}, title:"right")
                 }
-                
-                Button(action: {
-                    print("extend back")
-                    //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                    //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.extend_sides([0,0,0.1]))
-                    
-                }) {
-                    Text("back")
-                        .padding(.horizontal,20)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                // End of left right forward back
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0,0,0.1]))}, title:"back")
             }
             Spacer()
             VStack{
                 Spacer()
-                // Start of left right forward back
                 Text("Shrink Side")
-                Button(action: {
-                    print("front")
-                    //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                    //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,-0.1]))
-                    
-                }) {
-                    Text("front")
-                        .padding(.horizontal,20)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0,0,0.1]))}, title:"front")
                 HStack{
-                    Button(action: {
-                        print("shrink right")
-                        //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                        //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.shrink_sides([-0.1,0,0]))
-                        
-                    }) {
-                        Text("right")
-                            .padding(.horizontal,20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
-                    
-                    Button(action: {
-                        print("shrink left")
-                        //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                        //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.shrink_sides([0.1,0,0]))
-                        
-                    }) {
-                        Text("left")
-                            .padding(.horizontal,20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
+                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([-0.1,0,0]))}, title:"right")
+                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0.1,0,0]))}, title:"left")
                 }
-                
-                Button(action: {
-                    print("shrink back")
-                    //            let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
-                    //            box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.shrink_sides([0,0,0.1]))
-                    
-                }) {
-                    Text("back")
-                        .padding(.horizontal,20)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                // End of left right forward back
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0,0,-0.1]))}, title:"back")
             }
         }
     }

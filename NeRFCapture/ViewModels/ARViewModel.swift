@@ -39,7 +39,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         self.ddsWriter.setupDDS()
     }
     
-    // TODO: this could be deleted?
     func setupObservers() {
         datasetWriter.$writerState.sink {x in self.appState.writerState = x} .store(in: &cancellables)
         datasetWriter.$currentFrameCounter.sink { x in self.appState.numFrames = x }.store(in: &cancellables)
@@ -69,30 +68,41 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                     switch action {
                     case .heartbeat(let data):
                         print(data)
-                        
+                    
+                        // each action involves performing the action, rendering and updating the bounding box information
                     case .display_box(let boxVisible):
                         self?.display_box(boxVisible: boxVisible)
                         self?.boxVisible = boxVisible
+                        self?.update_boundingbox_manifest()
                         
                     case .set_center(let new_center):
                         self?.set_center(new_center: new_center)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        self?.update_boundingbox_manifest()
+
                         
                     case .set_angle(let new_angle):
                         self?.set_angle(new_angle: new_angle)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        self?.update_boundingbox_manifest()
+
 
                     case .set_scale(let new_scale):
                         self?.set_scale(new_scale: new_scale)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        self?.update_boundingbox_manifest()
+
                     
                     case .extend_sides(let scale_update):
                         self?.extend_sides(offset: scale_update)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        self?.update_boundingbox_manifest()
+
                         
                     case .shrink_sides(let scale_update):
                         self?.shrink_sides(offset: scale_update)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        self?.update_boundingbox_manifest()
                     }
                 }
                 .store(in: &cancellables)
@@ -145,6 +155,13 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     func shrink_sides(offset: [Float]){
         print("shrink side")
         boundingbox.shrink_side(offset)
+    }
+    
+    func update_boundingbox_manifest(){
+        print("creating json from bounding box")
+        let boundingBoxManifest = boundingbox.encode_as_json()
+        datasetWriter.boundingBoxManifest = boundingBoxManifest
+        print(boundingBoxManifest)
     }
     
     func resetWorldOrigin() {
