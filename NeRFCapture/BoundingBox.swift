@@ -36,6 +36,46 @@ scale: \(scale)
 """)
     }
     
+    func encode_as_json() -> BoundingBoxManifest
+    {
+//        let bounding_box_center = BoundingBoxManifest.XYZ(x: center[0], y: center[1], z: center[2])
+        let bounding_box_center = array_to_XYZ(array: self.center)
+        let rad_rot_about_y = rot_y
+        let bounding_box_positions = BoundingBoxManifest.Corners(top_left_front: array_to_XYZ(array: self.positions[0]),
+                                                                top_right_front: array_to_XYZ(array: self.positions[1]),
+                                                                bot_right_front: array_to_XYZ(array: self.positions[2]),
+                                                                bot_left_front: array_to_XYZ(array: self.positions[3]),
+                                                                top_left_back: array_to_XYZ(array: self.positions[4]),
+                                                                top_right_back: array_to_XYZ(array: self.positions[5]),
+                                                                bot_right_back: array_to_XYZ(array: self.positions[6]),
+                                                                bot_left_back: array_to_XYZ(array: self.positions[7]))
+        
+        let entity_anchor_4x4 = simd_float4x4_to_array(matrix: entity_anchor.transform.matrix)
+        
+        let sampleBoundingBox = BoundingBoxManifest(center: bounding_box_center,
+                                                    rad_rot_about_y: rad_rot_about_y,
+                                                    positions: bounding_box_positions,
+                                                    entity_anchor_4x4: entity_anchor_4x4)
+        return sampleBoundingBox
+    }
+    
+    func simd_float4x4_to_array(matrix: simd_float4x4) -> [[Float]]
+    {
+      var array = [[Float]](repeating: [Float](repeating: 0.0, count: 4), count: 4)
+      for i in 0..<4 {
+        for j in 0..<4 {
+          array[i][j] = matrix[i][j]
+        }
+      }
+      return array
+    }
+    
+    func array_to_XYZ(array: [Float]) -> BoundingBoxManifest.XYZ
+    {
+        return BoundingBoxManifest.XYZ(x:array[0], y:array[1], z:array[2])
+    }
+    
+    
     // Get the position relative to the camera
     func pos_relative_to_camera() -> SIMD3<Float>{
         return entity_anchor.position

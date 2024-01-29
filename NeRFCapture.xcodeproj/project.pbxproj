@@ -26,6 +26,7 @@
 		41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */; };
 		41421F632AF32AFA007C4CAC /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F622AF32AFA007C4CAC /* Item.swift */; };
 		41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F642AF86401007C4CAC /* BoundingBox.swift */; };
+		415B09592B62EE5A00500925 /* BoundingBoxManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */; };
 		41DEEA8B2AFC5924007934C2 /* ContentViewSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8A2AFC5924007934C2 /* ContentViewSwitcher.swift */; };
 		41DEEA8D2AFC5934007934C2 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8C2AFC5934007934C2 /* DetailView.swift */; };
 		41DEEA8F2AFC5944007934C2 /* GridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8E2AFC5944007934C2 /* GridItemView.swift */; };
@@ -75,6 +76,7 @@
 		41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryApp.swift; sourceTree = "<group>"; };
 		41421F622AF32AFA007C4CAC /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		41421F642AF86401007C4CAC /* BoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBox.swift; sourceTree = "<group>"; };
+		415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxManifest.swift; sourceTree = "<group>"; };
 		41DEEA8A2AFC5924007934C2 /* ContentViewSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSwitcher.swift; sourceTree = "<group>"; };
 		41DEEA8C2AFC5934007934C2 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		41DEEA8E2AFC5944007934C2 /* GridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridItemView.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 			children = (
 				C0C52AAB287EC26A0011820F /* Manifest.swift */,
 				C0C52AAD287EC33D0011820F /* AppState.swift */,
+				415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -314,6 +317,7 @@
 				0512301F29499F50003915D9 /* NeRFCaptureData.c in Sources */,
 				41DEEA8B2AFC5924007934C2 /* ContentViewSwitcher.swift in Sources */,
 				41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */,
+				415B09592B62EE5A00500925 /* BoundingBoxManifest.swift in Sources */,
 				0815361C2AFC626B0033B144 /* SendImagesToServerView.swift in Sources */,
 				41DEEA8F2AFC5944007934C2 /* GridItemView.swift in Sources */,
 				C0C52AAC287EC26A0011820F /* Manifest.swift in Sources */,

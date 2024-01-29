@@ -29,6 +29,7 @@ class DatasetWriter {
     }
     
     var manifest = Manifest()
+    var boundingBoxManifest: BoundingBoxManifest?
     var projectName = ""
     var projectDir = getDocumentsDirectory()
     var useDepthIfAvailable = true
@@ -96,20 +97,14 @@ class DatasetWriter {
             let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }
         }
         
-//        dataModel.initializeGallery()
-        
         writeManifestToPath(path: manifest_path)
-//        DispatchQueue.global().async {
-//            do {
-//                if zip {
-//                    let _ = try Zip.quickZipFiles([self.projectDir], fileName: self.projectName)
-//                }
-//                try FileManager.default.removeItem(at: self.projectDir)
-//            }
-//            catch {
-//                print("Could not zip")
-//            }
-//        }
+        
+        let boundingboxmanifest_path = getDocumentsDirectory()
+            .appendingPathComponent(projectName)
+            .appendingPathComponent("boundingbox.json")
+        
+        writeBoundingBoxManifestToPath(path: boundingboxmanifest_path)
+        
     }
      
     func finalizeProject(zip: Bool = true) {
@@ -124,6 +119,13 @@ class DatasetWriter {
             let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }}
         
         writeManifestToPath(path: manifest_path)
+
+        let boundingbox_manifest_path = getDocumentsDirectory()
+            .appendingPathComponent(projectName)
+            .appendingPathComponent("boundingbox.json")
+
+        writeBoundingBoxManifestToPath(path: boundingbox_manifest_path)
+        
         DispatchQueue.global().async {
             do {
                 if zip {
@@ -166,6 +168,19 @@ class DatasetWriter {
         encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.outputFormatting = .withoutEscapingSlashes
         if let encoded = try? encoder.encode(manifest) {
+            do {
+                try encoded.write(to: path)
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func writeBoundingBoxManifestToPath(path: URL) {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.outputFormatting = .withoutEscapingSlashes
+        if let encoded = try? encoder.encode(boundingBoxManifest) {
             do {
                 try encoded.write(to: path)
             } catch {
