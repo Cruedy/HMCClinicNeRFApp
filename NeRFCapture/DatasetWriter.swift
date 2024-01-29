@@ -9,6 +9,7 @@ import Foundation
 import ARKit
 import Zip
 import UIKit
+import AVFoundation
 
 
 extension UIImage {
@@ -35,6 +36,19 @@ class DatasetWriter {
     
     @Published var currentFrameCounter = 0
     @Published var writerState = SessionState.SessionNotStarted
+    
+    @IBOutlet var takePictureButton: UIBarButtonItem?
+    @IBOutlet var startStopButton: UIBarButtonItem?
+    @IBOutlet var delayedPhotoButton: UIBarButtonItem?
+    @IBOutlet var doneButton: UIBarButtonItem?
+    
+    
+    let imagePickerController: UIImagePickerController = {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        return picker
+    }()
+
     
     func projectExists(_ projectDir: URL) -> Bool {
         var isDir: ObjCBool = true
@@ -73,6 +87,37 @@ class DatasetWriter {
         writerState = .SessionStarted
     }
     
+//    func automaticCapture() {
+////        // Start the timer to take a photo every 5 seconds.
+////        startStopButton?.title = NSLocalizedString("Stop", comment: "Title for overlay view controller start/stop button")
+////        startStopButton?.action = #selector(stopAutomaticCapture)
+////        
+////        // Enable these buttons while capturing photos.
+////        doneButton?.isEnabled = false
+////        delayedPhotoButton?.isEnabled = false
+////        takePictureButton?.isEnabled = false
+//        cameraTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+//            if let frame = self.session?.currentFrame {
+//                self.datasetWriter.writeFrameToDisk(frame: frame)
+//            }
+//        }}
+//    }
+    
+//    @IBAction func stopAutomaticCapture(_ sender: UIBarButtonItem) {
+//        // Stop and reset the timer.
+//        cameraTimer.invalidate()
+//
+//        finalizeSession()
+//        
+//        // Make these buttons available again.
+//        self.doneButton?.isEnabled = true
+//        self.takePictureButton?.isEnabled = true
+//        self.delayedPhotoButton?.isEnabled = true
+//        
+//        startStopButton?.title = NSLocalizedString("Start", comment: "Title for overlay view controller start/stop button")
+//        startStopButton?.action = #selector(automaticCapture)
+//    }
+    
     func clean() {
         guard case .SessionStarted = writerState else { return; }
         writerState = .SessionNotStarted
@@ -99,17 +144,6 @@ class DatasetWriter {
 //        dataModel.initializeGallery()
         
         writeManifestToPath(path: manifest_path)
-//        DispatchQueue.global().async {
-//            do {
-//                if zip {
-//                    let _ = try Zip.quickZipFiles([self.projectDir], fileName: self.projectName)
-//                }
-//                try FileManager.default.removeItem(at: self.projectDir)
-//            }
-//            catch {
-//                print("Could not zip")
-//            }
-//        }
     }
      
     func finalizeProject(zip: Bool = true) {

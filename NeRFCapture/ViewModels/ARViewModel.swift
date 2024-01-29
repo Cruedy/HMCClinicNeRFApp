@@ -18,6 +18,7 @@ enum AppError : Error {
 
 class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     @Published var appState = AppState()
+    @Published var isFlashVisible = false
     var session: ARSession? = nil
     var arView: ARView? = nil
 //    let frameSubject = PassthroughSubject<ARFrame, Never>()
@@ -27,6 +28,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     let ddsWriter: DDSWriter
     var boundingBoxAnchor: AnchorEntity? = nil
     var boxVisible = false
+    var cameraTimer: Timer?
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter
@@ -164,6 +166,28 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     
     func get_bbox_scales() -> [Float] {
         return self.boundingbox.scale
+    }
+    
+    func startAutomaticCapture() {
+        cameraTimer?.invalidate()
+        // Schedule a new timer to call writeFrameToDisk every 5 seconds
+        cameraTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
+            if let frame = self.session?.currentFrame {
+                self.datasetWriter.writeFrameToDisk(frame: frame)
+                // Trigger the flash effect
+                self.isFlashVisible = true
+                // Hide flash after a short delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.isFlashVisible = false
+                }
+            }
+        }
+    }
+    
+    func stopAutomaticCapture() {
+        // Invalidate the timer to stop writing frames
+        self.isFlashVisible = false
+        cameraTimer?.invalidate()
     }
 }
 

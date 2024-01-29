@@ -20,6 +20,8 @@ struct TakingImagesView: View {
     @State public var box_center: [Float] = [0,0,0]
     @State public var rotate_angle: Float = 0.0
     @State public var slider: [Float] = [1,1,1]
+    @State public var cameraTimer = Timer()
+    @State private var isFlashVisible = false
     
 //    @Binding var boxVisible: Bool
 //    @Binding var moveLeft: Bool
@@ -141,9 +143,18 @@ struct TakingImagesView: View {
                 // View when taking images
                 if viewModel.appState.writerState == .SessionStarted {
                     Spacer()
-                    // Button to end the image collection session
+                    Button(action: {
+                        viewModel.startAutomaticCapture()
+                    }) {
+                        Text("Automatic Capture")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
                     Button(action: {
                         viewModel.datasetWriter.finalizeSession()
+                        viewModel.stopAutomaticCapture()
                         dataModel.initializeGallery()
                     }) {
                         Text("End")
@@ -154,17 +165,17 @@ struct TakingImagesView: View {
                     .buttonBorderShape(.capsule)
                     
                     // Button to save the current frame
-                    Button(action: {
-                        if let frame = viewModel.session?.currentFrame {
-                            viewModel.datasetWriter.writeFrameToDisk(frame: frame)
-                        }
-                    }) {
-                        Text("Save Frame")
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
+//                    Button(action: {
+//                        if let frame = viewModel.session?.currentFrame {
+//                            viewModel.datasetWriter.writeFrameToDisk(frame: frame)
+//                        }
+//                    }) {
+//                        Text("Save Frame")
+//                            .padding(.horizontal, 20)
+//                            .padding(.vertical, 5)
+//                    }
+//                    .buttonStyle(.borderedProminent)
+//                    .buttonBorderShape(.capsule)
                 }  // End of case SessionStarted
                 
                 HelpButton {
@@ -179,6 +190,13 @@ struct TakingImagesView: View {
             .padding()
             
         }  // End of main ZStack
+        .overlay(
+            // Flash overlay
+            Rectangle()
+                .fill(Color.white)
+                .opacity(viewModel.isFlashVisible ? 1 : 0) // Adjust opacity based on flash visibility
+                .animation(.easeInOut(duration: 0.2)) // Add animation to the flash
+        )
         .preferredColorScheme(.dark)
         // --- Navigation Bar ---
         .navigationBarTitle("Take Images")
@@ -193,5 +211,6 @@ struct TakingImagesView: View {
         }
         
     }  // End of body
+
 }   // End of TakingImagesView
 
