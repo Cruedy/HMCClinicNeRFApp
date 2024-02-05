@@ -227,4 +227,66 @@ scale: \(scale)
         positions = pos_from_center(center)
     }
     
+    
+    func updateBoundingBoxUsingPointCloud(frame: ARFrame, focusPoint: SIMD3<Float>) {
+        if let (plc_size, plc_center) = wrapPointCloud(frame: frame, focusPoint: focusPoint){
+            center = [plc_center[0], plc_center[1], plc_center[2]]
+            scale = [plc_size[0], plc_size[1], plc_size[2]]
+            positions = pos_from_center(center)
+        } else {
+            print("Couldn't use point cloud.")
+        }
+    }
+
+    func wrapPointCloud(frame: ARFrame, focusPoint: SIMD3<Float>) -> (size: SIMD3<Float>, center: SIMD3<Float>)? {
+        // Extract the ARPointCloud from the current frame.
+        let pointCloud = frame.rawFeaturePoints
+
+        // Create an empty array to store filtered points.
+        var filteredPoints: [SIMD3<Float>] = []
+
+        for point in pointCloud!.points {
+            // Customize your filtering criteria here.
+            // For example, you can skip points that are too far or filter outliers.
+
+            // Skip points that are too far from the device (adjust the threshold as needed).
+            let maxDistanceToCamera: Float = 5
+            if length(point - focusPoint) > maxDistanceToCamera {
+                continue
+            }
+
+            // Add the point to the filtered points array.
+            filteredPoints.append(point)
+        }
+
+        // Check if there are filtered points.
+        guard !filteredPoints.isEmpty else {
+            print("No filtered points found.")
+            return nil
+        }
+
+        // Calculate the minimum (`localMin`) and maximum (`localMax`) corners of the bounding box.
+        var localMin = SIMD3<Float>(repeating: Float.greatestFiniteMagnitude)
+        var localMax = SIMD3<Float>(repeating: -Float.greatestFiniteMagnitude)
+
+        for point in filteredPoints {
+            localMin = min(localMin, point)
+            localMax = max(localMax, point)
+        }
+
+        // Calculate the size and center of the bounding box.
+//        let plc_size = localMax - localMin
+//        let plc_center = (localMax + localMin) / 2
+//
+//        print("Filtered points count: \(filteredPoints.count)")
+//        print("Bounding box size: \(plc_size)")
+//        print("Bounding box center: \(plc_center)")
+
+        
+        let plc_center = focusPoint
+        let plc_size = SIMD3<Float>(scale)
+        return (plc_size, plc_center)
+    }
+
+
 }

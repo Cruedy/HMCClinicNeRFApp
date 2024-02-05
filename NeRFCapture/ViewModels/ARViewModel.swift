@@ -91,6 +91,12 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                     case .shrink_sides(let scale_update):
                         self?.shrink_sides(offset: scale_update)
                         self?.display_box(boxVisible: self!.boxVisible)
+                        
+                    case .fit_point_cloud(let frame):
+                        self?.fit_point_cloud(frame: frame)
+                        self?.display_box(boxVisible: self!.boxVisible)
+
+                        
                     }
                 }
                 .store(in: &cancellables)
@@ -145,6 +151,56 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         boundingbox.shrink_side(offset)
     }
     
+    func fit_point_cloud(frame: ARFrame) {
+        print("Fitting point cloud")
+        
+        // Check if arView is not nil
+        guard let arView = arView else {
+            print("arView is nil")
+            return
+        }
+        
+        // Calculate the screen center
+        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+        
+        // Perform the raycast
+        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
+        
+        // Check if there are any raycast results
+        guard let hitResult = raycastResults.first else {
+            print("No raycast results found")
+            return
+        }
+        
+        // Use the hitResult to get the focus point
+        let translationMatrix = SIMD4<Float>(0, 0, 0, 1) // Create a vector at the origin
+//        let translation = worldTransform * translationMatrix
+//        let translationVector = SIMD3<Float>(translation.x, translation.y, translation.z)
+        let translation = hitResult.worldTransform * translationMatrix
+        let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
+
+        // Assuming boundingbox is your BoundingBoxView instance
+        boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: userFocusPoint)
+    }
+    
+//    func fit_point_cloud(frame: ARFrame){
+//        print("fitting pooint cloud")
+//        if (arView != nil) {
+//            if (let midX = arView?.bounds.midX;) & (let midY = arView?.bounds.midY)
+//            {
+//                let screenCenter = CGPoint(x: arView?.bounds.midX ?? default value, y: arView?.bounds.midY ?? <#default value#>)
+//                let raycastResults = arView?.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
+//                boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: <#T##SIMD3<Float>#>)
+//
+//            }
+//            
+//    //        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+//    //        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
+//
+//        }
+//        
+//    }
+    
     func resetWorldOrigin() {
         session?.pause()
         let config = createARConfiguration()
@@ -175,6 +231,7 @@ enum Actions {
     case set_scale([Float])
     case extend_sides([Float])
     case shrink_sides([Float])
+    case fit_point_cloud(ARFrame)
 }
 
 

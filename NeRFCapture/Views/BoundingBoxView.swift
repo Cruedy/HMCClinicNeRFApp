@@ -48,7 +48,7 @@ struct BoundingBoxView: View {
                                 Text("Rotate").tag(MovementModes.rotate)
                                 Text("Scale").tag(MovementModes.scale)
                                 Text("Extend").tag(MovementModes.extend)
-
+                                Text("Point Cloud").tag(MovementModes.pointCloud)
                             }
                             .frame(maxWidth: 200)
                             .padding(0)
@@ -100,6 +100,9 @@ struct BoundingBoxView: View {
                             }
                             else if mode == MovementModes.extend{
                                 ExtendControlsView(vm: viewModel)
+                            }
+                            else if mode == MovementModes.pointCloud{
+                                PointCloudControlsView(vm: viewModel)
                             }
                         }
                     }
@@ -402,12 +405,45 @@ struct ExtendControlsView : View {
         }
     }
 }
-    
+
+struct PointCloudControlsView: View {
+    @ObservedObject var viewModel: ARViewModel
+    init(vm: ARViewModel){
+        viewModel = vm
+    }
+    var body: some View {
+        VStack{
+            Spacer()
+            
+            if let frame = viewModel.session?.currentFrame {
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.fit_point_cloud(frame))}, title:"Use PCL")
+            }
+            
+//            Button(action: {
+//                print("fitting around point cloud")
+////                box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
+////                ActionManager.shared.actionStream.send(.set_center(box_center))
+//                if let frame = viewModel.session?.currentFrame {
+//                    print("I have a valid frame")
+//                    ActionManager.shared.actionStream.send(.fit_point_cloud(frame))
+//                }
+//
+//            }) {
+//                Text("Use PCL")
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//            }
+//            .buttonStyle(.bordered)
+//            .buttonBorderShape(.capsule)
+        }
+    }
+}
 enum MovementModes {
     case translate
     case rotate
     case scale
     case extend
+    case pointCloud
 }
 
 #if DEBUG
