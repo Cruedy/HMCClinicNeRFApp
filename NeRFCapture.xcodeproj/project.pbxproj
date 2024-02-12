@@ -28,6 +28,9 @@
 		41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F642AF86401007C4CAC /* BoundingBox.swift */; };
 		415B09552B5F227F00500925 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09542B5F227F00500925 /* SwiftUIView.swift */; };
 		415B09572B5F23F600500925 /* PointCloudBoundingBoxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09562B5F23F600500925 /* PointCloudBoundingBoxUtils.swift */; };
+		41C93FE62B71958000F8722E /* BoundingBoxSMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE52B71958000F8722E /* BoundingBoxSMView.swift */; };
+		41C93FE82B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE72B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift */; };
+		41C93FEA2B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE92B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift */; };
 		41DEEA8B2AFC5924007934C2 /* ContentViewSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8A2AFC5924007934C2 /* ContentViewSwitcher.swift */; };
 		41DEEA8D2AFC5934007934C2 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8C2AFC5934007934C2 /* DetailView.swift */; };
 		41DEEA8F2AFC5944007934C2 /* GridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DEEA8E2AFC5944007934C2 /* GridItemView.swift */; };
@@ -79,6 +82,9 @@
 		41421F642AF86401007C4CAC /* BoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBox.swift; sourceTree = "<group>"; };
 		415B09542B5F227F00500925 /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 		415B09562B5F23F600500925 /* PointCloudBoundingBoxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointCloudBoundingBoxUtils.swift; sourceTree = "<group>"; };
+		41C93FE52B71958000F8722E /* BoundingBoxSMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxSMView.swift; sourceTree = "<group>"; };
+		41C93FE72B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BoundingBoxSM-InputDimensions.swift"; sourceTree = "<group>"; };
+		41C93FE92B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BoundingBoxSM-PlaceBox.swift"; sourceTree = "<group>"; };
 		41DEEA8A2AFC5924007934C2 /* ContentViewSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewSwitcher.swift; sourceTree = "<group>"; };
 		41DEEA8C2AFC5934007934C2 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		41DEEA8E2AFC5944007934C2 /* GridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridItemView.swift; sourceTree = "<group>"; };
@@ -213,6 +219,9 @@
 				41DEEA8C2AFC5934007934C2 /* DetailView.swift */,
 				41DEEA8E2AFC5944007934C2 /* GridItemView.swift */,
 				41DEEA902AFC5955007934C2 /* GridView.swift */,
+				41C93FE52B71958000F8722E /* BoundingBoxSMView.swift */,
+				41C93FE72B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift */,
+				41C93FE92B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift */,
 				081536172AFC624F0033B144 /* BoundingBoxView.swift */,
 				081536192AFC62590033B144 /* IntroInstructionsView.swift */,
 				0815361B2AFC626B0033B144 /* SendImagesToServerView.swift */,
@@ -310,6 +319,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41C93FE82B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift in Sources */,
 				41421F632AF32AFA007C4CAC /* Item.swift in Sources */,
 				C0C52AAA287EC2470011820F /* ARViewContainer.swift in Sources */,
 				050A8EFA296E738300C5C638 /* DatasetWriter.swift in Sources */,
@@ -322,9 +332,11 @@
 				41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */,
 				0815361C2AFC626B0033B144 /* SendImagesToServerView.swift in Sources */,
 				41DEEA8F2AFC5944007934C2 /* GridItemView.swift in Sources */,
+				41C93FE62B71958000F8722E /* BoundingBoxSMView.swift in Sources */,
 				C0C52AAC287EC26A0011820F /* Manifest.swift in Sources */,
 				0815361A2AFC62590033B144 /* IntroInstructionsView.swift in Sources */,
 				41DEEA8D2AFC5934007934C2 /* DetailView.swift in Sources */,
+				41C93FEA2B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift in Sources */,
 				41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */,
 				C0C52A90287E7F940011820F /* AppDelegate.swift in Sources */,
 				41421F572AF32A92007C4CAC /* DataModel.swift in Sources */,

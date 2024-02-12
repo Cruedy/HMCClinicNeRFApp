@@ -67,6 +67,7 @@ struct InstructionsView: View {
     ]
 }
 
+@available(iOS 16.0, *)
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
     @StateObject var dataModel = DataModel()
@@ -82,7 +83,7 @@ struct IntroInstructionsView: View {
         // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: BoundingBoxView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
+                NavigationLink("Next", destination: BoundingBoxSMView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
                                 .navigationViewStyle(.stack)
             }
         }

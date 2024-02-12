@@ -26,7 +26,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     let datasetWriter: DatasetWriter
     let ddsWriter: DDSWriter
     var boundingBoxAnchor: AnchorEntity? = nil
-    var boxVisible = false
+    var boxVisible = true
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter
@@ -95,8 +95,10 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                     case .fit_point_cloud(let frame):
                         self?.fit_point_cloud(frame: frame)
                         self?.display_box(boxVisible: self!.boxVisible)
-
-                        
+                    
+                    case .drop(let frame):
+                        self?.findFloorHeight(frame: frame)
+                        self?.display_box(boxVisible: self!.boxVisible)
                     }
                 }
                 .store(in: &cancellables)
@@ -112,13 +114,17 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         return configuration
     }
     func display_box(boxVisible: Bool) {
-        if (boxVisible){
+        if (boxVisible){        
+            print("displaying box")
+
             if boundingBoxAnchor != nil{
                 arView?.scene.removeAnchor(boundingBoxAnchor!)
             }
             boundingBoxAnchor = boundingbox.addNewBoxToScene()
             arView?.scene.anchors.append(boundingBoxAnchor!)
         } else {
+            print("not displaying box")
+
             if boundingBoxAnchor != nil{
                 arView?.scene.removeAnchor(boundingBoxAnchor!)
             }
@@ -180,8 +186,90 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
 
         // Assuming boundingbox is your BoundingBoxView instance
-        boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: userFocusPoint)
+//        boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: userFocusPoint)
+        boundingbox.set_center_xy(newCenter: userFocusPoint)
     }
+    
+    func findFloorHeight(frame: ARFrame){
+        print("Find Floor height")
+        
+        // Check if arView is not nil
+        guard let arView = arView else {
+            print("arView is nil")
+            return
+        }
+        
+        // Calculate the screen center
+        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+        
+        // Perform the raycast
+        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .horizontal)
+        
+        // Check if there are any raycast results
+        guard let hitResult = raycastResults.first else {
+            print("No raycast results found")
+            return
+        }
+        
+        // Use the hitResult to get the focus point
+        let translationMatrix = SIMD4<Float>(0, 0, 0, 1) // Create a vector at the origin
+//        let translation = worldTransform * translationMatrix
+//        let translationVector = SIMD3<Float>(translation.x, translation.y, translation.z)
+        let translation = hitResult.worldTransform * translationMatrix
+        let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
+
+        // Assuming boundingbox is your BoundingBoxView instance
+//        boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: userFocusPoint)
+        print("""
+
+    Height: \(translation.y)
+
+    """)
+        boundingbox.setFloor(height: translation.y)
+    }
+    
+//    func dropBoundingBox(){
+//        let height = boundingBoxHeight()
+//        print("height: ")
+//        print(height)
+//        boundingbox.update_center([0, -1*height, 0])
+//    }
+//    
+//    func boundingBoxHeight() -> Float{
+//
+//        let bot_right_front = boundingbox.positions[2]
+//        let bot_left_front = boundingbox.positions[3]
+//        let bot_right_back = boundingbox.positions[6]
+//        let bot_left_back = boundingbox.positions[7]
+//        let bot_right_front_height = raycastToGround(from: bot_right_front) ?? Float.greatestFiniteMagnitude
+//        let bot_left_front_height = raycastToGround(from: bot_left_front) ?? Float.greatestFiniteMagnitude
+//        let bot_right_back_height = raycastToGround(from: bot_right_back) ?? Float.greatestFiniteMagnitude
+//        let bot_left_back_height = raycastToGround(from: bot_left_back) ?? Float.greatestFiniteMagnitude
+//        
+//        return min(bot_right_front_height, bot_left_front_height, bot_right_back_height, bot_left_back_height)
+//    }
+//    
+//    // Perform raycasting to detect the ground plane from a given corner
+//    func raycastToGround(from corner: [Float]) -> Float? {
+//        // Convert corner coordinates to a CGPoint for raycasting
+//        
+//        let cornerPoint = simd_float3(corner[0], corner[1], corner[2])
+//        let direction = simd_float3(0,-1,0)
+//
+//        guard let raycastResults = arView?.scene.raycast(origin: cornerPoint, direction: direction),
+//              let result = raycastResults.first
+//        else {
+//            return nil
+//        }
+//
+//        // Extract the position where the ray intersects with the ground
+//        let groundPosition = result.position
+//
+//        // Calculate the height above the ground
+//        let heightAboveGround = corner[1] - groundPosition.y
+//
+//        return heightAboveGround
+//    }
     
 //    func fit_point_cloud(frame: ARFrame){
 //        print("fitting pooint cloud")
@@ -232,6 +320,7 @@ enum Actions {
     case extend_sides([Float])
     case shrink_sides([Float])
     case fit_point_cloud(ARFrame)
+    case drop(ARFrame)
 }
 
 

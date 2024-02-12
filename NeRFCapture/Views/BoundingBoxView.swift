@@ -417,7 +417,10 @@ struct PointCloudControlsView: View {
             
             if let frame = viewModel.session?.currentFrame {
                 PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.fit_point_cloud(frame))}, title:"Use PCL")
+                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.drop(frame))}, title:"drop to floor")
+
             }
+            
             
 //            Button(action: {
 //                print("fitting around point cloud")
