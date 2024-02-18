@@ -20,14 +20,6 @@ struct InputDimensionsView : View {
     @Binding public var box_center: [Float]
     @Binding public var rotate_angle: Float
     @Binding public var slider_xyz: [Float]
-//    init(xyz: Binding<[Float]>, states: Binding<BoundingBoxPlacementStates>){
-//            _slider_xyz = xyz
-//            _bbox_placement_states = states
-//            ActionManager.shared.actionStream.send(.display_box(boxVisible))
-//            ActionManager.shared.actionStream.send(.set_center(box_center))
-//            ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
-//            ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-//        }
     
     init( vm: ARViewModel, states: Binding<BoundingBoxPlacementStates>, place_box_mode: Binding<MovementModes>,
           boxVisible: Binding<Bool>, box_center: Binding<[Float]>, rotate_angle: Binding<Float>, slider_xyz: Binding<[Float]>){

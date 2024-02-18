@@ -67,7 +67,7 @@ struct InstructionsView: View {
     ]
 }
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
     @StateObject var dataModel = DataModel()

@@ -289,51 +289,6 @@ struct ScaleControlsView : View {
     }
 }
 
-//
-//struct PressAndHoldButton: View {
-//    @State private var timer: Timer?
-//    @State var isLongPressing = false
-//    // function action
-//    
-//    // init(action: a function){
-//    // action = action
-//    //}
-//    var body: some View {
-//        VStack {
-//            
-//            Button(action: {
-//                print("tap")
-//                if(self.isLongPressing){
-//                    //this tap was caused by the end of a longpress gesture, so stop our fastforwarding
-//                    self.isLongPressing.toggle()
-//                    self.timer?.invalidate()
-//                    
-//                } else {
-//                    //just a regular tap
-//                    print("just Once")
-//                    //do action
-//                    
-//                }
-//            }, label: {
-//                Image(systemName: self.isLongPressing ? "chevron.right.2": "chevron.right")
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 30, height: 30)
-//                
-//            })
-//            .simultaneousGesture(LongPressGesture(minimumDuration: 0.2).onEnded { _ in
-//                print("long press")
-//                self.isLongPressing = true
-//                //or fastforward has started to start the timer
-//                self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { _ in
-//                    print("your holding")
-//                    // do action
-//                })
-//            })
-//        }
-//    }
-//}
-
 struct PressAndHoldButton: View {
     @State private var timer: Timer?
     @State var isLongPressing = false
@@ -416,28 +371,10 @@ struct PointCloudControlsView: View {
             Spacer()
             
             if let frame = viewModel.session?.currentFrame {
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.fit_point_cloud(frame))}, title:"Use PCL")
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.drop(frame))}, title:"drop to floor")
+//                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.raycast_center(frame))}, title:"Use PCL")
+//                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.drop(frame))}, title:"drop to floor")
 
             }
-            
-            
-//            Button(action: {
-//                print("fitting around point cloud")
-////                box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
-////                ActionManager.shared.actionStream.send(.set_center(box_center))
-//                if let frame = viewModel.session?.currentFrame {
-//                    print("I have a valid frame")
-//                    ActionManager.shared.actionStream.send(.fit_point_cloud(frame))
-//                }
-//
-//            }) {
-//                Text("Use PCL")
-//                    .padding(.horizontal,20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
         }
     }
 }

@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

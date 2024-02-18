@@ -54,15 +54,13 @@ scale: \(scale)
     // Calculate positions of the bounding box corners relative to the center
     func pos_from_center(_ point:[Float]) -> [[Float]]{
         // Calculate corner positions based on rotation and scaling
-        
-//        let center_2d = [0,0]
-        
-        var top_left_front = pairwise_add(simd_float3(point), rot_about_y(angle:rot_y , point: [-1.0*scale[0]/2.0, 1.0*scale[1]/2.0, -1.0*scale[2]/2.0]))
-        var top_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, -1*scale[2]/2]))
+                
+        let top_left_front = pairwise_add(simd_float3(point), rot_about_y(angle:rot_y , point: [-1.0*scale[0]/2.0, 1.0*scale[1]/2.0, -1.0*scale[2]/2.0]))
+        let top_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, -1*scale[2]/2]))
         var bot_right_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, -1*scale[1]/2, -1*scale[2]/2]))
         var bot_left_front = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, -1*scale[1]/2, -1*scale[2]/2]))
-        var top_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
-        var top_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
+        let top_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
+        let top_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, 1*scale[1]/2, 1*scale[2]/2]))
         var bot_right_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [1*scale[0]/2, -1*scale[1]/2, 1*scale[2]/2]))
         var bot_left_back = pairwise_add(simd_float3(point), rot_about_y(angle: rot_y, point: [-1*scale[0]/2, -1*scale[1]/2, 1*scale[2]/2]))
         if let floor = floor{
@@ -182,7 +180,7 @@ scale: \(scale)
         self.positions = self.pos_from_center(self.center)
         print("positions")
         print(self.positions)
-        var descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
+        let descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
         for descr in descrs {
             let material = UnlitMaterial(color: .orange)
             
@@ -204,6 +202,9 @@ scale: \(scale)
     
     func update_scale(_ scale_mult:[Float]) {
         self.scale = pairwise_mult(self.scale, scale_mult)
+        if let floor=floor {
+            self.center[1] = self.scale[1]/2 + floor
+        }
     }
     
     func update_angle(_ offset: Float) {
@@ -217,11 +218,14 @@ scale: \(scale)
     
     func set_scale(_ new_scale:[Float]) {
         self.scale = new_scale
+        if let floor=floor {
+            self.center[1] = self.scale[1]/2 + floor
+        }
     }
+    
     func set_angle(_ new_angle: Float) {
         self.rot_y = new_angle
     }
-    
     
     // Extend and shrink sides
     func extend_side(_ offset: [Float]){
@@ -248,70 +252,9 @@ scale: \(scale)
         }
         center = [newCenter[0], y_center, newCenter[2]]
     }
-    
-//    func updateBoundingBoxUsingPointCloud(frame: ARFrame, focusPoint: SIMD3<Float>) {
-//        if let (plc_size, plc_center) = wrapPointCloud(frame: frame, focusPoint: focusPoint){
-//            center = [plc_center[0], plc_center[1], plc_center[2]]
-//            scale = [plc_size[0], plc_size[1], plc_size[2]]
-//            positions = pos_from_center(center)
-//        } else {
-//            print("Couldn't use point cloud.")
-//        }
-//    }
-//
-//    func wrapPointCloud(frame: ARFrame, focusPoint: SIMD3<Float>) -> (size: SIMD3<Float>, center: SIMD3<Float>)? {
-//        // Extract the ARPointCloud from the current frame.
-//        let pointCloud = frame.rawFeaturePoints
-//
-//        // Create an empty array to store filtered points.
-//        var filteredPoints: [SIMD3<Float>] = []
-//
-//        for point in pointCloud!.points {
-//            // Customize your filtering criteria here.
-//            // For example, you can skip points that are too far or filter outliers.
-//
-//            // Skip points that are too far from the device (adjust the threshold as needed).
-//            let maxDistanceToCamera: Float = 5
-//            if length(point - focusPoint) > maxDistanceToCamera {
-//                continue
-//            }
-//
-//            // Add the point to the filtered points array.
-//            filteredPoints.append(point)
-//        }
-//
-//        // Check if there are filtered points.
-//        guard !filteredPoints.isEmpty else {
-//            print("No filtered points found.")
-//            return nil
-//        }
-//
-//        // Calculate the minimum (`localMin`) and maximum (`localMax`) corners of the bounding box.
-//        var localMin = SIMD3<Float>(repeating: Float.greatestFiniteMagnitude)
-//        var localMax = SIMD3<Float>(repeating: -Float.greatestFiniteMagnitude)
-//
-//        for point in filteredPoints {
-//            localMin = min(localMin, point)
-//            localMax = max(localMax, point)
-//        }
-//
-//        // Calculate the size and center of the bounding box.
-////        let plc_size = localMax - localMin
-////        let plc_center = (localMax + localMin) / 2
-////
-////        print("Filtered points count: \(filteredPoints.count)")
-////        print("Bounding box size: \(plc_size)")
-////        print("Bounding box center: \(plc_center)")
-//
-//        
-//        let plc_center = focusPoint
-//        let plc_size = SIMD3<Float>(scale)
-//        return (plc_size, plc_center)
-//    }
-    
+
     func setFloor(height:Float) {
         floor = height
     }
     
-
 }

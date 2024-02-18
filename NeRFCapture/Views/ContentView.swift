@@ -119,7 +119,7 @@ import SwiftUI
 import ARKit
 import RealityKit
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 
 struct ContentView : View {
     @StateObject private var viewModel: ARViewModel  // For bounding box
