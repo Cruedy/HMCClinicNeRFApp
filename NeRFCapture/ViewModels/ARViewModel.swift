@@ -33,7 +33,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     let datasetWriter: DatasetWriter
     let ddsWriter: DDSWriter
     var boundingBoxAnchor: AnchorEntity? = nil
-    var boxVisible = false
+    var boxVisible = true
     var cameraTimer: Timer?
     var locationTimer: Timer?
     var velocityTimer: Timer?
@@ -112,6 +112,15 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
                         self?.shrink_sides(offset: scale_update)
                         self?.display_box(boxVisible: self!.boxVisible)
                         self?.update_boundingbox_manifest()
+                        
+                    case .raycast_center(let at, let frame):
+                        self?.raycast_bounding_box_center(at:at, frame: frame)
+                        self?.display_box(boxVisible: self!.boxVisible)
+                    
+                    case .set_floor(let at, let frame):
+                        self?.findFloorHeight(at: at, frame: frame)
+                        self?.display_box(boxVisible: self!.boxVisible)
+                    
                     }
                 }
                 .store(in: &cancellables)
@@ -126,45 +135,147 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
         }
         return configuration
     }
+    
     func display_box(boxVisible: Bool) {
-        if (boxVisible){
+        if (boxVisible){        
+            print("displaying box")
+
             if boundingBoxAnchor != nil{
                 arView?.scene.removeAnchor(boundingBoxAnchor!)
             }
             boundingBoxAnchor = boundingbox.addNewBoxToScene()
             arView?.scene.anchors.append(boundingBoxAnchor!)
         } else {
+            print("not displaying box")
+
             if boundingBoxAnchor != nil{
                 arView?.scene.removeAnchor(boundingBoxAnchor!)
             }
         }
-    }
-    func set_center(new_center: [Float]){
-        print("got movement")
-        boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
-
+        update_boundingbox_manifest()
     }
     
-    func set_angle(new_angle: Float){
+    func set_center(new_center: [Float]) -> [Float] {
+        let center = boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
+        display_box(boxVisible: boxVisible)
+        update_boundingbox_manifest()
+        return center
+    }
+    
+    func set_angle(new_angle: Float) -> Float {
         print("got angle")
-        boundingbox.set_angle(new_angle/180*3.1415926)
+        let angle = boundingbox.set_angle(new_angle/180*3.1415926)
+        display_box(boxVisible: boxVisible)
+        update_boundingbox_manifest()
+        return new_angle
     }
     
-    func set_scale(new_scale: [Float]){
+    func set_scale(new_scale: [Float]) -> [Float] {
         print("got scale")
-        boundingbox.set_scale(new_scale)
-
+        let scale = boundingbox.set_scale(new_scale)
+        display_box(boxVisible: boxVisible)
+        update_boundingbox_manifest()
+        return scale
     }
     
-    func extend_sides(offset: [Float]){
+    func extend_sides(offset: [Float]) -> ([Float], [Float]){
         print("extending side")
-        boundingbox.extend_side(offset)
+        let (center, scale) = boundingbox.extend_side(offset)
+        update_boundingbox_manifest()
+        return (center, scale)
     }
     
-    func shrink_sides(offset: [Float]){
+    func shrink_sides(offset: [Float]) -> ([Float], [Float]){
         print("shrink side")
-        boundingbox.shrink_side(offset)
+        let (center, scale) = boundingbox.shrink_side(offset)
+        display_box(boxVisible: boxVisible)
+        update_boundingbox_manifest()
+        return (center, scale)
     }
+    
+//    func get_box_scale() -> [Float]{
+//        return boundingbox.scale;
+//    }
+//    
+//    func get_box_center() -> [Float]{
+//        return boundingbox.center;
+//    }
+//    
+//    func get_box_rotation() -> Float{
+//        return boundingbox.rot_y
+//    }
+    
+    func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]{
+        
+        // Check if arView is not nil
+        guard let arView = arView else {
+            print("arView is nil")
+            return boundingbox.center
+        }
+        
+        // Calculate the screen center
+//        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+        
+        // Perform the raycast
+//        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
+        let raycastResults = arView.raycast(from: screenPoint, allowing: .estimatedPlane, alignment: .any)
+
+        
+        // Check if there are any raycast results
+        guard let hitResult = raycastResults.first else {
+            print("No raycast results found")
+            return boundingbox.center
+        }
+        // Use the hitResult to get the point of intersection
+        let translationMatrix = SIMD4<Float>(0, 0, 0, 1)
+        let translation = hitResult.worldTransform * translationMatrix
+        let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
+
+        let center = boundingbox.set_center_xy(newCenter: userFocusPoint)
+        display_box(boxVisible: boxVisible)
+        update_boundingbox_manifest()
+        return center
+    }
+    
+    func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame){
+        print("Find Floor height")
+        
+        // Check if arView is not nil
+        guard let arView = arView else {
+            print("arView is nil")
+            return
+        }
+        
+        // Calculate the screen center
+//        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+        
+        // Perform the raycast
+//        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .horizontal)
+        let raycastResults = arView.raycast(from: screenPoint, allowing: .estimatedPlane, alignment: .horizontal)
+
+        // Check if there are any raycast results
+        guard let hitResult = raycastResults.first else {
+            print("No raycast results found")
+            return
+        }
+        
+        // Use the hitResult to get the focus point
+        let translationMatrix = SIMD4<Float>(0, 0, 0, 1) // Create a vector at the origin
+//        let translation = worldTransform * translationMatrix
+//        let translationVector = SIMD3<Float>(translation.x, translation.y, translation.z)
+        let translation = hitResult.worldTransform * translationMatrix
+//        let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
+
+        // Assuming boundingbox is your BoundingBoxView instance
+//        boundingbox.updateBoundingBoxUsingPointCloud(frame: frame, focusPoint: userFocusPoint)
+        print("""
+
+    Height: \(translation.y)
+
+    """)
+        boundingbox.setFloor(height: translation.y)
+    }
+    
     
     func update_boundingbox_manifest(){
         print("creating json from bounding box")
@@ -338,6 +449,9 @@ enum Actions {
     case set_scale([Float])
     case extend_sides([Float])
     case shrink_sides([Float])
+    case raycast_center(CGPoint, ARFrame)
+    case set_floor(CGPoint, ARFrame)
+//    case get_box_info
 }
 
 
