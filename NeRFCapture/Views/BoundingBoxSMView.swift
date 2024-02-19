@@ -68,6 +68,18 @@ struct BoundingBoxSMView: View {
                 self.content
             }
         }
+        .preferredColorScheme(.dark)
+        // --- Navigation Bar ---
+        .navigationBarTitle("Create Bounding Box")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        // --- Tool Bar ---
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
+                                .navigationViewStyle(.stack)
+            }
+        }
     }
     
     @available(iOS 17.0, *)
@@ -81,7 +93,9 @@ struct BoundingBoxSMView: View {
                                                     place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))
         }
       }
+    
 }  // End of BoundingBoxView
+
 
 
 enum BoundingBoxPlacementStates {
