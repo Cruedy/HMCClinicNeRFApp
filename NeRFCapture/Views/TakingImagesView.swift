@@ -67,6 +67,18 @@ struct TakingImagesView: View {
                             Spacer()
                         }
                     }.padding(8)
+                    ZStack(alignment: .leading) {
+                        Text("\(viewModel.userVelWarning)")
+                            .padding()
+                            .background(Color.black.opacity(0.4)) // Background color of the box
+                            .cornerRadius(10) // Corner radius of the box
+                    }.padding()
+                    ZStack(alignment: .leading) { 
+                        Text("\(viewModel.velocity)")
+                            .padding()
+                            .background(Color.black.opacity(0.4)) // Background color of the box
+                            .cornerRadius(10) // Corner radius of the box
+                    }.padding()
                     HStack() {
                         Spacer()
                         
@@ -77,6 +89,9 @@ struct TakingImagesView: View {
                             if case .Offline = viewModel.appState.appMode {
                                 if case .SessionStarted = viewModel.appState.writerState {
                                     Text("\(viewModel.datasetWriter.currentFrameCounter) Frames")
+                                }
+                                if case .SessionPaused = viewModel.appState.writerState {
+                                    Text("Session Paused at \(viewModel.datasetWriter.currentFrameCounter) Frames")
                                 }
                             }
                             
@@ -116,13 +131,29 @@ struct TakingImagesView: View {
                             catch {
                                 print("\(error)")
                             }
+                            viewModel.trackVelocity()
+                            viewModel.startAutomaticCapture()
                         }) {
-                            Text("Start")
+                            Text("Automatic Capture")
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 5)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
+//                        Button(action: {
+//                            do {
+//                                try viewModel.datasetWriter.initializeProject()
+//                            }
+//                            catch {
+//                                print("\(error)")
+//                            }
+//                        }) {
+//                            Text("Start")
+//                                .padding(.horizontal, 20)
+//                                .padding(.vertical, 5)
+//                        }
+//                        .buttonStyle(.borderedProminent)
+//                        .buttonBorderShape(.capsule)
                         
                         // Button to send the data
                         Button(action: {
@@ -144,9 +175,12 @@ struct TakingImagesView: View {
                 if viewModel.appState.writerState == .SessionStarted {
                     Spacer()
                     Button(action: {
-                        viewModel.startAutomaticCapture()
+                        viewModel.stopTrackingLocation()
+                        viewModel.stopTrackingVelocity()
+                        viewModel.datasetWriter.pauseSession()
+                        viewModel.stopAutomaticCapture()
                     }) {
-                        Text("Automatic Capture")
+                        Text("Stop Automatic Capture")
                             .padding(.horizontal, 20)
                             .padding(.vertical, 5)
                     }
@@ -177,6 +211,34 @@ struct TakingImagesView: View {
 //                    .buttonStyle(.borderedProminent)
 //                    .buttonBorderShape(.capsule)
                 }  // End of case SessionStarted
+                
+                // View when session is paused
+                if viewModel.appState.writerState == .SessionPaused {
+                    Spacer()
+                    // Button to start image collection session 
+                    Button(action: {
+                        viewModel.startAutomaticCapture()
+                        viewModel.trackVelocity()
+                        viewModel.appState.writerState = .SessionStarted
+                    }) {
+                        Text("Automatic Capture")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    Button(action: {
+                        viewModel.datasetWriter.finalizeSession()
+                        viewModel.stopAutomaticCapture()
+                        dataModel.initializeGallery()
+                    }) {
+                        Text("End")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                }  // End of case SessionPaused
                 
                 HelpButton {
                     showingInstructions = true

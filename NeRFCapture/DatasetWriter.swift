@@ -27,6 +27,7 @@ class DatasetWriter {
     enum SessionState {
         case SessionNotStarted
         case SessionStarted
+        case SessionPaused
     }
     
     var manifest = Manifest()
@@ -88,39 +89,13 @@ class DatasetWriter {
         writerState = .SessionStarted
     }
     
-//    func automaticCapture() {
-////        // Start the timer to take a photo every 5 seconds.
-////        startStopButton?.title = NSLocalizedString("Stop", comment: "Title for overlay view controller start/stop button")
-////        startStopButton?.action = #selector(stopAutomaticCapture)
-////        
-////        // Enable these buttons while capturing photos.
-////        doneButton?.isEnabled = false
-////        delayedPhotoButton?.isEnabled = false
-////        takePictureButton?.isEnabled = false
-//        cameraTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-//            if let frame = self.session?.currentFrame {
-//                self.datasetWriter.writeFrameToDisk(frame: frame)
-//            }
-//        }}
-//    }
-    
-//    @IBAction func stopAutomaticCapture(_ sender: UIBarButtonItem) {
-//        // Stop and reset the timer.
-//        cameraTimer.invalidate()
-//
-//        finalizeSession()
-//        
-//        // Make these buttons available again.
-//        self.doneButton?.isEnabled = true
-//        self.takePictureButton?.isEnabled = true
-//        self.delayedPhotoButton?.isEnabled = true
-//        
-//        startStopButton?.title = NSLocalizedString("Start", comment: "Title for overlay view controller start/stop button")
-//        startStopButton?.action = #selector(automaticCapture)
-//    }
+    func pauseSession() {
+        writerState = .SessionPaused
+    }
     
     func clean() {
         guard case .SessionStarted = writerState else { return; }
+
         writerState = .SessionNotStarted
         DispatchQueue.global().async {
             do {

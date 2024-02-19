@@ -10,15 +10,21 @@ import Zip
 import Combine
 import ARKit
 import RealityKit
+import CoreLocation
 import os.log
 enum AppError : Error {
     case projectAlreadyExists
     case manifestInitializationFailed
 }
 
-class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
+class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationManagerDelegate {
     @Published var appState = AppState()
     @Published var isFlashVisible = false
+    @Published var velocity = Float(0)
+    @Published var xList = [Float]()
+    @Published var yList = [Float]()
+    @Published var zList = [Float]()
+    @Published var userVelWarning = ""
     var session: ARSession? = nil
     var arView: ARView? = nil
 //    let frameSubject = PassthroughSubject<ARFrame, Never>()
@@ -29,6 +35,9 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     var boundingBoxAnchor: AnchorEntity? = nil
     var boxVisible = false
     var cameraTimer: Timer?
+    var locationTimer: Timer?
+    var velocityTimer: Timer?
+    var interval: TimeInterval = 3.0
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter
@@ -187,24 +196,137 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     
     func startAutomaticCapture() {
         cameraTimer?.invalidate()
-        // Schedule a new timer to call writeFrameToDisk every 5 seconds
-        cameraTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
-            if let frame = self.session?.currentFrame {
-                self.datasetWriter.writeFrameToDisk(frame: frame)
-                // Trigger the flash effect
-                self.isFlashVisible = true
-                // Hide flash after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.isFlashVisible = false
-                }
+        // Schedule a new timer to call writeFrameToDisk every 3 seconds
+        cameraTimer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(changeInterval),userInfo: nil, repeats: true)
+    }
+    
+    @objc func changeInterval() {
+        if let frame = self.session?.currentFrame {
+            self.datasetWriter.writeFrameToDisk(frame: frame)
+            // Trigger the flash effect
+            self.isFlashVisible = true
+            // Hide flash after a short delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.isFlashVisible = false
+            }
+            if velocity >= 8 && velocity < 10 {
+                print("Interval 1.0")
+                interval = 1.0
+                startAutomaticCapture()
+            }
+            else if velocity >= 5 && velocity < 8 {
+                print("Interval 2.0")
+                interval = 2.0
+                startAutomaticCapture()
+            }
+            else if velocity < 5 {
+                print("Interval 3.0")
+                interval = 3.0
+                startAutomaticCapture()
             }
         }
+        
     }
     
     func stopAutomaticCapture() {
         // Invalidate the timer to stop writing frames
         self.isFlashVisible = false
         cameraTimer?.invalidate()
+//        motionManager.stopAccelerometerUpdates()
+    }
+    
+    func applyFilter(_ inputTransform: simd_float4x4) -> simd_float4x4 {
+        let alpha: Float = 0.2 // Adjust this value to control the level of smoothing
+        // Assuming you are using a simple averaging technique for filtering
+        if let previousTransform = arView?.session.currentFrame?.camera.transform {
+            var filteredTransform = simd_float4x4()
+            for i in 0..<4 {
+                for j in 0..<4 {
+                    filteredTransform[i][j] = previousTransform[i][j] + alpha * (inputTransform[i][j] - previousTransform[i][j])
+                }
+            }
+            return filteredTransform
+        } else {
+            // If there is no previous transform, return the input transform
+            return inputTransform
+        }
+    }
+    
+//    func trackMotion() {
+//        locationTimer?.invalidate()
+//        locationTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
+//            if let transform = self.arView?.session.currentFrame?.camera.transform {
+//                let filteredTransform = self.applyFilter(transform)
+//                let position = filteredTransform.columns.3
+//                // units are in meters
+//                let positionVector = SIMD3<Float>(position.x, position.y, position.z)
+//                let positionInInches = SIMD3<Float>(positionVector.x * 39.37, positionVector.y * 39.37, positionVector.z * 39.37)
+//                if !self.xList.isEmpty {
+//                    if abs(self.xList.last! - positionInInches.x) < 12.0 || abs(self.yList.last! - positionInInches.y) < 12.0 || abs(self.zList.last! - positionInInches.z) < 12.0{
+//                        print("user is moving too slowly")
+//                    }
+//                    else if abs(self.xList.last! - positionInInches.x) > 24.0 || abs(self.yList.last! - positionInInches.y) > 24.0 || abs(self.zList.last! - positionInInches.z) > 24.0{
+//                        print("user is moving too fast")
+//                    }
+//                } else {
+//                    print("list is empty")
+//                }
+//                self.xList.append(positionInInches.x)
+//                self.yList.append(positionInInches.y)
+//                self.zList.append(positionInInches.z)
+//            } else {
+//                print("Transform or AR session is not available.")
+//            }
+//
+//        }
+//    }
+    
+    func trackVelocity() {
+        velocityTimer?.invalidate()
+        velocityTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { timer in
+            if let transform = self.arView?.session.currentFrame?.camera.transform {
+                let filteredTransform = self.applyFilter(transform)
+                let position = filteredTransform.columns.3
+                // units are in meters
+                let positionVector = SIMD3<Float>(position.x, position.y, position.z)
+                let positionInInches = SIMD3<Float>(positionVector.x * 39.37, positionVector.y * 39.37, positionVector.z * 39.37)
+                if !self.xList.isEmpty {
+                    let xDifference = abs(self.xList.last! - positionInInches.x)
+                    let yDifference = abs(self.yList.last! - positionInInches.y)
+                    let zDifference = abs(self.zList.last! - positionInInches.z)
+                    let xVel = xDifference/0.5
+                    let yVel = yDifference/0.5
+                    let zVel = zDifference/0.5
+                    let velMag = sqrt(xVel * xVel + yVel * yVel + zVel * zVel)
+                    if velMag > 10 {
+                        self.userVelWarning = "Slow Down"
+                    }
+                    else if velMag < 5 {
+                        self.userVelWarning = "Speed Up"
+                    }
+                    else {
+                        self.userVelWarning = "Try to keep this speed between 5 and 10"
+                    }
+                    self.xList.append(positionInInches.x)
+                    self.yList.append(positionInInches.y)
+                    self.zList.append(positionInInches.z)
+                    self.velocity = velMag
+                } else {
+                    self.xList.append(positionInInches.x)
+                    self.yList.append(positionInInches.y)
+                    self.zList.append(positionInInches.z)
+                    self.velocity = 0.0
+                }
+            }
+        }
+    }
+    
+    func stopTrackingLocation(){
+        locationTimer?.invalidate()
+    }
+    
+    func stopTrackingVelocity(){
+        velocityTimer?.invalidate()
     }
 }
 
