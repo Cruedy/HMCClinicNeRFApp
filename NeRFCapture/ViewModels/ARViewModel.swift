@@ -43,7 +43,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
         self.datasetWriter = datasetWriter
         self.ddsWriter = ddsWriter
         super.init()
-        self.subscribeToActionStream()
+//        self.subscribeToActionStream()
         self.setupObservers()
         self.ddsWriter.setupDDS()
     }
@@ -69,63 +69,63 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     // Actions from BoundingBoxView to update the boundingbox
-    func subscribeToActionStream() {
-            ActionManager.shared
-                .actionStream
-                .sink { [weak self] action in
-                    
-                    switch action {
-                    case .heartbeat(let data):
-                        print(data)
-                    
-                        // each action involves performing the action, rendering and updating the bounding box information
-                    case .display_box(let boxVisible):
-                        self?.display_box(boxVisible: boxVisible)
-                        self?.boxVisible = boxVisible
-                        self?.update_boundingbox_manifest()
-                        
-                    case .set_center(let new_center):
-                        self?.set_center(new_center: new_center)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                        self?.update_boundingbox_manifest()
-
-                        
-                    case .set_angle(let new_angle):
-                        self?.set_angle(new_angle: new_angle)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                        self?.update_boundingbox_manifest()
-
-
-                    case .set_scale(let new_scale):
-                        self?.set_scale(new_scale: new_scale)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                        self?.update_boundingbox_manifest()
-
-                    
-                    case .extend_sides(let scale_update):
-                        self?.extend_sides(offset: scale_update)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                        self?.update_boundingbox_manifest()
-
-                        
-                    case .shrink_sides(let scale_update):
-                        self?.shrink_sides(offset: scale_update)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                        self?.update_boundingbox_manifest()
-                        
-                    case .raycast_center(let at, let frame):
-                        self?.raycast_bounding_box_center(at:at, frame: frame)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                    
-                    case .set_floor(let at, let frame):
-                        self?.findFloorHeight(at: at, frame: frame)
-                        self?.display_box(boxVisible: self!.boxVisible)
-                    
-                    }
-                }
-                .store(in: &cancellables)
-        }
-    
+//    func subscribeToActionStream() {
+//            ActionManager.shared
+//                .actionStream
+//                .sink { [weak self] action in
+//                    
+//                    switch action {
+//                    case .heartbeat(let data):
+//                        print(data)
+//                    
+//                        // each action involves performing the action, rendering and updating the bounding box information
+//                    case .display_box(let boxVisible):
+//                        self?.display_box(boxVisible: boxVisible)
+//                        self?.boxVisible = boxVisible
+//                        self?.update_boundingbox_manifest()
+//                        
+//                    case .set_center(let new_center):
+//                        self?.set_center(new_center: new_center)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                        self?.update_boundingbox_manifest()
+//
+//                        
+//                    case .set_angle(let new_angle):
+//                        self?.set_angle(new_angle: new_angle)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                        self?.update_boundingbox_manifest()
+//
+//
+//                    case .set_scale(let new_scale):
+//                        self?.set_scale(new_scale: new_scale)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                        self?.update_boundingbox_manifest()
+//
+//                    
+//                    case .extend_sides(let scale_update):
+//                        self?.extend_sides(offset: scale_update)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                        self?.update_boundingbox_manifest()
+//
+//                        
+//                    case .shrink_sides(let scale_update):
+//                        self?.shrink_sides(offset: scale_update)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                        self?.update_boundingbox_manifest()
+//                        
+//                    case .raycast_center(let at, let frame):
+//                        self?.raycast_bounding_box_center(at:at, frame: frame)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                    
+//                    case .set_floor(let at, let frame):
+//                        self?.findFloorHeight(at: at, frame: frame)
+//                        self?.display_box(boxVisible: self!.boxVisible)
+//                    
+//                    }
+//                }
+//                .store(in: &cancellables)
+//        }
+//    
     func createARConfiguration() -> ARWorldTrackingConfiguration {
         let configuration = ARWorldTrackingConfiguration()
         configuration.worldAlignment = .gravity
@@ -441,25 +441,25 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
 }
 
-enum Actions {
-    case heartbeat(String)
-    case display_box(Bool)
-    case set_center([Float])
-    case set_angle(Float)
-    case set_scale([Float])
-    case extend_sides([Float])
-    case shrink_sides([Float])
-    case raycast_center(CGPoint, ARFrame)
-    case set_floor(CGPoint, ARFrame)
-//    case get_box_info
-}
+//enum Actions {
+//    case heartbeat(String)
+//    case display_box(Bool)
+//    case set_center([Float])
+//    case set_angle(Float)
+//    case set_scale([Float])
+//    case extend_sides([Float])
+//    case shrink_sides([Float])
+//    case raycast_center(CGPoint, ARFrame)
+//    case set_floor(CGPoint, ARFrame)
+////    case get_box_info
+//}
 
 
-
-class ActionManager {
-    static let shared = ActionManager()
-    
-    private init() { }
-    
-    var actionStream = PassthroughSubject<Actions, Never>()
-}
+//
+//class ActionManager {
+//    static let shared = ActionManager()
+//    
+//    private init() { }
+//    
+//    var actionStream = PassthroughSubject<Actions, Never>()
+//}

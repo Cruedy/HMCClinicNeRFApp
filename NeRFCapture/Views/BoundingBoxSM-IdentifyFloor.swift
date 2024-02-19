@@ -57,10 +57,10 @@ struct IdentifyFloorView : View {
         }
     }
     
-    public static func raycast_bounding_box(at tap: CGPoint, frame: ARFrame) {
-        print(tap)
-        // Use the tap point to perform raycasting and place the bounding box
-        ActionManager.shared.actionStream.send(.set_floor(tap, frame))
-        ActionManager.shared.actionStream.send(.raycast_center(tap, frame))
-    }
+//    public static func raycast_bounding_box(at tap: CGPoint, frame: ARFrame) {
+//        print(tap)
+//        // Use the tap point to perform raycasting and place the bounding box
+//        ActionManager.shared.actionStream.send(.set_floor(tap, frame))
+//        ActionManager.shared.actionStream.send(.raycast_center(tap, frame))
+//    }
 }

@@ -8,132 +8,132 @@
 import SwiftUI
 import ARKit
 import RealityKit
-
-struct BoundingBoxView: View {
-    @StateObject private var viewModel: ARViewModel
-    @StateObject var dataModel = DataModel()
-    @State private var showSheet: Bool = false
-    
-    // controls the bounding box
-    @State public var boxVisible: Bool = false
-    @State public var box_center: [Float] = [0,0,0]
-    @State public var rotate_angle: Float = 0
-    @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
-    @State public var mode =  MovementModes.translate // start in the translate mode
-    
-    // help button
-    @State private var showingInstructions = false
-    
-    init(viewModel vm: ARViewModel) {
-        _viewModel = StateObject(wrappedValue: vm)
-    }
-    
-    var body: some View {
-        ZStack{
-            ZStack(alignment: .topTrailing) {
-                ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
-                VStack() {
-                    ZStack() {
-                        HStack() {  // HStack because originally showed Offline/Online mode
-                            Spacer()
-                            
-                            // Shows mode is Offline
-                            Picker("Mode", selection: $viewModel.appState.appMode) {
-                                Text("Offline").tag(AppMode.Offline)
-                            }
-                            
-                            // Pick bounding box mode
-                            Picker("Translation Mode", selection: $mode) {
-                                Text("Translate").tag(MovementModes.translate)
-                                Text("Rotate").tag(MovementModes.rotate)
-                                Text("Scale").tag(MovementModes.scale)
-                                Text("Extend").tag(MovementModes.extend)
-                                Text("Point Cloud").tag(MovementModes.pointCloud)
-                            }
-                            .frame(maxWidth: 200)
-                            .padding(0)
-                            .pickerStyle(.segmented)
-                            .disabled(viewModel.appState.writerState
-                                      != .SessionNotStarted)
-    
-                            Spacer()
-                        }
-                    }.padding(8)
-                }
-            }   // End of inner ZStack
-            
-            VStack {
-                // Offline Mode
-                if case .Offline = viewModel.appState.appMode {
-                    VStack{
-                        Spacer()
-
-                        HStack{
-                            Spacer()
-                            // TODO: Can probably move Create Bounding Box button out like the movement commands
-                            Button(action: {
-                                print("Before: \(boxVisible)")
-                                boxVisible.toggle()
-                                ActionManager.shared.actionStream.send(.display_box(boxVisible))
-                                ActionManager.shared.actionStream.send(.set_center(box_center))
-                                ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
-                                ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-                                print("After: \(boxVisible)")
-                            }) {
-                                Text("Create Bounding Box")
-                                    .padding(.horizontal,20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.bordered)
-                            .buttonBorderShape(.capsule)
-                        }
-                        
-                        HStack{
-                            if mode == MovementModes.translate{
-                                MovementControlsView(center: $box_center, vm: viewModel)
-                            }
-                            else if mode == MovementModes.rotate{
-                                RotateControlsView(angle: $rotate_angle, vm: viewModel)
-                            }
-                            else if mode == MovementModes.scale{
-                                ScaleControlsView(xyz: $slider_xyz, vm: viewModel)
-                            }
-                            else if mode == MovementModes.extend{
-                                ExtendControlsView(center: $box_center, xyz: $slider_xyz, vm: viewModel)
-                            }
-                            else if mode == MovementModes.pointCloud{
-                                PointCloudControlsView(vm: viewModel)
-                            }
-                        }
-                    }
-                }
-                HelpButton {
-                    showingInstructions = true
-                }
-                .sheet(isPresented: $showingInstructions) {
-                    VStack {
-                        InstructionsView()
-                    }
-                }
-            }  // End of inner VStack
-            .padding()
-            
-        } // End of main ZStack
-        .preferredColorScheme(.dark)
-        // --- Navigation Bar ---
-        .navigationBarTitle("Create Bounding Box")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-        // --- Tool Bar ---
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
-                                .navigationViewStyle(.stack)
-            }
-        }
-        
-    }  // End of body
-}  // End of BoundingBoxView
+//
+//struct BoundingBoxView: View {
+//    @StateObject private var viewModel: ARViewModel
+//    @StateObject var dataModel = DataModel()
+//    @State private var showSheet: Bool = false
+//    
+//    // controls the bounding box
+//    @State public var boxVisible: Bool = false
+//    @State public var box_center: [Float] = [0,0,0]
+//    @State public var rotate_angle: Float = 0
+//    @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
+//    @State public var mode =  MovementModes.translate // start in the translate mode
+//    
+//    // help button
+//    @State private var showingInstructions = false
+//    
+//    init(viewModel vm: ARViewModel) {
+//        _viewModel = StateObject(wrappedValue: vm)
+//    }
+//    
+//    var body: some View {
+//        ZStack{
+//            ZStack(alignment: .topTrailing) {
+//                ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
+//                VStack() {
+//                    ZStack() {
+//                        HStack() {  // HStack because originally showed Offline/Online mode
+//                            Spacer()
+//                            
+//                            // Shows mode is Offline
+//                            Picker("Mode", selection: $viewModel.appState.appMode) {
+//                                Text("Offline").tag(AppMode.Offline)
+//                            }
+//                            
+//                            // Pick bounding box mode
+//                            Picker("Translation Mode", selection: $mode) {
+//                                Text("Translate").tag(MovementModes.translate)
+//                                Text("Rotate").tag(MovementModes.rotate)
+//                                Text("Scale").tag(MovementModes.scale)
+//                                Text("Extend").tag(MovementModes.extend)
+//                                Text("Point Cloud").tag(MovementModes.pointCloud)
+//                            }
+//                            .frame(maxWidth: 200)
+//                            .padding(0)
+//                            .pickerStyle(.segmented)
+//                            .disabled(viewModel.appState.writerState
+//                                      != .SessionNotStarted)
+//    
+//                            Spacer()
+//                        }
+//                    }.padding(8)
+//                }
+//            }   // End of inner ZStack
+//            
+//            VStack {
+//                // Offline Mode
+//                if case .Offline = viewModel.appState.appMode {
+//                    VStack{
+//                        Spacer()
+//
+//                        HStack{
+//                            Spacer()
+//                            // TODO: Can probably move Create Bounding Box button out like the movement commands
+//                            Button(action: {
+//                                print("Before: \(boxVisible)")
+//                                boxVisible.toggle()
+//                                ActionManager.shared.actionStream.send(.display_box(boxVisible))
+//                                ActionManager.shared.actionStream.send(.set_center(box_center))
+//                                ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
+//                                ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
+//                                print("After: \(boxVisible)")
+//                            }) {
+//                                Text("Create Bounding Box")
+//                                    .padding(.horizontal,20)
+//                                    .padding(.vertical, 5)
+//                            }
+//                            .buttonStyle(.bordered)
+//                            .buttonBorderShape(.capsule)
+//                        }
+//                        
+//                        HStack{
+//                            if mode == MovementModes.translate{
+//                                MovementControlsView(center: $box_center, vm: viewModel)
+//                            }
+//                            else if mode == MovementModes.rotate{
+//                                RotateControlsView(angle: $rotate_angle, vm: viewModel)
+//                            }
+//                            else if mode == MovementModes.scale{
+//                                ScaleControlsView(xyz: $slider_xyz, vm: viewModel)
+//                            }
+//                            else if mode == MovementModes.extend{
+//                                ExtendControlsView(center: $box_center, xyz: $slider_xyz, vm: viewModel)
+//                            }
+//                            else if mode == MovementModes.pointCloud{
+//                                PointCloudControlsView(vm: viewModel)
+//                            }
+//                        }
+//                    }
+//                }
+//                HelpButton {
+//                    showingInstructions = true
+//                }
+//                .sheet(isPresented: $showingInstructions) {
+//                    VStack {
+//                        InstructionsView()
+//                    }
+//                }
+//            }  // End of inner VStack
+//            .padding()
+//            
+//        } // End of main ZStack
+//        .preferredColorScheme(.dark)
+//        // --- Navigation Bar ---
+//        .navigationBarTitle("Create Bounding Box")
+//        .navigationBarTitleDisplayMode(.inline)
+//        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+//        // --- Tool Bar ---
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
+//                                .navigationViewStyle(.stack)
+//            }
+//        }
+//        
+//    }  // End of body
+//}  // End of BoundingBoxView
 
 
 struct MovementControlsView : View
@@ -419,11 +419,11 @@ enum MovementModes {
     case pointCloud
 }
 
-#if DEBUG
-struct BoundingBox_Previews : PreviewProvider {
-    static var previews: some View {
-        BoundingBoxView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()))
-            .previewInterfaceOrientation(.portrait)
-    }
-}
-#endif
+//#if DEBUG
+//struct BoundingBox_Previews : PreviewProvider {
+//    static var previews: some View {
+//        BoundingBoxView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()))
+//            .previewInterfaceOrientation(.portrait)
+//    }
+//}
+//#endif

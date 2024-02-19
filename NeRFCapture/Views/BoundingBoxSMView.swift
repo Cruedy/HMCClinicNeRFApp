@@ -40,7 +40,7 @@ struct BoundingBoxSMView: View {
                 .onTapGesture(coordinateSpace: .global) { location in
                     if let frame = viewModel.session?.currentFrame {
                         if bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor{
-                            ActionManager.shared.actionStream.send(.set_floor(location, frame))
+                            viewModel.findFloorHeight(at: location, frame: frame)
                         }
                         if (bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor || bbox_placement_states == BoundingBoxPlacementStates.PlaceBox){
                             box_center = viewModel.raycast_bounding_box_center(at:location, frame: frame)
