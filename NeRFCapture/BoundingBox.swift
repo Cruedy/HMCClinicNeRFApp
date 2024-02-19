@@ -196,53 +196,61 @@ scale: \(scale)
     }
     
     // update properties using some kind of offset
-    func update_center(_ offset:[Float]) {
-        self.center = pairwise_add(self.center, offset)
+    func update_center(_ offset:[Float]) -> [Float] {
+        center = pairwise_add(center, offset)
+        return center
     }
     
-    func update_scale(_ scale_mult:[Float]) {
-        self.scale = pairwise_mult(self.scale, scale_mult)
+    func update_scale(_ scale_mult:[Float]) -> [Float] {
+        scale = pairwise_mult(scale, scale_mult)
         if let floor=floor {
-            self.center[1] = self.scale[1]/2 + floor
+            center[1] = scale[1]/2 + floor
         }
+        return scale
     }
     
-    func update_angle(_ offset: Float) {
-        self.rot_y += offset
+    func update_angle(_ offset: Float) -> Float {
+        rot_y += offset
+        return rot_y
     }
     
     // set properties to new values
-    func set_center(_ new_center:[Float]) {
-        self.center = new_center
+    func set_center(_ new_center:[Float]) -> [Float]{
+        center = new_center
+        return center
     }
     
-    func set_scale(_ new_scale:[Float]) {
-        self.scale = new_scale
+    func set_scale(_ new_scale:[Float]) -> [Float]{
+        scale = new_scale
         if let floor=floor {
-            self.center[1] = self.scale[1]/2 + floor
+            center[1] = scale[1]/2 + floor
         }
+        return scale
     }
     
-    func set_angle(_ new_angle: Float) {
-        self.rot_y = new_angle
+    func set_angle(_ new_angle: Float) -> Float {
+        rot_y = new_angle
+        return rot_y
     }
     
     // Extend and shrink sides
-    func extend_side(_ offset: [Float]){
+    func extend_side(_ offset: [Float]) -> ([Float], [Float]){
         scale = pairwise_add(scale, [abs(offset[0]), abs(offset[1]), abs(offset[2])])
         let new_center = pairwise_add(simd_float3(center), rot_about_y(angle: rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
         center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
         positions = pos_from_center(center)
-        
+        return (center, scale)
     }
-    func shrink_side(_ offset: [Float]){
+    
+    func shrink_side(_ offset: [Float]) -> ([Float], [Float]) {
         scale = pairwise_add(scale, [-1*abs(offset[0]), -1*abs(offset[1]), -1*abs(offset[2])])
         let new_center = pairwise_add(simd_float3(center), rot_about_y(angle: rot_y, point: [offset[0]/2,offset[1]/2, offset[2]/2]))
         center = [new_center[0], new_center[1], new_center[2]] // change from simd to float
         positions = pos_from_center(center)
+        return (center, scale)
     }
     
-    func set_center_xy(newCenter: SIMD3<Float>)
+    func set_center_xy(newCenter: SIMD3<Float>) -> [Float]
     {
         let y_center: Float
         if let floor = floor {
@@ -251,9 +259,10 @@ scale: \(scale)
             y_center = newCenter[1]
         }
         center = [newCenter[0], y_center, newCenter[2]]
+        return center;
     }
 
-    func setFloor(height:Float) {
+    func setFloor(height:Float){
         floor = height
     }
     

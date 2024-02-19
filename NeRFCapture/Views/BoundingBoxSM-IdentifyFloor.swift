@@ -30,10 +30,14 @@ struct IdentifyFloorView : View {
         _box_center = box_center
         _rotate_angle = rotate_angle
         _slider_xyz = slider_xyz
-        ActionManager.shared.actionStream.send(.display_box(boxVisible.wrappedValue))
-        ActionManager.shared.actionStream.send(.set_center(box_center.wrappedValue))
-        ActionManager.shared.actionStream.send(.set_angle(rotate_angle.wrappedValue))
-        ActionManager.shared.actionStream.send(.set_scale(slider_xyz.wrappedValue))
+        viewModel.display_box(boxVisible: boxVisible.wrappedValue)
+        viewModel.set_center(new_center: box_center.wrappedValue)
+        viewModel.set_angle(new_angle: rotate_angle.wrappedValue)
+        viewModel.set_scale(new_scale: slider_xyz.wrappedValue)
+//        ActionManager.shared.actionStream.send(.display_box(boxVisible.wrappedValue))
+//        ActionManager.shared.actionStream.send(.set_center(box_center.wrappedValue))
+//        ActionManager.shared.actionStream.send(.set_angle(rotate_angle.wrappedValue))
+//        ActionManager.shared.actionStream.send(.set_scale(slider_xyz.wrappedValue))
     }
     
     var body: some View{

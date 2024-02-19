@@ -24,99 +24,13 @@ struct BoundingBoxSMView: View {
     @State public var mode =  MovementModes.translate // start in the translate mode
     @State public var bbox_placement_states = BoundingBoxPlacementStates.IdentifyFloor
     
-    // help butto
+    // help button
     @State private var showingInstructions = false
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
     }
-    
-//    @available(iOS 17.0, *)
-//    var body: some View {
-//        ZStack{
-//            
-//            ZStack{
-//                ZStack(alignment: .topTrailing) {
-//                    ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
-//                        .onTapGesture(coordinateSpace: .global) { location in
-//                            if let frame = viewModel.session?.currentFrame {
-//                                if bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor{
-//                                    IdentifyFloorView.raycast_bounding_box(at: location, frame: frame)
-//                                }
-//                            }
-//                        }
-//                    VStack() {
-//                        ZStack() {
-//                            HStack() {  // HStack because originally showed Offline/Online mode
-//                                Spacer()
-//                                
-//                                // Shows mode is Offline
-//                                Picker("Mode", selection: $viewModel.appState.appMode) {
-//                                    Text("Offline").tag(AppMode.Offline)
-//                                }
-//                                
-//                                Spacer()
-//                            }
-//                        }.padding(8)
-//                    }
-//                }   // End of inner ZStack
-//                
-//                VStack {
-//                    // Offline Mode
-//                    if case .Offline = viewModel.appState.appMode {
-//                        VStack{
-//                            Spacer()
-//                            self.content
-//                        }
-//                    }
-//                    HelpButton {
-//                        showingInstructions = true
-//                    }
-//                    .sheet(isPresented: $showingInstructions) {
-//                        VStack {
-//                            InstructionsView()
-//                        }
-//                    }
-//                }  // End of inner VStack
-//                .padding()
-//                
-//            } // End of main ZStack
-//            .preferredColorScheme(.dark)
-//            .navigationBarTitle("Create Bounding Box")
-//            .navigationBarTitleDisplayMode(.inline)
-//            .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-//            // --- Tool Bar ---
-//            .toolbar {
-//                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox {
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel))
-//                            .environmentObject(dataModel) // Link to Taking Images View
-//                            .navigationViewStyle(.stack)
-//                    }
-//                }
-//            }
-//            .border(.green, width: 5)
-//            
-//
-//            Button(action: {
-//                switch bbox_placement_states {
-//                case .IdentifyFloor:  bbox_placement_states = BoundingBoxPlacementStates.InputDimensions
-//                case .InputDimensions:  bbox_placement_states = BoundingBoxPlacementStates.PlaceBox
-//                case .PlaceBox:  bbox_placement_states = BoundingBoxPlacementStates.PlaceBox
-//                }
-//            }) {
-//                Text("Done")
-//                    .padding(.horizontal,20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
-//        
-//        .contentShape(Rectangle())
-//        }
-//    }  // End of body
-    
-    
+
     @available(iOS 17.0, *)
     var body: some View {
         ZStack {
@@ -129,16 +43,27 @@ struct BoundingBoxSMView: View {
                             ActionManager.shared.actionStream.send(.set_floor(location, frame))
                         }
                         if (bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor || bbox_placement_states == BoundingBoxPlacementStates.PlaceBox){
-                            ActionManager.shared.actionStream.send(.raycast_center(location, frame))
-                            slider_xyz = viewModel.get_box_scale()
-                            box_center = viewModel.get_box_center()
-                            rotate_angle = viewModel.get_box_rotation()
+                            box_center = viewModel.raycast_bounding_box_center(at:location, frame: frame)
                         }
                     }
                 }
 
+//            VStack {
+//                HStack{
+//                    BoxSummaryView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz)
+//                    Spacer()
+//                }
+//                Spacer()
+//                self.content
+//            }
             VStack {
-                // Place buttons or other controls here
+                GeometryReader { geometry in
+                    HStack {
+                        BoxSummaryView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz)
+                            .frame(width: min(max(geometry.size.width * 0.3, 150), 300)) // 30% of screen width, min 150, max 300
+                        Spacer()
+                    }
+                }
                 Spacer()
                 self.content
             }
@@ -147,11 +72,6 @@ struct BoundingBoxSMView: View {
     
     @available(iOS 17.0, *)
     private var content: some View {
-//        slider_xyz = viewModel.get_box_scale()
-//        box_center = viewModel.get_box_center()
-//        rotate_angle = viewModel.get_box_rotation()
-        
-//        print(slider_xyz)
         switch bbox_placement_states {
         case .IdentifyFloor: return  AnyView(IdentifyFloorView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible,
                                                                  box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))

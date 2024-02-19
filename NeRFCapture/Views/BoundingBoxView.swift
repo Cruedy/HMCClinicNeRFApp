@@ -93,13 +93,13 @@ struct BoundingBoxView: View {
                                 MovementControlsView(center: $box_center, vm: viewModel)
                             }
                             else if mode == MovementModes.rotate{
-                                RotateControlsView(angle: $rotate_angle)
+                                RotateControlsView(angle: $rotate_angle, vm: viewModel)
                             }
                             else if mode == MovementModes.scale{
-                                ScaleControlsView(xyz: $slider_xyz)
+                                ScaleControlsView(xyz: $slider_xyz, vm: viewModel)
                             }
                             else if mode == MovementModes.extend{
-                                ExtendControlsView(vm: viewModel)
+                                ExtendControlsView(center: $box_center, xyz: $slider_xyz, vm: viewModel)
                             }
                             else if mode == MovementModes.pointCloud{
                                 PointCloudControlsView(vm: viewModel)
@@ -152,8 +152,8 @@ struct MovementControlsView : View
                     print("move forward")
                     let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.set_center(box_center))
-
+//                    ActionManager.shared.actionStream.send(.set_center(box_center))
+                    box_center = viewModel.set_center(new_center: box_center)
                 }) {
                     Text("Forward (-Z)")
                         .padding(.horizontal,20)
@@ -167,8 +167,8 @@ struct MovementControlsView : View
                         print("move left")
                         let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                         box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.set_center(box_center))
-                        
+//                        ActionManager.shared.actionStream.send(.set_center(box_center))
+                        box_center = viewModel.set_center(new_center: box_center)
                     }) {
                         Text("Left (-X)")
                             .padding(.horizontal,20)
@@ -181,8 +181,8 @@ struct MovementControlsView : View
                         print("move right")
                         let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                         box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-                        ActionManager.shared.actionStream.send(.set_center(box_center))
-
+//                        ActionManager.shared.actionStream.send(.set_center(box_center))
+                        box_center = viewModel.set_center(new_center: box_center)
                     }) {
                         Text("Right (+X)")
                             .padding(.horizontal,20)
@@ -196,8 +196,8 @@ struct MovementControlsView : View
                     print("move Back")
                     let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
-                    ActionManager.shared.actionStream.send(.set_center(box_center))
-
+//                    ActionManager.shared.actionStream.send(.set_center(box_center))
+                    box_center = viewModel.set_center(new_center: box_center)
                 }) {
                     Text("Back (+Z)")
                         .padding(.horizontal,20)
@@ -214,8 +214,8 @@ struct MovementControlsView : View
                 Button(action: {
                     print("move up")
                     box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
-                    ActionManager.shared.actionStream.send(.set_center(box_center))
-
+//                    ActionManager.shared.actionStream.send(.set_center(box_center))
+                    box_center = viewModel.set_center(new_center: box_center)
                 }) {
                     Text("Up (+Y)")
                         .padding(.horizontal,20)
@@ -227,8 +227,8 @@ struct MovementControlsView : View
                 Button(action: {
                     print("move down")
                     box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
-                    ActionManager.shared.actionStream.send(.set_center(box_center))
-
+//                    ActionManager.shared.actionStream.send(.set_center(box_center))
+                    box_center = viewModel.set_center(new_center: box_center)
                 }) {
                     Text("Down (-Y)")
                         .padding(.horizontal,20)
@@ -242,9 +242,11 @@ struct MovementControlsView : View
     }
 
 struct RotateControlsView : View {
+    @ObservedObject var viewModel: ARViewModel
     @Binding var rotate_angle: Float
-    init(angle: Binding<Float>){
+    init(angle: Binding<Float>, vm: ARViewModel){
         _rotate_angle = angle
+        viewModel = vm
     }
     var body: some View {
         Slider(
@@ -252,31 +254,39 @@ struct RotateControlsView : View {
             in: 0...359.5,
             step: 0.5
 
-        ).onChange(of: rotate_angle) {new_angle in ActionManager.shared.actionStream.send(.set_angle(new_angle))}
+        ).onChange(of: rotate_angle) {new_angle in
+            rotate_angle = viewModel.set_angle(new_angle: new_angle)
+        }
 
         Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
     }
 }
 
 struct ScaleControlsView : View {
-        @Binding var slider_xyz: [Float]
-        init(xyz: Binding<[Float]>){
-            _slider_xyz = xyz
-        }
+    @ObservedObject var viewModel: ARViewModel
+    @Binding var slider_xyz: [Float]
+    init(xyz: Binding<[Float]>, vm: ARViewModel){
+        _slider_xyz = xyz
+        viewModel = vm
+    }
     
     var body: some View{
         Slider(
             value: $slider_xyz[0],
             in: 0...5,
             step: 0.1
-        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
+        ).onChange(of: slider_xyz) {new_scale in
+            slider_xyz = viewModel.set_scale(new_scale: slider_xyz)
+        }
         Text("\(slider_xyz[0], specifier: "X: %.2f m")")
         
         Slider(
             value: $slider_xyz[1],
             in: 0...5,
             step: 0.1
-        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
+        ).onChange(of: slider_xyz) {new_scale in
+            slider_xyz = viewModel.set_scale(new_scale: slider_xyz)
+        }
         Text("\(slider_xyz[1], specifier: "Y: %.2f m")")
         
         
@@ -284,7 +294,9 @@ struct ScaleControlsView : View {
             value: $slider_xyz[2],
             in: 0...5,
             step: 0.1
-        ).onChange(of: slider_xyz) {new_scale in ActionManager.shared.actionStream.send(.set_scale(new_scale))}
+        ).onChange(of: slider_xyz) {new_scale in 
+            slider_xyz = viewModel.set_scale(new_scale: slider_xyz)
+        }
         Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
     }
 }
@@ -331,31 +343,52 @@ struct PressAndHoldButton: View {
 
 struct ExtendControlsView : View {
     @ObservedObject var viewModel: ARViewModel
-    init(vm: ARViewModel){
+    @Binding var slider_xyz: [Float]
+    @Binding var box_center: [Float]
+
+    init(center: Binding<[Float]>, xyz: Binding<[Float]>, vm: ARViewModel){
         viewModel = vm
+        _slider_xyz = xyz
+        _box_center = center
     }
     var body: some View {
         HStack{
             VStack{
                 Spacer()
                 Text("Extend Side")
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0,0,-0.1]))}, title:"front")
+                PressAndHoldButton(action:{
+                    (box_center, slider_xyz) = viewModel.extend_sides(offset: [0,0,-0.1])
+                }, title:"front")
                 HStack{
-                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([-0.1,0,0]))}, title:"left")
-                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0.1,0,0]))}, title:"right")
+                    PressAndHoldButton(action:{
+                        (box_center, slider_xyz) = viewModel.extend_sides(offset: [-0.1,0,0])
+                    }, title:"left")
+                    PressAndHoldButton(action:{
+                        (box_center, slider_xyz) = viewModel.extend_sides(offset: [0.1,0,0])
+                    }, title:"right")
                 }
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.extend_sides([0,0,0.1]))}, title:"back")
+                PressAndHoldButton(action:{
+                    (box_center, slider_xyz) = viewModel.extend_sides(offset: [0,0,0.1])
+                }, title:"back")
             }
             Spacer()
             VStack{
                 Spacer()
                 Text("Shrink Side")
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0,0,0.1]))}, title:"front")
+                PressAndHoldButton(action:{
+                    (box_center, slider_xyz) = viewModel.shrink_sides(offset: [0,0,0.1])
+                }, title:"front")
                 HStack{
-                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([-0.1,0,0]))}, title:"right")
-                    PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0.1,0,0]))}, title:"left")
+                    PressAndHoldButton(action:{
+                        (box_center, slider_xyz) = viewModel.shrink_sides(offset: [-0.1,0,0])
+                    }, title:"right")
+                    PressAndHoldButton(action:{
+                        (box_center, slider_xyz) = viewModel.shrink_sides(offset: [0.1,0,0])
+                    }, title:"left")
                 }
-                PressAndHoldButton(action:{ActionManager.shared.actionStream.send(.shrink_sides([0,0,-0.1]))}, title:"back")
+                PressAndHoldButton(action:{
+                    (box_center, slider_xyz) = viewModel.shrink_sides(offset: [0,0,-0.1])
+                }, title:"back")
             }
         }
     }

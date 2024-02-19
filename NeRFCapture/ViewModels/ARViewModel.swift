@@ -114,6 +114,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         }
         return configuration
     }
+    
     func display_box(boxVisible: Bool) {
         if (boxVisible){        
             print("displaying box")
@@ -131,51 +132,56 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
             }
         }
     }
-    func set_center(new_center: [Float]){
-        print("got movement")
-        boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
-
+    
+    func set_center(new_center: [Float]) -> [Float] {
+        let center = boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
+        return center
     }
     
-    func set_angle(new_angle: Float){
+    func set_angle(new_angle: Float) -> Float {
         print("got angle")
-        boundingbox.set_angle(new_angle/180*3.1415926)
+        let angle = boundingbox.set_angle(new_angle/180*3.1415926)
+        return angle
     }
     
-    func set_scale(new_scale: [Float]){
+    func set_scale(new_scale: [Float]) -> [Float] {
         print("got scale")
-        boundingbox.set_scale(new_scale)
-
+        let scale = boundingbox.set_scale(new_scale)
+        display_box(boxVisible: boxVisible)
+        return scale
     }
     
-    func extend_sides(offset: [Float]){
+    func extend_sides(offset: [Float]) -> ([Float], [Float]){
         print("extending side")
-        boundingbox.extend_side(offset)
+        let (center, scale) = boundingbox.extend_side(offset)
+        return (center, scale)
     }
     
-    func shrink_sides(offset: [Float]){
+    func shrink_sides(offset: [Float]) -> ([Float], [Float]){
         print("shrink side")
-        boundingbox.shrink_side(offset)
+        let (center, scale) = boundingbox.shrink_side(offset)
+        display_box(boxVisible: boxVisible)
+        return (center, scale)
     }
     
-    func get_box_scale() -> [Float]{
-        return boundingbox.scale;
-    }
+//    func get_box_scale() -> [Float]{
+//        return boundingbox.scale;
+//    }
+//    
+//    func get_box_center() -> [Float]{
+//        return boundingbox.center;
+//    }
+//    
+//    func get_box_rotation() -> Float{
+//        return boundingbox.rot_y
+//    }
     
-    func get_box_center() -> [Float]{
-        return boundingbox.center;
-    }
-    
-    func get_box_rotation() -> Float{
-        return boundingbox.rot_y
-    }
-    
-    func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) {
+    func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]{
         
         // Check if arView is not nil
         guard let arView = arView else {
             print("arView is nil")
-            return
+            return boundingbox.center
         }
         
         // Calculate the screen center
@@ -189,14 +195,16 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         // Check if there are any raycast results
         guard let hitResult = raycastResults.first else {
             print("No raycast results found")
-            return
+            return boundingbox.center
         }
         // Use the hitResult to get the point of intersection
         let translationMatrix = SIMD4<Float>(0, 0, 0, 1)
         let translation = hitResult.worldTransform * translationMatrix
         let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
 
-        boundingbox.set_center_xy(newCenter: userFocusPoint)
+        let center = boundingbox.set_center_xy(newCenter: userFocusPoint)
+        display_box(boxVisible: boxVisible)
+        return center
     }
     
     func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame){

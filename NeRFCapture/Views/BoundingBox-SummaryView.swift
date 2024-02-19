@@ -30,10 +30,6 @@ struct BoxSummaryView : View {
         _box_center = box_center
         _rotate_angle = rotate_angle
         _slider_xyz = slider_xyz
-//        ActionManager.shared.actionStream.send(.display_box(boxVisible.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_center(box_center.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_angle(rotate_angle.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_scale(slider_xyz.wrappedValue))
     }
     
     var body: some View {
@@ -72,12 +68,5 @@ struct BoxSummaryView : View {
 
             }
         }
-    
-    public static func raycast_bounding_box(at tap: CGPoint, frame: ARFrame) {
-        print(tap)
-        // Use the tap point to perform raycasting and place the bounding box
-        ActionManager.shared.actionStream.send(.set_floor(tap, frame))
-        ActionManager.shared.actionStream.send(.raycast_center(tap, frame))
-    }
 }
 
