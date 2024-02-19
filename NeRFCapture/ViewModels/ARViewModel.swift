@@ -141,7 +141,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     func set_angle(new_angle: Float) -> Float {
         print("got angle")
         let angle = boundingbox.set_angle(new_angle/180*3.1415926)
-        return angle
+        return new_angle
     }
     
     func set_scale(new_scale: [Float]) -> [Float] {

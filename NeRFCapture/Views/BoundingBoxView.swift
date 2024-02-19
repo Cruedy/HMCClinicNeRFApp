@@ -255,9 +255,9 @@ struct RotateControlsView : View {
             step: 0.5
 
         ).onChange(of: rotate_angle) {new_angle in
+            print(new_angle)
             rotate_angle = viewModel.set_angle(new_angle: new_angle)
-        }
-
+        }.padding(15)
         Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
     }
 }
