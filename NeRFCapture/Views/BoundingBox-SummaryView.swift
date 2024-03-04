@@ -66,7 +66,9 @@ struct BoxSummaryView : View {
                 }
                 .padding()
 
-            }
-        }
+            }.padding()
+            .background(Color.gray.opacity(0.4)) // Light gray background with clear color
+            .cornerRadius(10) // Rounded corners
+    }
 }
 

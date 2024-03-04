@@ -20,7 +20,7 @@ struct BoundingBoxSMView: View {
     // controls the bounding box
     @State public var boxVisible: Bool = true
     @State public var box_center: [Float] = [0,0,0]
-    @State public var rotate_angle: Float = 90.0
+    @State public var rotate_angle: Float = 0.0
     @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
     @State public var mode =  MovementModes.translate // start in the translate mode
     @State public var bbox_placement_states = BoundingBoxPlacementStates.IdentifyFloor
@@ -67,7 +67,9 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
+                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                }
             }
         }
         .preferredColorScheme(.dark)
