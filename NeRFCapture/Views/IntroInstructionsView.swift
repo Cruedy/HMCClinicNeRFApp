@@ -70,7 +70,8 @@ struct InstructionsView: View {
 @available(iOS 17.0, *)
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
-    @StateObject var dataModel = DataModel()
+    @EnvironmentObject var dataModel: DataModel
+    @State var isAlertShown = false
     
     init(viewModel vm: ARViewModel) {
         _viewModel = StateObject(wrappedValue: vm)
@@ -81,11 +82,32 @@ struct IntroInstructionsView: View {
             InstructionsView()
         }
         // --- Tool Bar ---
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: BoundingBoxSMView(viewModel: viewModel)).environmentObject(dataModel)  // Link to Bounding Box View
-                                .navigationViewStyle(.stack)
-            }
+//        NavigationLink("next", destination: BoundingBoxSMView(viewModel: viewModel)).environmentObject(dataModel).navigationViewStyle(.stack)
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                //might need to add this to the end of the navigation link
+//            }
+//        }
+        Button("Start Project"){
+            viewModel.datasetWriter.showAlert(
+                viewModel: viewModel, 
+                dataModel: dataModel,
+                title: "Create Project Name",
+                message: "Please provide a name for your project",
+                hintText: "Enter Title",
+                primaryTitle: "Submit",
+                secondaryTitle: "Cancel",
+                primaryAction: { text in
+                    print(text)
+                },
+                secondaryAction: {
+                    print("Cancelled")
+                }
+            )
         }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.capsule)
+        .environmentObject(dataModel)
     }  // End of body
 }  // End of view
+

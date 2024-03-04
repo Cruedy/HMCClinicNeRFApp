@@ -9,6 +9,7 @@ import SwiftUI
 import RealityKit
 import ARKit
 
+@available(iOS 17.0, *)
 struct ARViewContainer: UIViewRepresentable {
     @ObservedObject var viewModel: ARViewModel
     @Binding var boxVisible: Bool

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@available(iOS 17.0, *)
 struct InputDimensionsView : View {
     
     

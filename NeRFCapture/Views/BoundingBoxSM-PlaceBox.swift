@@ -18,6 +18,7 @@ import Foundation
 import Foundation
 import SwiftUI
 
+@available(iOS 17.0, *)
 struct PlaceBoxView : View {
     @Binding var bbox_placement_states: BoundingBoxPlacementStates
     @Binding var place_box_mode: MovementModes

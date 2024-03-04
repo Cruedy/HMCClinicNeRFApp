@@ -9,6 +9,7 @@ import SwiftUI
 import ARKit
 import RealityKit
 
+@available(iOS 17.0, *)
 struct TakingImagesView: View {
     @StateObject private var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
@@ -240,6 +241,7 @@ struct TakingImagesView: View {
                     .buttonBorderShape(.capsule)
                 }  // End of case SessionPaused
                 
+                NavigationLink("Next", destination: GridView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
                 HelpButton {
                     showingInstructions = true
                 }
@@ -267,8 +269,7 @@ struct TakingImagesView: View {
         // --- Tool Bar ---
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: GridView(viewModel: viewModel)).environmentObject(dataModel)
-                                .navigationViewStyle(.stack)
+                //.environmentObject(dataModel).navigationViewStyle(.stack)
             }
         }
         

@@ -7,8 +7,8 @@
 
 import SwiftUI
 
+@available(iOS 17.0, *)
 struct GridView : View {
-//    @StateObject var dataModel = DataModel()
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
 
@@ -85,14 +85,16 @@ struct GridView : View {
         .sheet(isPresented: $isAddingPhoto) {
             PhotoPicker()
         }
-        // --- Tool Bar ---
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(isEditing ? "Done" : "Edit") {
-                    withAnimation { isEditing.toggle() }
-                }
-            }
+        // Removed from toolbar because toolbars dont show up
+        Button(isEditing ? "Done" : "Edit") {
+            withAnimation { isEditing.toggle() }
         }
+        // --- Tool Bar ---
+//        .toolbar {
+//            ToolbarItemGroup(placement: .navigationBarTrailing) {
+//                
+//            }
+//        }
         
     }
 }

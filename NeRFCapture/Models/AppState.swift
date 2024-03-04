@@ -14,6 +14,7 @@ enum AppMode: Int, Codable {
     case Offline
 }
 
+@available(iOS 17.0, *)
 struct AppState {
     // var appMode: AppMode = .Online
     var appMode: AppMode = .Offline

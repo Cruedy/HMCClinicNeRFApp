@@ -17,6 +17,7 @@ enum AppError : Error {
     case manifestInitializationFailed
 }
 
+@available(iOS 17.0, *)
 class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationManagerDelegate {
     @Published var appState = AppState()
     @Published var isFlashVisible = false
@@ -38,6 +39,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     var locationTimer: Timer?
     var velocityTimer: Timer?
     var interval: TimeInterval = 3.0
+    
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
         self.datasetWriter = datasetWriter

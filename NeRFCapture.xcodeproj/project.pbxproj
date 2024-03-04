@@ -26,9 +26,9 @@
 		41421F612AF32AF1007C4CAC /* ImageGalleryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */; };
 		41421F632AF32AFA007C4CAC /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F622AF32AFA007C4CAC /* Item.swift */; };
 		41421F652AF86401007C4CAC /* BoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F642AF86401007C4CAC /* BoundingBox.swift */; };
-		415B09592B62EE5A00500925 /* BoundingBoxManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */; };
 		415B09552B5F227F00500925 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09542B5F227F00500925 /* SwiftUIView.swift */; };
 		415B09572B5F23F600500925 /* PointCloudBoundingBoxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09562B5F23F600500925 /* PointCloudBoundingBoxUtils.swift */; };
+		415B09592B62EE5A00500925 /* BoundingBoxManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */; };
 		41C93FE62B71958000F8722E /* BoundingBoxSMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE52B71958000F8722E /* BoundingBoxSMView.swift */; };
 		41C93FE82B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE72B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift */; };
 		41C93FEA2B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C93FE92B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift */; };
@@ -83,9 +83,9 @@
 		41421F602AF32AF1007C4CAC /* ImageGalleryApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryApp.swift; sourceTree = "<group>"; };
 		41421F622AF32AFA007C4CAC /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		41421F642AF86401007C4CAC /* BoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBox.swift; sourceTree = "<group>"; };
-		415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxManifest.swift; sourceTree = "<group>"; };
 		415B09542B5F227F00500925 /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 		415B09562B5F23F600500925 /* PointCloudBoundingBoxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointCloudBoundingBoxUtils.swift; sourceTree = "<group>"; };
+		415B09582B62EE5A00500925 /* BoundingBoxManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxManifest.swift; sourceTree = "<group>"; };
 		41C93FE52B71958000F8722E /* BoundingBoxSMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxSMView.swift; sourceTree = "<group>"; };
 		41C93FE72B719A4C00F8722E /* BoundingBoxSM-InputDimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BoundingBoxSM-InputDimensions.swift"; sourceTree = "<group>"; };
 		41C93FE92B719D8600F8722E /* BoundingBoxSM-PlaceBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BoundingBoxSM-PlaceBox.swift"; sourceTree = "<group>"; };

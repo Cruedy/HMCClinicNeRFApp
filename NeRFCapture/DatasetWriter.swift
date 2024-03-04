@@ -22,28 +22,30 @@ extension UIImage {
     }
 }
 
-class DatasetWriter {
+@available(iOS 17.0, *)
+class DatasetWriter: ObservableObject {
     
     enum SessionState {
         case SessionNotStarted
         case SessionStarted
         case SessionPaused
     }
-    
+
     var manifest = Manifest()
     var boundingBoxManifest: BoundingBoxManifest?
     var projectName = ""
+    var projName = ""
     var projectDir = getDocumentsDirectory()
     var useDepthIfAvailable = true
     
     @Published var currentFrameCounter = 0
     @Published var writerState = SessionState.SessionNotStarted
     
+    
     @IBOutlet var takePictureButton: UIBarButtonItem?
     @IBOutlet var startStopButton: UIBarButtonItem?
     @IBOutlet var delayedPhotoButton: UIBarButtonItem?
     @IBOutlet var doneButton: UIBarButtonItem?
-    
     
     let imagePickerController: UIImagePickerController = {
         let picker = UIImagePickerController()
@@ -57,10 +59,49 @@ class DatasetWriter {
         return FileManager.default.fileExists(atPath: projectDir.absoluteString, isDirectory: &isDir)
     }
     
+    func showAlert(viewModel: ARViewModel, dataModel: DataModel, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
+        alert.addTextField { field in
+            field.placeholder = hintText
+        }
+        
+        alert.addAction(.init(title: secondaryTitle, style: .cancel, handler: { _ in
+            secondaryAction()
+        }))
+        alert.addAction(.init(title: primaryTitle, style: .default, handler: { _ in
+            if let text = alert.textFields?[0].text{
+                self.projName = text
+                primaryAction(text)
+                let customView = BoundingBoxSMView(viewModel: viewModel).environmentObject(dataModel)
+                let customViewController = BoundingBoxSMController(boundingBoxSMView: customView, dataModel: dataModel)
+                let navigationController = UINavigationController(rootViewController: customViewController)
+                navigationController.modalPresentationStyle = .fullScreen
+                self.rootController().present(navigationController, animated: true, completion: nil)
+                } else {
+                    primaryAction("")
+                }
+        }))
+        rootController().present(alert, animated: true, completion: nil)
+    }
+    
+    func rootController()->UIViewController{
+        guard let screen = UIApplication.shared.connectedScenes.first as? UIWindowScene else{
+            return .init()
+        }
+        
+        guard let root = screen.windows.first?.rootViewController else{
+            return .init()
+        }
+        
+        return root
+    }
+    
     func initializeProject() throws {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYMMddHHmmss"
-        projectName = dateFormatter.string(from: Date())
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "YYMMddHHmmss"
+//        projectName = .environmentObject(dataModel)
+        projectName = self.projName
         projectDir = getDocumentsDirectory()
             .appendingPathComponent(projectName)
         if projectExists(projectDir) {
@@ -124,7 +165,6 @@ class DatasetWriter {
             .appendingPathComponent("boundingbox.json")
         
         writeBoundingBoxManifestToPath(path: boundingboxmanifest_path)
-        
     }
      
     func finalizeProject(zip: Bool = true) {
@@ -145,7 +185,8 @@ class DatasetWriter {
             .appendingPathComponent("boundingbox.json")
 
         writeBoundingBoxManifestToPath(path: boundingbox_manifest_path)
-        
+        print("Project Name")
+        print(self.projectName)
         DispatchQueue.global().async {
             do {
                 if zip {
@@ -157,6 +198,7 @@ class DatasetWriter {
                 print("Could not zip")
             }
         }
+        clean()
     }
     
     func getCurrentFrameName() -> String {

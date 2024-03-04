@@ -135,7 +135,7 @@ import RealityKit
 //    }  // End of body
 //}  // End of BoundingBoxView
 
-
+@available(iOS 17.0, *)
 struct MovementControlsView : View
     {
         @ObservedObject var viewModel: ARViewModel
@@ -241,6 +241,7 @@ struct MovementControlsView : View
         }
     }
 
+@available(iOS 17.0, *)
 struct RotateControlsView : View {
     @ObservedObject var viewModel: ARViewModel
     @Binding var rotate_angle: Float
@@ -262,6 +263,7 @@ struct RotateControlsView : View {
     }
 }
 
+@available(iOS 17.0, *)
 struct ScaleControlsView : View {
     @ObservedObject var viewModel: ARViewModel
     @Binding var slider_xyz: [Float]
@@ -341,6 +343,7 @@ struct PressAndHoldButton: View {
     }
 }
 
+@available(iOS 17.0, *)
 struct ExtendControlsView : View {
     @ObservedObject var viewModel: ARViewModel
     @Binding var slider_xyz: [Float]
@@ -394,6 +397,7 @@ struct ExtendControlsView : View {
     }
 }
 
+@available(iOS 17.0, *)
 struct PointCloudControlsView: View {
     @ObservedObject var viewModel: ARViewModel
     init(vm: ARViewModel){

@@ -13,7 +13,8 @@ import RealityKit
 struct BoundingBoxSMView: View {
 //    @ObservedObject var viewModel: ContentViewModel
     @StateObject private var viewModel: ARViewModel
-    @StateObject var dataModel = DataModel()
+    @EnvironmentObject var dataModel: DataModel
+    
     @State private var showSheet: Bool = false
     
     // controls the bounding box
@@ -66,6 +67,7 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
             }
         }
         .preferredColorScheme(.dark)
@@ -74,13 +76,13 @@ struct BoundingBoxSMView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
         // --- Tool Bar ---
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
-                                .navigationViewStyle(.stack)
-            }
-        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//
+//            }
+//        }
     }
+    
     
     @available(iOS 17.0, *)
     private var content: some View {
@@ -97,6 +99,41 @@ struct BoundingBoxSMView: View {
 }  // End of BoundingBoxView
 
 
+@available(iOS 17.0, *)
+class BoundingBoxSMController<BoundingBoxSMView: View>: UIViewController {
+    let boundingBoxSMView: BoundingBoxSMView
+//    let environmentObject: EnvironmentObject<DataModel>
+    let dataModel: DataModel
+    
+    init(boundingBoxSMView: BoundingBoxSMView, dataModel: DataModel) {
+        self.boundingBoxSMView = boundingBoxSMView
+        self.dataModel = dataModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Embed the SwiftUI view within a UIHostingController
+//        let hostingController = UIHostingController(rootView: boundingBoxSMView.environmentObject(dataModel))
+        let hostingController = UIHostingController(rootView: boundingBoxSMView)
+        
+        // Add the hosting controller as a child of this view controller
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        
+        // Adjust the frame of the hosting controller's view
+        hostingController.view.frame = view.bounds
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        // Finish adding the hosting controller
+        hostingController.didMove(toParent: self)
+    }
+}
+
 
 enum BoundingBoxPlacementStates {
     case IdentifyFloor
@@ -104,7 +141,7 @@ enum BoundingBoxPlacementStates {
     case PlaceBox
 }
 
-
+@available(iOS 17.0, *)
 struct TestView: View {
     @ObservedObject var viewModel: ARViewModel
     init(vm: ARViewModel){

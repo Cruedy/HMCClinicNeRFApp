@@ -8,6 +8,7 @@ class DataModel: ObservableObject {
     
     @Published var items: [Item] = []
     
+    
     init() {
 //        if let documentDirectory = FileManager.default.documentDirectory {
 //                let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.hasDirectoryPath}
