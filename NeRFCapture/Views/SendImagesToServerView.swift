@@ -9,6 +9,7 @@ import SwiftUI
 import Zip
 import Foundation
 
+@available(iOS 17.0, *)
 struct SendImagesToServerView: View {
     @State private var showingInstructions = false
     @State private var serverResponse: String = "Awaiting response..."
