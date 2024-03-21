@@ -218,8 +218,6 @@ scale: \(scale)
         let worldOriginAnchor = AnchorEntity(world:.zero)
 //        let worldOriginAnchor = AnchorEntity(plane:.horizontal) // This is for letting the object move on the ground
         self.positions = self.pos_from_center(self.center)
-        print("positions")
-        print(self.positions)
         let descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
         for descr in descrs {
             let material = UnlitMaterial(color: .orange)

@@ -149,6 +149,7 @@ class DatasetWriter: ObservableObject {
     }
     
     func finalizeSession() {
+        print("finalize session")
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
@@ -157,7 +158,7 @@ class DatasetWriter: ObservableObject {
         if let documentDirectory = FileManager.default.documentDirectory {
             let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }
         }
-        
+        print(manifest_path)
         writeManifestToPath(path: manifest_path)
         
         let boundingboxmanifest_path = getDocumentsDirectory()
@@ -168,6 +169,7 @@ class DatasetWriter: ObservableObject {
     }
      
     func finalizeProject(zip: Bool = true) {
+        print("finalize project")
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)

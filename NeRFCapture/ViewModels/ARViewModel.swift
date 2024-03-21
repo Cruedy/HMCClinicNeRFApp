@@ -140,7 +140,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     
     func display_box(boxVisible: Bool) {
         if (boxVisible){        
-            print("displaying box")
 
             if boundingBoxAnchor != nil{
                 arView?.scene.removeAnchor(boundingBoxAnchor!)
@@ -165,7 +164,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func set_angle(new_angle: Float) -> Float {
-        print("got angle")
         let angle = boundingbox.set_angle(new_angle/180*3.1415926)
         display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
@@ -173,7 +171,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func set_scale(new_scale: [Float]) -> [Float] {
-        print("got scale")
         let scale = boundingbox.set_scale(new_scale)
         display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
@@ -181,14 +178,12 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func extend_sides(offset: [Float]) -> ([Float], [Float]){
-        print("extending side")
         let (center, scale) = boundingbox.extend_side(offset)
         update_boundingbox_manifest()
         return (center, scale)
     }
     
     func shrink_sides(offset: [Float]) -> ([Float], [Float]){
-        print("shrink side")
         let (center, scale) = boundingbox.shrink_side(offset)
         display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
@@ -240,7 +235,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame){
-        print("Find Floor height")
         
         // Check if arView is not nil
         guard let arView = arView else {
@@ -280,10 +274,8 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     
     
     func update_boundingbox_manifest(){
-        print("creating json from bounding box")
         let boundingBoxManifest = boundingbox.encode_as_json()
         datasetWriter.boundingBoxManifest = boundingBoxManifest
-        print(boundingBoxManifest)
     }
     
     func resetWorldOrigin() {

@@ -69,7 +69,7 @@ struct GridView : View {
             }){
                 Text("Prepare Files")
             }
-            NavigationLink("Next", destination: SendImagesToServerView())
+            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
             
