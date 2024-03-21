@@ -67,9 +67,10 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
-                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
-                }
+                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
+//                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                }
             }
         }
         .preferredColorScheme(.dark)

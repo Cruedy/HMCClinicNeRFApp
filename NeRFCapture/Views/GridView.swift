@@ -61,6 +61,9 @@ struct GridView : View {
                 }
                 .padding()
             }
+            Button(isEditing ? "Done" : "Edit") {
+                withAnimation { isEditing.toggle() }
+            }
             Button(action: {
                 viewModel.datasetWriter.finalizeProject()
             }){
@@ -84,10 +87,6 @@ struct GridView : View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isAddingPhoto) {
             PhotoPicker()
-        }
-        // Removed from toolbar because toolbars dont show up
-        Button(isEditing ? "Done" : "Edit") {
-            withAnimation { isEditing.toggle() }
         }
         // --- Tool Bar ---
 //        .toolbar {

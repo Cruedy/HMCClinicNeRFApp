@@ -157,17 +157,17 @@ struct TakingImagesView: View {
 //                        .buttonBorderShape(.capsule)
                         
                         // Button to send the data
-                        Button(action: {
-                                if let frame = viewModel.session?.currentFrame {
-                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-                                }
-                            }) {
-                                Text("Send")
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 5)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .buttonBorderShape(.capsule)
+//                        Button(action: {
+//                                if let frame = viewModel.session?.currentFrame {
+//                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+//                                }
+//                            }) {
+//                                Text("Send")
+//                                    .padding(.horizontal, 20)
+//                                    .padding(.vertical, 5)
+//                            }
+//                            .buttonStyle(.borderedProminent)
+//                            .buttonBorderShape(.capsule)
                         
                     }   // End of case SessionNotStarted
                 }
@@ -176,6 +176,9 @@ struct TakingImagesView: View {
                 if viewModel.appState.writerState == .SessionStarted {
                     Spacer()
                     Button(action: {
+                        if let frame = viewModel.session?.currentFrame {
+                            viewModel.ddsWriter.writeFrameToTopic(frame: frame)
+                        }
                         viewModel.stopTrackingLocation()
                         viewModel.stopTrackingVelocity()
                         viewModel.datasetWriter.pauseSession()
