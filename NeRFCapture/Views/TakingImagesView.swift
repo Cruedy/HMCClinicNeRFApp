@@ -245,6 +245,10 @@ struct TakingImagesView: View {
                 }  // End of case SessionPaused
                 
                 NavigationLink("Next", destination: GridView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                .padding(.horizontal,20)
+                .padding(.vertical, 5)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
                 HelpButton {
                     showingInstructions = true
                 }
