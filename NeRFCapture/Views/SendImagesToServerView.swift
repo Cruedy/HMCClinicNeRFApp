@@ -18,17 +18,18 @@ struct SendImagesToServerView: View {
     @StateObject var viewModel: ARViewModel
 
     @State private var timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
-    @State private var splatName: String = "iPad5"
+//    @State private var splatName: String = "iPad5"
 
     var body: some View {
         VStack {  // Main UI portion
             Text(testForStatus(status: serverStatus))
             .padding()
             Spacer()
-            TextField("Enter splat name", text: $splatName)
-                            .padding()
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
+            Text(viewModel.datasetWriter.projectName)
+//            TextField("Enter splat name", text: $splatName)
+//                            .padding()
+//                            .textFieldStyle(RoundedBorderTextFieldStyle())
+//                            .padding()
 //            Spacer()
 //            Text(serverResponse) // Display server response
 //                .padding()
@@ -51,7 +52,7 @@ struct SendImagesToServerView: View {
                 let directoryPath = viewModel.datasetWriter.projectDir
                 let zipPath = convertDirectoryPathToZipPath(directoryPath: directoryPath.absoluteString)
                 print(zipPath)
-                uploadZipFile(urlString: urlString, zipFilePath: URL(string: zipPath)!, splatName: splatName)
+                uploadZipFile(urlString: urlString, zipFilePath: URL(string: zipPath)!, splatName: viewModel.datasetWriter.projectName)
             }) {
                 Text("Send zip to Server")
                     .padding(.horizontal, 20)
@@ -76,8 +77,8 @@ struct SendImagesToServerView: View {
             Spacer()
             Button(action: {
                 print("get video")
-                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(splatName)"
-                downloadVideo(urlString: urlString, splatName: splatName)
+                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projectName)"
+                downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projectName)
 
             }) {
                 Text("get video")
@@ -87,47 +88,6 @@ struct SendImagesToServerView: View {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
 
-//            Button(action: {
-//                print("send photos")
-//                let urlString = "http://osiris.cs.hmc.edu:15002/upload"
-//                let directoryPath = viewModel.datasetWriter.projectDir.appendingPathComponent("images")
-//                uploadPhotos(urlString: urlString, directoryPath: directoryPath)
-//            }) {
-//                Text("Send photos to Server")
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
-//            Spacer()
-            
-//            Button(action: {
-//                print("send splat name")
-//                let urlString = "http://osiris.cs.hmc.edu:15002/upload_splat_name"
-//                uploadSplatName(urlString: urlString, splatName: "ipad")
-//            }) {
-//                Text("Send splatt name to Server")
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
-//            
-//            Spacer()
-            
-//            Button(action: {
-//                print("send bounding box name")
-//                let urlString = "http://osiris.cs.hmc.edu:15002/upload_boundingbox"
-//                let directoryPath = viewModel.datasetWriter.projectDir.appendingPathComponent("boundingbox.json")
-//
-//                uploadJSONFile(urlString: urlString, fileURL: directoryPath)
-//            }) {
-//                Text("Send bounding box to Server")
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
             
             HelpButton {
                 showingInstructions = true
@@ -177,6 +137,10 @@ struct SendImagesToServerView: View {
             switch status {
             case .waiting_for_data:
                 return "Server is ready for upload"
+            case .data_upload_started:
+                return "Server is preparing uploaded data"
+            case .data_upload_ended:
+                return "Server finished preparing uploaded data"
             case .preprocessing_started:
                 return "Server is preprocessing data"
             case .preprocessing_ended:
@@ -281,6 +245,10 @@ struct SendImagesToServerView: View {
                 DispatchQueue.main.async {
                     if status == "waiting_for_data"{
                         self.serverStatus = ServerStatus.waiting_for_data
+                    } else if status == "data_upload_started" {
+                        self.serverStatus = ServerStatus.data_upload_started
+                    } else if status == "data_upload_ended" {
+                        self.serverStatus = ServerStatus.data_upload_ended
                     } else if status == "preprocessing_started" {
                         self.serverStatus = ServerStatus.preprocessing_started
                     } else if status == "preprocessing_ended" {
@@ -556,7 +524,7 @@ struct SendImagesToServerView: View {
         makeGetRequest(urlString: statusUrlString) { data, response, error in
             pollServerStatus(data: data, response: response, error: error)
         }
-        if ((serverStatus != ServerStatus.rendering_ended) && (serverStatus != ServerStatus.waiting_for_data))
+        if (serverStatus != ServerStatus.data_upload_ended)
         {
             print("Server isn't ready")
             return
@@ -642,6 +610,8 @@ struct SendImagesToServerView: View {
 
 enum ServerStatus {
     case waiting_for_data
+    case data_upload_started
+    case data_upload_ended
     case preprocessing_started
     case preprocessing_ended
     case training_started
