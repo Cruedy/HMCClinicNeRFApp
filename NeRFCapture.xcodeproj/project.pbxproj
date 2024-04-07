@@ -19,6 +19,7 @@
 		0815361A2AFC62590033B144 /* IntroInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 081536192AFC62590033B144 /* IntroInstructionsView.swift */; };
 		0815361C2AFC626B0033B144 /* SendImagesToServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0815361B2AFC626B0033B144 /* SendImagesToServerView.swift */; };
 		410290802ACE4097008ACF35 /* CustomARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4102907F2ACE4097008ACF35 /* CustomARView.swift */; };
+		410CC6E92BBA22BE00B8CF39 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410CC6E82BBA22BE00B8CF39 /* VideoView.swift */; };
 		41421F552AF32A7F007C4CAC /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F542AF32A7F007C4CAC /* PhotoPicker.swift */; };
 		41421F572AF32A92007C4CAC /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F562AF32A92007C4CAC /* DataModel.swift */; };
 		41421F592AF32AA7007C4CAC /* ColumnStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41421F582AF32AA7007C4CAC /* ColumnStepper.swift */; };
@@ -76,6 +77,7 @@
 		081536192AFC62590033B144 /* IntroInstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroInstructionsView.swift; sourceTree = "<group>"; };
 		0815361B2AFC626B0033B144 /* SendImagesToServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendImagesToServerView.swift; sourceTree = "<group>"; };
 		4102907F2ACE4097008ACF35 /* CustomARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomARView.swift; sourceTree = "<group>"; };
+		410CC6E82BBA22BE00B8CF39 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		41421F542AF32A7F007C4CAC /* PhotoPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
 		41421F562AF32A92007C4CAC /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
 		41421F582AF32AA7007C4CAC /* ColumnStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColumnStepper.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 				415B09542B5F227F00500925 /* SwiftUIView.swift */,
 				41C93FEB2B7AC94900F8722E /* BoundingBoxSM-IdentifyFloor.swift */,
 				41C93FED2B82CB0500F8722E /* BoundingBox-SummaryView.swift */,
+				410CC6E82BBA22BE00B8CF39 /* VideoView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -352,6 +355,7 @@
 				41421F572AF32A92007C4CAC /* DataModel.swift in Sources */,
 				081536162AFC623D0033B144 /* TakingImagesView.swift in Sources */,
 				050A8EFC296E8B8E00C5C638 /* DDSWriter.swift in Sources */,
+				410CC6E92BBA22BE00B8CF39 /* VideoView.swift in Sources */,
 				41421F5F2AF32AE8007C4CAC /* FileManagerExtensions.swift in Sources */,
 				057A7AA82950092E000692A0 /* Shaders.metal in Sources */,
 				415B09552B5F227F00500925 /* SwiftUIView.swift in Sources */,
@@ -516,7 +520,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = au.wayfair.clinic4.NeRFCapture;
+				PRODUCT_BUNDLE_IDENTIFIER = au.wayfair.clinic6.NeRFCapture;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -558,7 +562,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = au.wayfair.clinic4.NeRFCapture;
+				PRODUCT_BUNDLE_IDENTIFIER = au.wayfair.clinic6.NeRFCapture;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

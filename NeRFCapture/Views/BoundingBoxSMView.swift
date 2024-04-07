@@ -14,6 +14,8 @@ struct BoundingBoxSMView: View {
 //    @ObservedObject var viewModel: ContentViewModel
     @StateObject private var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
+    @Binding var path: NavigationPath // Add this line
+
     
     @State private var showSheet: Bool = false
     
@@ -28,13 +30,15 @@ struct BoundingBoxSMView: View {
     // help button
     @State private var showingInstructions = false
     
-    init(viewModel vm: ARViewModel) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
         _viewModel = StateObject(wrappedValue: vm)
+        _path = path
     }
 
     @available(iOS 17.0, *)
     var body: some View {
         ZStack {
+
             // ARViewContainer with gesture recognizer
             ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz)
                 .edgesIgnoringSafeArea(.all)
@@ -67,7 +71,7 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
                     .padding(.horizontal,20)
                     .padding(.vertical, 5)
                     .buttonStyle(.bordered)
@@ -162,12 +166,12 @@ struct TestView: View {
     }
 }
 
-#if DEBUG
-@available(iOS 17.0, *)
-struct BoundingBoxSM_Previews : PreviewProvider {
-    static var previews: some View {
-        BoundingBoxSMView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()))
-            .previewInterfaceOrientation(.portrait)
-    }
-}
-#endif
+//#if DEBUG
+//@available(iOS 17.0, *)
+//struct BoundingBoxSM_Previews : PreviewProvider {
+//    static var previews: some View {
+//        BoundingBoxSMView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()), path: NavigationPath())
+//            .previewInterfaceOrientation(.portrait)
+//    }
+//}
+//#endif

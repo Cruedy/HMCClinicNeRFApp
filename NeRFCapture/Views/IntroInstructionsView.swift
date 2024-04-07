@@ -71,27 +71,26 @@ struct InstructionsView: View {
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
+    @Binding var path: NavigationPath // Add this line
+
     @State var isAlertShown = false
     
-    init(viewModel vm: ARViewModel) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
         _viewModel = StateObject(wrappedValue: vm)
+        _path = path // Bind the path
+
     }
     
     var body: some View {
         VStack{
             InstructionsView()
         }
-        // --- Tool Bar ---
-//        NavigationLink("next", destination: BoundingBoxSMView(viewModel: viewModel)).environmentObject(dataModel).navigationViewStyle(.stack)
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                //might need to add this to the end of the navigation link
-//            }
-//        }
+
         Button("Start Project"){
             viewModel.datasetWriter.showAlert(
                 viewModel: viewModel, 
                 dataModel: dataModel,
+                path: $path,
                 title: "Create Project Name",
                 message: "Please provide a name for your project",
                 hintText: "Enter Title",
