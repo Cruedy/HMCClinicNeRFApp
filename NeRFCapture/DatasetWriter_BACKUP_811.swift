@@ -22,30 +22,27 @@ extension UIImage {
     }
 }
 
-@available(iOS 17.0, *)
-class DatasetWriter: ObservableObject {
+class DatasetWriter {
     
     enum SessionState {
         case SessionNotStarted
         case SessionStarted
-        case SessionPaused
     }
-
+    
     var manifest = Manifest()
     var boundingBoxManifest: BoundingBoxManifest?
     var projectName = ""
-    var projName = ""
     var projectDir = getDocumentsDirectory()
     var useDepthIfAvailable = true
     
     @Published var currentFrameCounter = 0
     @Published var writerState = SessionState.SessionNotStarted
     
-    
     @IBOutlet var takePictureButton: UIBarButtonItem?
     @IBOutlet var startStopButton: UIBarButtonItem?
     @IBOutlet var delayedPhotoButton: UIBarButtonItem?
     @IBOutlet var doneButton: UIBarButtonItem?
+    
     
     let imagePickerController: UIImagePickerController = {
         let picker = UIImagePickerController()
@@ -59,49 +56,10 @@ class DatasetWriter: ObservableObject {
         return FileManager.default.fileExists(atPath: projectDir.absoluteString, isDirectory: &isDir)
     }
     
-    func showAlert(viewModel: ARViewModel, dataModel: DataModel, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
-        
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
-        alert.addTextField { field in
-            field.placeholder = hintText
-        }
-        
-        alert.addAction(.init(title: secondaryTitle, style: .cancel, handler: { _ in
-            secondaryAction()
-        }))
-        alert.addAction(.init(title: primaryTitle, style: .default, handler: { _ in
-            if let text = alert.textFields?[0].text{
-                self.projName = text
-                primaryAction(text)
-                let customView = BoundingBoxSMView(viewModel: viewModel).environmentObject(dataModel)
-                let customViewController = BoundingBoxSMController(boundingBoxSMView: customView, dataModel: dataModel)
-                let navigationController = UINavigationController(rootViewController: customViewController)
-                navigationController.modalPresentationStyle = .fullScreen
-                self.rootController().present(navigationController, animated: true, completion: nil)
-                } else {
-                    primaryAction("")
-                }
-        }))
-        rootController().present(alert, animated: true, completion: nil)
-    }
-    
-    func rootController()->UIViewController{
-        guard let screen = UIApplication.shared.connectedScenes.first as? UIWindowScene else{
-            return .init()
-        }
-        
-        guard let root = screen.windows.first?.rootViewController else{
-            return .init()
-        }
-        
-        return root
-    }
-    
     func initializeProject() throws {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "YYMMddHHmmss"
-//        projectName = .environmentObject(dataModel)
-        projectName = self.projName
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYMMddHHmmss"
+        projectName = dateFormatter.string(from: Date())
         projectDir = getDocumentsDirectory()
             .appendingPathComponent(projectName)
         if projectExists(projectDir) {
@@ -130,13 +88,39 @@ class DatasetWriter: ObservableObject {
         writerState = .SessionStarted
     }
     
-    func pauseSession() {
-        writerState = .SessionPaused
-    }
+//    func automaticCapture() {
+////        // Start the timer to take a photo every 5 seconds.
+////        startStopButton?.title = NSLocalizedString("Stop", comment: "Title for overlay view controller start/stop button")
+////        startStopButton?.action = #selector(stopAutomaticCapture)
+////        
+////        // Enable these buttons while capturing photos.
+////        doneButton?.isEnabled = false
+////        delayedPhotoButton?.isEnabled = false
+////        takePictureButton?.isEnabled = false
+//        cameraTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+//            if let frame = self.session?.currentFrame {
+//                self.datasetWriter.writeFrameToDisk(frame: frame)
+//            }
+//        }}
+//    }
+    
+//    @IBAction func stopAutomaticCapture(_ sender: UIBarButtonItem) {
+//        // Stop and reset the timer.
+//        cameraTimer.invalidate()
+//
+//        finalizeSession()
+//        
+//        // Make these buttons available again.
+//        self.doneButton?.isEnabled = true
+//        self.takePictureButton?.isEnabled = true
+//        self.delayedPhotoButton?.isEnabled = true
+//        
+//        startStopButton?.title = NSLocalizedString("Start", comment: "Title for overlay view controller start/stop button")
+//        startStopButton?.action = #selector(automaticCapture)
+//    }
     
     func clean() {
         guard case .SessionStarted = writerState else { return; }
-
         writerState = .SessionNotStarted
         DispatchQueue.global().async {
             do {
@@ -159,12 +143,16 @@ class DatasetWriter: ObservableObject {
         }
         
         writeManifestToPath(path: manifest_path)
+<<<<<<< HEAD
+=======
         
         let boundingboxmanifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
             .appendingPathComponent("boundingbox.json")
         
         writeBoundingBoxManifestToPath(path: boundingboxmanifest_path)
+        
+>>>>>>> e70cf1c599d79d08fdb555a9e2334ee4129ba2ee
     }
      
     func finalizeProject(zip: Bool = true) {
@@ -185,6 +173,7 @@ class DatasetWriter: ObservableObject {
             .appendingPathComponent("boundingbox.json")
 
         writeBoundingBoxManifestToPath(path: boundingbox_manifest_path)
+        
         DispatchQueue.global().async {
             do {
                 if zip {
@@ -196,7 +185,6 @@ class DatasetWriter: ObservableObject {
                 print("Could not zip")
             }
         }
-        clean()
     }
     
     func getCurrentFrameName() -> String {

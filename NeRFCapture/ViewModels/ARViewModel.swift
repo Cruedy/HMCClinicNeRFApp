@@ -70,64 +70,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
             .store(in: &cancellables)
     }
     
-    // Actions from BoundingBoxView to update the boundingbox
-//    func subscribeToActionStream() {
-//            ActionManager.shared
-//                .actionStream
-//                .sink { [weak self] action in
-//                    
-//                    switch action {
-//                    case .heartbeat(let data):
-//                        print(data)
-//                    
-//                        // each action involves performing the action, rendering and updating the bounding box information
-//                    case .display_box(let boxVisible):
-//                        self?.display_box(boxVisible: boxVisible)
-//                        self?.boxVisible = boxVisible
-//                        self?.update_boundingbox_manifest()
-//                        
-//                    case .set_center(let new_center):
-//                        self?.set_center(new_center: new_center)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                        self?.update_boundingbox_manifest()
-//
-//                        
-//                    case .set_angle(let new_angle):
-//                        self?.set_angle(new_angle: new_angle)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                        self?.update_boundingbox_manifest()
-//
-//
-//                    case .set_scale(let new_scale):
-//                        self?.set_scale(new_scale: new_scale)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                        self?.update_boundingbox_manifest()
-//
-//                    
-//                    case .extend_sides(let scale_update):
-//                        self?.extend_sides(offset: scale_update)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                        self?.update_boundingbox_manifest()
-//
-//                        
-//                    case .shrink_sides(let scale_update):
-//                        self?.shrink_sides(offset: scale_update)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                        self?.update_boundingbox_manifest()
-//                        
-//                    case .raycast_center(let at, let frame):
-//                        self?.raycast_bounding_box_center(at:at, frame: frame)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                    
-//                    case .set_floor(let at, let frame):
-//                        self?.findFloorHeight(at: at, frame: frame)
-//                        self?.display_box(boxVisible: self!.boxVisible)
-//                    
-//                    }
-//                }
-//                .store(in: &cancellables)
-//        }
-//    
     func createARConfiguration() -> ARWorldTrackingConfiguration {
         let configuration = ARWorldTrackingConfiguration()
         configuration.worldAlignment = .gravity
@@ -139,7 +81,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func display_box(boxVisible: Bool) {
-        if (boxVisible){        
+        if (boxVisible){
             print("displaying box")
 
             if boundingBoxAnchor != nil{
@@ -239,6 +181,65 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
         return center
     }
     
+    private func side() -> (side: BoundingBoxPlane?, hitLocation: SIMD3<Float>)? {
+        guard let arView = arView else {
+            print("arView is nil")
+            return (side: nil, hitLocation: SIMD3<Float>(boundingbox.center))
+        }
+//        guard let cameraTransform = arView.session.currentFrame?.camera.transform else { return (side: nil, hitLocation: SIMD3<Float>(boundingbox.center)) }
+//        let cameraPosition = SIMD3<Float>(cameraTransform.columns.3.x, cameraTransform.columns.3.y, cameraTransform.columns.3.z)
+//        let cameraForward = SIMD3<Float>(-cameraTransform.columns.2.x, -cameraTransform.columns.2.y, -cameraTransform.columns.2.z)
+        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+//        let planeSize = CGSize(width: <#T##CGFloat#>, height: <#T##CGFloat#>)
+//        let planeRect = CGRect(origin: screenCenter, size: planeSize)
+        
+        let collisionResult = arView.hitTest(screenCenter)
+        print("collisionresult")
+        print(collisionResult)
+        
+        // Perform hit test with given ray
+//        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
+        
+        // We cannot just look at the first result because we might have hits with other than the tile geometries.
+        if let firstResult = collisionResult.first {
+            print("firstResult")
+            print(firstResult)
+            // Assuming you have a way to access your planes
+            // You'll need to identify which plane was hit and change its color
+            for plane in boundingbox.planes {
+                print("current plane")
+                print(plane.entity)
+                if plane.entity == firstResult.entity {
+                    print("True")
+                    // Change the color of the hit plane
+                    let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
+                    let newMaterial = UnlitMaterial(color: lessTransparentYellowColor)
+                    plane.entity.model?.materials = [newMaterial]
+                    print("checkCounts")
+                    print(plane.index)
+                    print(boundingbox.plane_counts[plane.index])
+                    boundingbox.plane_counts[plane.index]  = boundingbox.plane_counts[plane.index]+1
+                    print("counts: \(boundingbox.plane_counts)")
+                    break
+                }
+            }
+        }
+//        for result in raycastResults {
+//            print("result")
+//            print(result)
+//            print("---------")
+////            if let tile = result.node as? BoundingBoxPlane, side.isBusyUpdatingTiles {
+////                // Each ray should only hit one tile, so we can stop iterating through results if a hit was successful.
+////                return (side: side, hitLocation: SIMD3<Float>(result.worldCoordinates))
+////            }
+//        }
+        return nil
+    }
+    
+    func rayCast_changeBoundingColor(at screenPoint: CGPoint, frame: ARFrame){
+        
+    }
+    
     func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame){
         print("Find Floor height")
         
@@ -315,7 +316,9 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     
     @objc func changeInterval() {
         if let frame = self.session?.currentFrame {
+            // call raycast function here
             self.datasetWriter.writeFrameToDisk(frame: frame)
+            self.side()
             // Trigger the flash effect
             self.isFlashVisible = true
             // Hide flash after a short delay
@@ -364,35 +367,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
             return inputTransform
         }
     }
-    
-//    func trackMotion() {
-//        locationTimer?.invalidate()
-//        locationTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
-//            if let transform = self.arView?.session.currentFrame?.camera.transform {
-//                let filteredTransform = self.applyFilter(transform)
-//                let position = filteredTransform.columns.3
-//                // units are in meters
-//                let positionVector = SIMD3<Float>(position.x, position.y, position.z)
-//                let positionInInches = SIMD3<Float>(positionVector.x * 39.37, positionVector.y * 39.37, positionVector.z * 39.37)
-//                if !self.xList.isEmpty {
-//                    if abs(self.xList.last! - positionInInches.x) < 12.0 || abs(self.yList.last! - positionInInches.y) < 12.0 || abs(self.zList.last! - positionInInches.z) < 12.0{
-//                        print("user is moving too slowly")
-//                    }
-//                    else if abs(self.xList.last! - positionInInches.x) > 24.0 || abs(self.yList.last! - positionInInches.y) > 24.0 || abs(self.zList.last! - positionInInches.z) > 24.0{
-//                        print("user is moving too fast")
-//                    }
-//                } else {
-//                    print("list is empty")
-//                }
-//                self.xList.append(positionInInches.x)
-//                self.yList.append(positionInInches.y)
-//                self.zList.append(positionInInches.z)
-//            } else {
-//                print("Transform or AR session is not available.")
-//            }
-//
-//        }
-//    }
     
     func trackVelocity() {
         velocityTimer?.invalidate()

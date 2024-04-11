@@ -7,6 +7,35 @@
 
 import Foundation
 import ARKit
+import RealityKit
+
+struct Ray {
+    let origin: SIMD3<Float>
+    let direction: SIMD3<Float>
+    
+    init(origin: SIMD3<Float>, direction: SIMD3<Float>) {
+        self.origin = origin
+        self.direction = direction
+    }
+    
+    // Initialize a ray based on the ARCamera's transform
+    init(normalFrom camera: ARCamera, length: Float) {
+        // Extract the camera's transform
+        let cameraTransform = camera.transform
+        
+        // Extract the translation component of the camera's transform
+        let translation = SIMD3<Float>(x: cameraTransform.columns.3.x, y: cameraTransform.columns.3.y, z: cameraTransform.columns.3.z)
+        
+        // Compute the direction vector (the negative Z axis of the camera's transform)
+        let cameraDirection = SIMD3<Float>(x: -cameraTransform.columns.2.x, y: -cameraTransform.columns.2.y, z: -cameraTransform.columns.2.z)
+        
+        // Scale the direction vector to the desired length
+        let scaledDirection = normalize(cameraDirection) * length
+        
+        // Initialize the ray with the computed origin and direction
+        self.init(origin: translation, direction: scaledDirection)
+    }
+}
 
 func trackingStateToString(_ trackingState: ARCamera.TrackingState) -> String {
         switch trackingState {

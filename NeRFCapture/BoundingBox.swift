@@ -9,6 +9,45 @@ import ARKit
 import Foundation
 import RealityKit
 
+//fileprivate extension ARView.DebugOptions {
+//
+//    func showCollisions() -> ModelEntity {
+//
+//        print("Code for visualizing collision objects goes here...")
+//
+//        let vc = ViewController()
+//
+//        let box = MeshResource.generateBox(size: 0.04)
+//        let color = UIColor(white: 1.0, alpha: 0.15)
+//        let colliderMaterial = UnlitMaterial(color: color)
+//
+//        vc.visualCollider = ModelEntity(mesh: box,
+//                                   materials: [colliderMaterial])
+//        return vc.visualCollider
+//    }
+//}
+
+class BoundingBoxPlane {
+    var descr: MeshDescriptor
+//    var count: Int
+    var index: Int
+//    private(set) var isBusyUpdatingTiles: Bool = false
+    var entity: ModelEntity
+//    var width: Float
+//    var height: Float
+    
+    init(descr: MeshDescriptor, entity: ModelEntity, index: Int) {// width: width, height: height
+        self.descr = descr
+//        self.count = 0
+        self.entity = entity
+        self.index = index
+//        self.width = width
+//        self.height = height
+    }
+    
+    
+}
+
 class BoundingBox {
     // Properties to store bounding box information
     var center: [Float] = [] // x is left-right, z is forward-back, y is down-up (respective to the neg side-pos side)
@@ -18,6 +57,10 @@ class BoundingBox {
     var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
     var floor: Float? = nil
+    var planes: [BoundingBoxPlane] = []
+    var plane_counts = [0,0,0,0,0,0]
+    private var cameraRaysAndHitLocations: [(ray: Ray, hitLocation: SIMD3<Float>)] = []
+//    private var sceneView: ARSCNView
     
     // Initialize the bounding box with a center point
     init(center point: [Float]){
@@ -36,6 +79,16 @@ scale: \(scale)
 
 """)
     }
+    
+//    struct VertexComponent: MeshComponent {
+//        var position: SIMD3<Float>
+//        var normal: SIMD3<Float>
+//        var uv: SIMD2<Float>
+//
+//        static var bufferIndex: MeshBufferIndex {
+//            MeshBufferIndex(vertices: Self.self)
+//        }
+//    }
     
     func encode_as_json() -> BoundingBoxManifest
     {
@@ -178,10 +231,42 @@ scale: \(scale)
         
     }
     
+    // Helper function to create squares in bounding box
+    func createSquare(x: Float, y: Float, width: Float, height: Float) -> MeshDescriptor {
+        // Your implementation to create a square mesh descriptor
+        // This can involve creating vertices and defining edges for the square
+        // Return the mesh descriptor for the square
+        // Example:
+        let squareMeshDescriptor = MeshDescriptor() // Your implementation here
+        return squareMeshDescriptor
+    }
+    
+    func createPlaneFromCorners(corners: [[Float]], thickness: Float) -> MeshDescriptor {
+        var positions: [SIMD3<Float>] = []
+        
+        // Offsets are necessary because RealityKit can't render 1D objects
+        // We go around this problem by changing the object into a plane
+        // One of the dimensions will still be flat, can fix this by offsetting the z
+        for corner in corners {
+            positions.append(SIMD3<Float>(corner[0], corner[1], corner[2]))
+        }
+        
+        var planeDescr = MeshDescriptor(name: "plane")
+        planeDescr.positions = MeshBuffers.Positions(positions)
+        
+        planeDescr.primitives = .polygons([4, 4], [0, 1, 2, 3, 3, 2, 1, 0])
+        // Define indices to create two triangles for the plane
+//        let indices: [UInt32] = [0, 1, 2, 2, 3, 0, 2, 1, 0, 0, 3, 2]
+//        planeDescr.primitives = .triangles(indices)
+        
+        return planeDescr
+    }
+    
     // Helper function to create bounding box lines
-    func createBoundingBox(corners: [[Float]], thickness: Float) -> [MeshDescriptor] {
+    func createBoundingBox(corners: [[Float]], thickness: Float) -> ([MeshDescriptor], [MeshDescriptor]) {
         
         var line_descrs: [MeshDescriptor] = []
+//        var plane_descrs: [MeshDescriptor] = []
         
         // TODO: This can be a bit confusing. Maybe create a struct for just the corners
         let top_left_front = corners[0]
@@ -208,9 +293,35 @@ scale: \(scale)
         line_descrs.append(createLine(corners: [bottom_left_back, bottom_left_front], thickness: thickness))
         line_descrs.append(createLine(corners: [top_right_front, top_right_back], thickness: thickness))
         line_descrs.append(createLine(corners: [bottom_right_front, bottom_right_back], thickness: thickness))
-
-
-        return line_descrs
+        
+        planes = []
+        // start by creating the front face of the bounding box
+        var plane_descrs = [createPlaneFromCorners(corners: [top_left_front, top_right_front, bottom_right_front, bottom_left_front], thickness: thickness)]
+        // Adding left face of bounding box
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, bottom_left_front, bottom_left_back, top_left_back], thickness: thickness))
+        // Adding right face of bounding box
+        plane_descrs.append(createPlaneFromCorners(corners: [top_right_front, bottom_right_front, bottom_right_back, top_right_back], thickness: thickness))
+        // Adding bottom of bounding box
+        plane_descrs.append(createPlaneFromCorners(corners: [bottom_right_front, bottom_left_front, bottom_left_back, bottom_right_back], thickness: thickness))
+        // Adding top of bounding box
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, top_left_back, top_right_back, top_right_front], thickness: thickness))
+        // Adding back of bounding
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_back, top_right_back, bottom_right_back, bottom_left_back], thickness: thickness))
+        
+        print("number of planes")
+        print(plane_descrs.count)
+        
+        for p in plane_descrs {
+//            print("Plane Descriptor:")
+//            print("Positions:")
+            for position in p.positions {
+//                print(position)
+            }
+//            print("Indices:")
+//            print(p.primitives)
+        }
+        
+        return (line_descrs, plane_descrs)
     }
     
     // Add a new bounding box to the scene
@@ -220,9 +331,16 @@ scale: \(scale)
         self.positions = self.pos_from_center(self.center)
         print("positions")
         print(self.positions)
-        let descrs = createBoundingBox(corners: self.positions, thickness: 0.01)
-        for descr in descrs {
-            let material = UnlitMaterial(color: .orange)
+        let descriptors = createBoundingBox(corners: self.positions, thickness: 0.001)
+//        let line_descrs = descriptors.0
+//        print("planesDesc")
+//        print(planes)
+//        print("returnedPlaneDesc")
+//        print(descriptors.1.first)
+//        print("returnedLineDesc")
+//        print(descriptors.0.first)
+        for descr in descriptors.0 {
+            let material = UnlitMaterial(color: .purple)
             
             let generatedModel = ModelEntity(
                mesh: try! .generate(from: [descr]),
@@ -231,9 +349,100 @@ scale: \(scale)
             
             worldOriginAnchor.addChild(generatedModel)
         }
+        print("planesLen")
+        print(planes.count)
+        var i = 0
+//        var width = 0
+//        var height = 0
+        var count = 0
+        for descr in descriptors.1 {
+            var material: UnlitMaterial
+            if plane_counts[i] == 0{
+                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)
+                material = UnlitMaterial(color: transparentYellowColor)
+            } else {
+                count = count + 1
+                print("trackCount")
+                print(count)
+                print(plane_counts[i])
+                print(plane_counts)
+                let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
+                material = UnlitMaterial(color: lessTransparentYellowColor)
+            }
+            
+//            material.color = UIColor(white: 1.0, alpha: 0.0)
+//            var mat = UnlitMaterial.Blending.transparent(opacity: 0.5)
+            // material.opacityThreshold = 0.0
+            let generatedModel = ModelEntity(
+                mesh: try! .generate(from: [descr]),
+                materials: [material])
+            
+//            generatedModel.collision = CollisionComponent(shapes: [.generateBox(size: [1,1,1])])
+//            let showCollisions = arView.debugOptions.showCollisions()  // here it is
+//            generatedModel.addChild(showCollisions)
+            generatedModel.generateCollisionShapes(recursive: true)
+            worldOriginAnchor.addChild(generatedModel)
+//            if i == 0{
+//                width = self.positions - top_right_front[0]
+//                height = top_left_front[1] - bottom_left_front[1]
+//            }
+            var newPlane = BoundingBoxPlane(descr: descr, entity: generatedModel, index: i)
+            i = i+1
+            planes.append(newPlane)
+        }
+//        print("worldOriginAnchor:")
+//        print(worldOriginAnchor.children)
         self.entity_anchor = worldOriginAnchor
         return worldOriginAnchor
     }
+    
+    func contains(_ pointInWorld: SIMD3<Float>, corners:[[Float]]) -> Bool {
+        // Calculate the minimum and maximum local coordinates of the bounding box
+        var localMin = SIMD3<Float>(x: Float.greatestFiniteMagnitude, y: Float.greatestFiniteMagnitude, z: Float.greatestFiniteMagnitude)
+        var localMax = SIMD3<Float>(x: -Float.greatestFiniteMagnitude, y: -Float.greatestFiniteMagnitude, z: -Float.greatestFiniteMagnitude)
+
+        // Find the minimum and maximum coordinates of the bounding box's corners
+        for corner in corners {
+            localMin.x = min(localMin.x, corner[0])
+            localMin.y = min(localMin.y, corner[1])
+            localMin.z = min(localMin.z, corner[2])
+            
+            localMax.x = max(localMax.x, corner[0])
+            localMax.y = max(localMax.y, corner[1])
+            localMax.z = max(localMax.z, corner[2])
+        }
+
+        // Check if the given point lies within the bounding box along all three axes
+        return (localMin.x...localMax.x).contains(pointInWorld.x) &&
+               (localMin.y...localMax.y).contains(pointInWorld.y) &&
+               (localMin.z...localMax.z).contains(pointInWorld.z)
+    }
+    
+//    func updateCapturingProgress(corners: [[Float]], plane: BoundingBoxPlane) {
+////        guard let camera = sceneView.pointOfView, !self.contains(camera.simdWorldPosition, corners: corners) else { return }
+//        
+//        
+////        plane.count += 1
+//        
+//        // Add new hit test rays at a lower frame rate to keep the list of previous rays
+//        // at a reasonable size.
+//        if plane.count % 20 == 0 {
+//            plane.count = 0
+//            
+////            // Create a new hit test ray. A line segment defined by its start and end point
+////            // is used to hit test against bounding box tiles. The ray's length allows for
+////            // intersections if the user is no more than five meters away from the bounding box.
+////            let currentRay = Ray(normalFrom: camera, length: 5.0)
+////            
+////            // Only remember the ray if it hit the bounding box,
+////            // and the hit location is significantly different from all previous hit locations.
+////            if let (_, hitLocation) = tile(hitBy: currentRay) {
+////                if isHitLocationDifferentFromPreviousRayHitTests(hitLocation) {
+////                    cameraRaysAndHitLocations.append((ray: currentRay, hitLocation: hitLocation))
+////                }
+////            }
+//        }
+//    }
     
     // update properties using some kind of offset
     func update_center(_ offset:[Float]) -> [Float] {

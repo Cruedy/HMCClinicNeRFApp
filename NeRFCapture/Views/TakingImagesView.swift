@@ -93,6 +93,7 @@ struct TakingImagesView: View {
                                 }
                                 if case .SessionPaused = viewModel.appState.writerState {
                                     Text("Session Paused at \(viewModel.datasetWriter.currentFrameCounter) Frames")
+                                    Text(viewModel.boundingbox.plane_counts.map { String($0) }.joined(separator: ", "))
                                 }
                             }
                             
@@ -113,6 +114,8 @@ struct TakingImagesView: View {
                     if viewModel.appState.writerState == .SessionNotStarted {
                         Spacer()
                         
+                        
+                        Spacer()
                         // Button to reset world origin
                         Button(action: {
                             viewModel.resetWorldOrigin()
@@ -132,7 +135,7 @@ struct TakingImagesView: View {
                             catch {
                                 print("\(error)")
                             }
-                            viewModel.trackVelocity()
+//                            viewModel.trackVelocity()
                             viewModel.startAutomaticCapture()
                         }) {
                             Text("Automatic Capture")
