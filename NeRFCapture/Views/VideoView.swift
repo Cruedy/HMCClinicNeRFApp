@@ -31,8 +31,6 @@ struct VideoView: View {
 //            path.removeAll()
 //            path.wrappedValue.removeAll()
             print(path.count)
-            path.removeLast()
-
         }
         .padding()
         .buttonStyle(.bordered)
