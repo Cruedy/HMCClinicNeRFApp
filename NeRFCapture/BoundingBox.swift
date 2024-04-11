@@ -241,15 +241,47 @@ scale: \(scale)
         return squareMeshDescriptor
     }
     
-    func createPlaneFromCorners(corners: [[Float]], thickness: Float) -> MeshDescriptor {
+//    def new_position_scalar(P, C, shrink_scalar):
+//        direction = C - P
+//        norm_direction = direction / np.linalg.norm(direction)  # Normalize the direction vector
+//        return P + norm_direction * shrink_scalar  # Move the point towards the centroid
+
+    func calc_centroid(corners: [SIMD3<Float>]) -> SIMD3<Float> {
+        // Calculate the sum of all vectors
+        let sum = corners.reduce(SIMD3<Float>(0, 0, 0)) { $0 + $1 }
+
+        // Calculate the average by dividing the sum by the number of vectors
+        let average = sum / Float(corners.count)
+        
+        // Return the calculated average (centroid)
+        return average
+    }
+    
+    func shrink_torwards_center(P: SIMD3<Float>, C: SIMD3<Float>, shrinkScalar: Float) -> SIMD3<Float> {
+        let direction = C - P
+        let norm = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z)
+        let normDirection = direction / norm  // Normalize the direction vector
+        
+        return P + normDirection * shrinkScalar  // Move the point towards the centroid
+    }
+    
+    func createPlaneFromCorners(corners: [[Float]], shrinkScalar: Float) -> MeshDescriptor {
         var positions: [SIMD3<Float>] = []
         
         // Offsets are necessary because RealityKit can't render 1D objects
         // We go around this problem by changing the object into a plane
         // One of the dimensions will still be flat, can fix this by offsetting the z
+        
         for corner in corners {
             positions.append(SIMD3<Float>(corner[0], corner[1], corner[2]))
         }
+        
+        let centroid = calc_centroid(corners: positions)
+        
+        // loop through positions, call shrink_towards_center for each position and replace the position at each index with the result
+        for i in 0..<positions.count {
+                positions[i] = shrink_torwards_center(P: positions[i], C: centroid, shrinkScalar: shrinkScalar)
+            }
         
         var planeDescr = MeshDescriptor(name: "plane")
         planeDescr.positions = MeshBuffers.Positions(positions)
@@ -296,17 +328,17 @@ scale: \(scale)
         
         planes = []
         // start by creating the front face of the bounding box
-        var plane_descrs = [createPlaneFromCorners(corners: [top_left_front, top_right_front, bottom_right_front, bottom_left_front], thickness: thickness)]
+        var plane_descrs = [createPlaneFromCorners(corners: [top_left_front, top_right_front, bottom_right_front, bottom_left_front], shrinkScalar: thickness*1.5)]
         // Adding left face of bounding box
-        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, bottom_left_front, bottom_left_back, top_left_back], thickness: thickness))
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, bottom_left_front, bottom_left_back, top_left_back], shrinkScalar: thickness*1.5))
         // Adding right face of bounding box
-        plane_descrs.append(createPlaneFromCorners(corners: [top_right_front, bottom_right_front, bottom_right_back, top_right_back], thickness: thickness))
+        plane_descrs.append(createPlaneFromCorners(corners: [top_right_front, bottom_right_front, bottom_right_back, top_right_back], shrinkScalar: thickness*1.5))
         // Adding bottom of bounding box
-        plane_descrs.append(createPlaneFromCorners(corners: [bottom_right_front, bottom_left_front, bottom_left_back, bottom_right_back], thickness: thickness))
+        plane_descrs.append(createPlaneFromCorners(corners: [bottom_right_front, bottom_left_front, bottom_left_back, bottom_right_back], shrinkScalar: thickness*1.5))
         // Adding top of bounding box
-        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, top_left_back, top_right_back, top_right_front], thickness: thickness))
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_front, top_left_back, top_right_back, top_right_front], shrinkScalar: thickness*1.5))
         // Adding back of bounding
-        plane_descrs.append(createPlaneFromCorners(corners: [top_left_back, top_right_back, bottom_right_back, bottom_left_back], thickness: thickness))
+        plane_descrs.append(createPlaneFromCorners(corners: [top_left_back, top_right_back, bottom_right_back, bottom_left_back], shrinkScalar: thickness*1.5))
         
         print("number of planes")
         print(plane_descrs.count)
