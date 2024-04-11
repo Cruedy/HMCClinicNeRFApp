@@ -67,7 +67,11 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
 //                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
 //                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
 //                }

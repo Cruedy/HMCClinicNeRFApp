@@ -48,7 +48,7 @@ struct IdentifyFloorView : View {
             Button(action: {
                 bbox_placement_states = BoundingBoxPlacementStates.InputDimensions
             }) {
-                Text("Go Next")
+                Text("Enter Dimensions")
                     .padding(.horizontal,20)
                     .padding(.vertical, 5)
             }

@@ -69,9 +69,11 @@ struct GridView : View {
             }){
                 Text("Prepare Files")
             }
-            NavigationLink("Next", destination: SendImagesToServerView())
+            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
             
             HelpButton {
                 showingInstructions = true
