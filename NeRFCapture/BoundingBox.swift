@@ -248,7 +248,7 @@ scale: \(scale)
         // We go around this problem by changing the object into a plane
         // One of the dimensions will still be flat, can fix this by offsetting the z
         for corner in corners {
-            positions.append(SIMD3<Float>(corner[0], corner[1], corner[2]))
+            positions.append(SIMD3<Float>(corner[0]-0.001, corner[1]+0.001, corner[2]+0.001))
         }
         
         var planeDescr = MeshDescriptor(name: "plane")
@@ -354,21 +354,48 @@ scale: \(scale)
         var i = 0
 //        var width = 0
 //        var height = 0
-        var count = 0
+        let goal = 10.0
+        // rgb values for green
+        let red = 0.0
+        let green = 1.0
+        let blue = 0.0
+        // rgb values for yellow
+        let finalRed = 0.0
+        let finalGreen = 0.5
+        let finalBlue = 0.5
+        var newRed: CGFloat
+        var newGreen: CGFloat
+        var newBlue: CGFloat
+        var color: UIColor
+        var progress: Double
         for descr in descriptors.1 {
             var material: UnlitMaterial
-            if plane_counts[i] == 0{
-                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)
-                material = UnlitMaterial(color: transparentYellowColor)
-            } else {
-                count = count + 1
-                print("trackCount")
-                print(count)
-                print(plane_counts[i])
-                print(plane_counts)
-                let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
-                material = UnlitMaterial(color: lessTransparentYellowColor)
-            }
+            progress = Double(plane_counts[i])/goal
+            let redProgress = (1.0 - progress) * red
+            let greenProgress = (1.0 - progress) * green
+            let blueProgress = (1.0 - progress) * blue
+            let finalRedProgress = progress * finalRed
+            let finalGreenProgress = progress * finalGreen
+            let finalBlueProgress = progress * finalBlue
+            print("colorProgress")
+            print(progress)
+            newRed   = redProgress   + finalRedProgress
+            newGreen = greenProgress + finalGreenProgress
+            newBlue  = blueProgress  + finalBlueProgress
+            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
+            material = UnlitMaterial(color: color)
+//            if plane_counts[i] == 0{
+//                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)
+//                material = UnlitMaterial(color: transparentYellowColor)
+//            } else {
+//                count = count + 1
+//                print("trackCount")
+//                print(count)
+//                print(plane_counts[i])
+//                print(plane_counts)
+//                let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
+//                material = UnlitMaterial(color: lessTransparentYellowColor)
+//            }
             
 //            material.color = UIColor(white: 1.0, alpha: 0.0)
 //            var mat = UnlitMaterial.Blending.transparent(opacity: 0.5)
