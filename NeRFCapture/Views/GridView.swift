@@ -20,6 +20,12 @@ struct GridView : View {
     @State private var numColumns = initialColumns
     
     @State private var showingInstructions = false
+    @Binding var path: NavigationPath // Add this line
+
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+        _viewModel = StateObject(wrappedValue: vm)
+        _path = path
+    }
     
     private var columnsTitle: String {
         gridColumns.count > 1 ? "\(gridColumns.count) Columns" : "1 Column"
@@ -69,7 +75,9 @@ struct GridView : View {
             }){
                 Text("Prepare Files")
             }
-            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel))
+
+            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+                .padding(.horizontal,20)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
                 .buttonStyle(.bordered)

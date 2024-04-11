@@ -16,7 +16,14 @@ struct SendImagesToServerView: View {
     @State private var serverStatus: ServerStatus?
     @State private var serverError: String = ""
     @StateObject var viewModel: ARViewModel
+    @EnvironmentObject var dataModel: DataModel
+    @Binding var path: NavigationPath // Add this line
 
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+        _viewModel = StateObject(wrappedValue: vm)
+        _path = path
+    }
+    
     @State private var timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 //    @State private var splatName: String = "iPad5"
 
@@ -25,7 +32,6 @@ struct SendImagesToServerView: View {
             Text(testForStatus(status: serverStatus))
             .padding()
             Spacer()
-            Text(viewModel.datasetWriter.projectName)
 //            TextField("Enter splat name", text: $splatName)
 //                            .padding()
 //                            .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -75,10 +81,13 @@ struct SendImagesToServerView: View {
             .buttonBorderShape(.capsule)
             
             Spacer()
+
             Button(action: {
                 print("get video")
-                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projectName)"
-                downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projectName)
+                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projName)"
+                downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projName)
+//                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projectName)"
+//                downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projectName)
 
             }) {
                 Text("get video")
@@ -117,6 +126,12 @@ struct SendImagesToServerView: View {
         .navigationBarTitle("Send to Server")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        
+        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 5)
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
     }
     
     func convertDirectoryPathToZipPath(directoryPath: String) -> String {
@@ -138,9 +153,9 @@ struct SendImagesToServerView: View {
             case .waiting_for_data:
                 return "Server is ready for upload"
             case .data_upload_started:
-                return "Server is preparing uploaded data"
+                return "Server is extracting uploaded data"
             case .data_upload_ended:
-                return "Server finished preparing uploaded data"
+                return "Server finished extracting uploaded data"
             case .preprocessing_started:
                 return "Server is preprocessing data"
             case .preprocessing_ended:
@@ -565,11 +580,11 @@ struct SendImagesToServerView: View {
         makeGetRequest(urlString: statusUrlString) { data, response, error in
             pollServerStatus(data: data, response: response, error: error)
         }
-        if ((serverStatus != ServerStatus.rendering_ended) && (serverStatus != ServerStatus.waiting_for_data))
-        {
-            print("Server hasn't finished generating the video.")
-            return
-        }
+//        if ((serverStatus != ServerStatus.rendering_ended) && (serverStatus != ServerStatus.waiting_for_data))
+//        {
+//            print("Server hasn't finished generating the video.")
+//            return
+//        }
         
         let downloadURLString = urlString
         

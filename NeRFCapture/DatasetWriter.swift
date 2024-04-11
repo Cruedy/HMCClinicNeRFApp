@@ -10,6 +10,7 @@ import ARKit
 import Zip
 import UIKit
 import AVFoundation
+import SwiftUI
 
 
 extension UIImage {
@@ -59,7 +60,7 @@ class DatasetWriter: ObservableObject {
         return FileManager.default.fileExists(atPath: projectDir.absoluteString, isDirectory: &isDir)
     }
     
-    func showAlert(viewModel: ARViewModel, dataModel: DataModel, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
+    func showAlert(viewModel: ARViewModel, dataModel: DataModel, path: Binding<NavigationPath>, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
         alert.addTextField { field in
@@ -73,7 +74,7 @@ class DatasetWriter: ObservableObject {
             if let text = alert.textFields?[0].text{
                 self.projName = text
                 primaryAction(text)
-                let customView = BoundingBoxSMView(viewModel: viewModel).environmentObject(dataModel)
+                let customView = BoundingBoxSMView(viewModel: viewModel, path: path).environmentObject(dataModel)
                 let customViewController = BoundingBoxSMController(boundingBoxSMView: customView, dataModel: dataModel)
                 let navigationController = UINavigationController(rootViewController: customViewController)
                 navigationController.modalPresentationStyle = .fullScreen

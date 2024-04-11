@@ -71,43 +71,118 @@ struct InstructionsView: View {
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
-    @State var isAlertShown = false
-    
-    init(viewModel vm: ARViewModel) {
-        _viewModel = StateObject(wrappedValue: vm)
-    }
-    
-    var body: some View {
-        VStack{
-            InstructionsView()
-        }
-        // --- Tool Bar ---
-//        NavigationLink("next", destination: BoundingBoxSMView(viewModel: viewModel)).environmentObject(dataModel).navigationViewStyle(.stack)
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                //might need to add this to the end of the navigation link
-//            }
-//        }
-        Button("Start Project"){
-            viewModel.datasetWriter.showAlert(
-                viewModel: viewModel, 
-                dataModel: dataModel,
-                title: "Create Project Name",
-                message: "Please provide a name for your project",
-                hintText: "Enter Title",
-                primaryTitle: "Submit",
-                secondaryTitle: "Cancel",
-                primaryAction: { text in
-                    print(text)
-                },
-                secondaryAction: {
-                    print("Cancelled")
-                }
-            )
-        }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
-        .environmentObject(dataModel)
-    }  // End of body
-}  // End of view
+    @Binding var path: NavigationPath
+    @State private var projectName: String = ""
+    @State private var isAlertShown = false
+    @State private var shouldNavigate = false
 
+    var body: some View {
+        VStack {
+            InstructionsView()
+
+            Button("Start Project") {
+                isAlertShown = true
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            
+            // Programmatically activated NavigationLink
+            NavigationLink("", destination: BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel), isActive: $shouldNavigate)
+        }
+        .alert("Create Project Name", isPresented: $isAlertShown) {
+            TextField("Enter Title", text: $projectName).foregroundColor(.green)
+            Button("Cancel", role: .cancel) { }
+            Button("Submit") {
+                viewModel.datasetWriter.projName = projectName
+                print(viewModel.datasetWriter.projName)
+                shouldNavigate = true // Triggers navigation
+            }
+        } message: {
+            Text("Please provide a name for your project")
+        }
+        .environmentObject(dataModel)
+    }
+}
+//struct IntroInstructionsView: View {
+//    @StateObject var viewModel: ARViewModel
+//    @EnvironmentObject var dataModel: DataModel
+//    @Binding var path: NavigationPath // Add this line
+//    @State private var projectName: String = "" // Use this for conditional navigation
+//    @State var isAlertShown = false
+//    
+//    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+//        _viewModel = StateObject(wrappedValue: vm)
+//        _path = path // Bind the path
+//
+//    }
+//    
+//    
+//    
+//    var body: some View {
+//        VStack{
+//            InstructionsView()
+////        }
+//        
+////        var body: some View {
+////            VStack {
+////                InstructionsView()
+//                // Hidden NavigationLink that triggers navigation when projectName has a value
+////            NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+////                .padding(.horizontal,20)
+////                .padding(.vertical, 5)
+////                .buttonStyle(.bordered)
+////                .buttonBorderShape(.capsule)
+//            
+//            
+//            NavigationLink("Proceed to Bounding Box Creation", destination: BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                .padding(.horizontal,20)
+//                .padding(.vertical, 5)
+//                .buttonStyle(.bordered)
+//                .buttonBorderShape(.capsule)
+//            
+//                Button("Start Project") {
+//                    isAlertShown = true
+//                }
+//                .buttonStyle(.bordered)
+//                .buttonBorderShape(.capsule)
+//            }
+//            .alert("Create Project Name", isPresented: $isAlertShown, actions: {
+//                TextField("Enter Title", text: $projectName)
+//                Button("Cancel", role: .cancel) { }
+//                Button("Submit") {
+//                    // Perform the navigation by setting projectName which changes selection binding of NavigationLink
+//                    // Optional: Perform any actions needed with projectName before navigating
+//                }
+//            }, message: {
+//                Text("Please provide a name for your project")
+//            })
+//            .environmentObject(dataModel)
+//        }
+//    }
+//        
+//        
+//
+////        Button("Start Project"){
+////            viewModel.datasetWriter.showAlert(
+////                viewModel: viewModel, 
+////                dataModel: dataModel,
+////                path: $path,
+////                title: "Create Project Name",
+////                message: "Please provide a name for your project",
+////                hintText: "Enter Title",
+////                primaryTitle: "Submit",
+////                secondaryTitle: "Cancel",
+////                primaryAction: { text in
+////                    print(text)
+////                },
+////                secondaryAction: {
+////                    print("Cancelled")
+////                }
+////            )
+////        }
+////        .buttonStyle(.bordered)
+////        .buttonBorderShape(.capsule)
+////        .environmentObject(dataModel)
+////    }  // End of body
+////}  // End of view
+//

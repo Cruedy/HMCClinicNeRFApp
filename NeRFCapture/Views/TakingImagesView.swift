@@ -23,6 +23,8 @@ struct TakingImagesView: View {
     @State public var slider: [Float] = [1,1,1]
     @State public var cameraTimer = Timer()
     @State private var isFlashVisible = false
+    @Binding var path: NavigationPath // Add this line
+
     
 //    @Binding var boxVisible: Bool
 //    @Binding var moveLeft: Bool
@@ -36,14 +38,9 @@ struct TakingImagesView: View {
     
     @State private var showingInstructions = false
     
-    init(viewModel vm: ARViewModel) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
         _viewModel = StateObject(wrappedValue: vm)
-//        _boxVisible = bv
-//        _moveLeft = ml
-//        _moveRight = mr
-//        _rotate_angle = rot
-//        _slider = slider
-        
+        _path = path
     }
     
     var body: some View {
@@ -54,7 +51,7 @@ struct TakingImagesView: View {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
                             Spacer()
-                            
+
                             // Shows mode is Offline
                             Picker("Mode", selection: $viewModel.appState.appMode) {
                                 Text("Offline").tag(AppMode.Offline)
@@ -247,7 +244,7 @@ struct TakingImagesView: View {
                     .buttonBorderShape(.capsule)
                 }  // End of case SessionPaused
                 
-                NavigationLink("Next", destination: GridView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
+                NavigationLink("Next", destination: GridView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
                 .padding(.horizontal,20)
                 .padding(.vertical, 5)
                 .buttonStyle(.bordered)
