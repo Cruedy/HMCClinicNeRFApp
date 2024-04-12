@@ -402,6 +402,19 @@ scale: \(scale)
         var progress: Double
         for descr in descriptors.1 {
             var material: UnlitMaterial
+
+//            let progress = Float(plane_counts[i]) / Float(goal)
+//
+//            // Define colors using SIMD3<Float>
+//            let blue = SIMD3<Float>(0, 0, 1)
+//            let red = SIMD3<Float>(1, 0, 0)
+//
+//            // Interpolate between red and blue
+//            let final_rgb = (progress * red) + ((1.0 - progress) * blue)
+//
+//            // Assuming you want to use the interpolated values directly for UIColor
+//            let color = UIColor(red: CGFloat(final_rgb.x), green: CGFloat(final_rgb.y), blue: CGFloat(final_rgb.z), alpha: 0.25)
+
             progress = Double(plane_counts[i])/goal
             let redProgress = (1.0 - progress) * red
             let greenProgress = (1.0 - progress) * green
@@ -414,7 +427,7 @@ scale: \(scale)
             newRed   = redProgress   + finalRedProgress
             newGreen = greenProgress + finalGreenProgress
             newBlue  = blueProgress  + finalBlueProgress
-            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
+            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 0.25)
             material = UnlitMaterial(color: color)
 //            if plane_counts[i] == 0{
 //                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)

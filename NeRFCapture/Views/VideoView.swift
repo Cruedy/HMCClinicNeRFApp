@@ -15,15 +15,22 @@ struct VideoView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
+    @Binding private var webViewerUrl: String
 
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, webViewerUrl: Binding<String>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
+        _webViewerUrl = webViewerUrl
     }
 
     var body: some View {
         let splatName = viewModel.datasetWriter.projName
         Text(splatName)
+        let defaultURL = URL(string: "http://osiris.cs.hmc.edu:15002/webviewer/")!
+                
+        Link("Open Web Viewer", destination: URL(string: webViewerUrl) ?? defaultURL)
+                    .padding()
+                    .foregroundColor(.blue)
         let videoURL = viewModel.datasetWriter.projectDir.appendingPathComponent("\(splatName).mp4")
         VideoPlayer(player: AVPlayer(url: videoURL))
         

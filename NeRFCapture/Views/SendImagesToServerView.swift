@@ -15,6 +15,7 @@ struct SendImagesToServerView: View {
     @State private var serverResponse: String = "Awaiting response..."
     @State private var serverStatus: ServerStatus?
     @State private var serverError: String = ""
+    @State private var webViewerUrl: String = ""
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
@@ -96,6 +97,28 @@ struct SendImagesToServerView: View {
             }
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
+            
+            Spacer()
+
+            Button(action: {
+                print("get url")
+                let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
+                getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWriter.projName) { url, error in
+                    if let error = error {
+                        print("Error fetching URL: \(error.localizedDescription)")
+                    } else if let url = url {
+                        print("Web Viewer URL: \(url)")
+                        // Use the URL here, e.g., open it in a web view or UI component
+                        webViewerUrl = url
+                    }
+                }
+            }) {
+                Text("get url")
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
 
             
             HelpButton {
@@ -116,6 +139,21 @@ struct SendImagesToServerView: View {
             makeGetRequest(urlString: urlString) { data, response, error in
                 pollServerStatus(data: data, response: response, error: error)
             }
+            if serverStatus == ServerStatus.rendering_ended {
+                let videoUrlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projName)"
+                downloadVideo(urlString: videoUrlString, splatName: viewModel.datasetWriter.projName)
+                let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
+                getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWriter.projName) { url, error in
+                    if let error = error {
+                        print("Error fetching URL: \(error.localizedDescription)")
+                    } else if let url = url {
+                        print("Web Viewer URL: \(url)")
+                        // Use the URL here, e.g., open it in a web view or UI component
+                        webViewerUrl = url
+                    }
+                }
+
+            }
         }
         .onDisappear {
             // Invalidate the timer when the view disappears to stop the polling
@@ -127,7 +165,7 @@ struct SendImagesToServerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
         
-        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path, webViewerUrl: $webViewerUrl).environmentObject(dataModel)).navigationViewStyle(.stack)
             .padding(.horizontal, 20)
             .padding(.vertical, 5)
             .buttonStyle(.bordered)
@@ -573,18 +611,10 @@ struct SendImagesToServerView: View {
     
     
     func downloadVideo(urlString: String, splatName: String) {
-//        let baseURL = "http://yourserver.com" // Replace with your actual server URL
-//        let downloadURLString = "\(baseURL)/download_video/\(splatName)"
-        
         let statusUrlString = "http://osiris.cs.hmc.edu:15002/status"
         makeGetRequest(urlString: statusUrlString) { data, response, error in
             pollServerStatus(data: data, response: response, error: error)
         }
-//        if ((serverStatus != ServerStatus.rendering_ended) && (serverStatus != ServerStatus.waiting_for_data))
-//        {
-//            print("Server hasn't finished generating the video.")
-//            return
-//        }
         
         let downloadURLString = urlString
         
@@ -621,7 +651,92 @@ struct SendImagesToServerView: View {
         
         task.resume()
     }
+    
+//    func getWebViewerUrl2(urlString: String, splatName: String) {
+//        let statusUrlString = "http://osiris.cs.hmc.edu:15002/status"
+//        makeGetRequest(urlString: statusUrlString) { data, response, error in
+//            pollServerStatus(data: data, response: response, error: error)
+//        }
+//        
+//        let downloadURLString = urlString
+//        
+//        guard let downloadURL = URL(string: downloadURLString) else {
+//            print("Invalid URL")
+//            return
+//        }
+//        
+//        let task = URLSession.shared.downloadTask(with: downloadURL) { localURL, urlResponse, error in
+//            guard let localURL = localURL else {
+//                print("Error downloading file: \(error?.localizedDescription ?? "Unknown error")")
+//                return
+//            }
+//            
+//            // Optionally, move the file to a permanent location in your app's sandbox container
+//            // Here's how you might do that:
+//            do {
+//                let fileManager = FileManager.default
+//                let documentsPath = try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+//                let savedURL = documentsPath.appendingPathComponent("\(splatName).mp4")
+//                
+//                // Check if file exists, remove it
+//                if fileManager.fileExists(atPath: savedURL.path) {
+//                    try fileManager.removeItem(at: savedURL)
+//                }
+//                
+//                // Move the downloaded file to the new location
+//                try fileManager.moveItem(at: localURL, to: savedURL)
+//                print("File moved to documents folder: \(savedURL)")
+//            } catch {
+//                print("File error: \(error.localizedDescription)")
+//            }
+//        }
+//        
+//        task.resume()
+//    }
+    
+    func getWebViewerUrl(urlString: String, splatName: String, completion: @escaping (String?, Error?) -> Void) {
+        let getWebViewerUrlString = urlString
+        
+        guard let url = URL(string: getWebViewerUrlString) else {
+            print("Invalid URL")
+            completion(nil, NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("Network error occurred: \(error.localizedDescription)")
+                completion(nil, error)
+                return
+            }
+            
+            guard let data = data else {
+                print("No data received from the server")
+                completion(nil, NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                return
+            }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let webviewerLink = json["webviewerLink"] as? String {
+                    print("Webviewer LINK: ", webviewerLink)
+                    completion(webviewerLink, nil)
+                } else {
+                    print("Failed to parse JSON or 'webviewerLink' missing")
+                    completion(nil, NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "JSON Parsing Error"]))
+                }
+            } catch {
+                print("JSON error: \(error.localizedDescription)")
+                completion(nil, error)
+            }
+        }
+        
+        task.resume()
+    }
+
 }
+
+
 
 enum ServerStatus {
     case waiting_for_data
