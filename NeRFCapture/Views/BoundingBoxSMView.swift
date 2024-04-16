@@ -15,6 +15,8 @@ struct BoundingBoxSMView: View {
     @StateObject private var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
+    @Binding var currentView: NavigationDestination
+
 
     
     @State private var showSheet: Bool = false
@@ -30,9 +32,10 @@ struct BoundingBoxSMView: View {
     // help button
     @State private var showingInstructions = false
     
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
+        _currentView = currentView
     }
 
     @available(iOS 17.0, *)
@@ -71,11 +74,28 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+                Text("stack count \(String(path.count))")
+                Button("Back to intro") {
+                    currentView = .introInstructionsView
+                }
                     .padding(.horizontal,20)
                     .padding(.vertical, 5)
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
+                
+                Button("Complete Bounding Box") {
+                    currentView = .takingImagesView
+                }
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                
+//                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
 //                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
 //                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
 //                }

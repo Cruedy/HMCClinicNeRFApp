@@ -15,12 +15,15 @@ struct VideoView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
-    @Binding private var webViewerUrl: String
+//    @Binding private var webViewerUrl: String
+    @Binding var currentView: NavigationDestination
 
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, webViewerUrl: Binding<String>) {
+
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
-        _webViewerUrl = webViewerUrl
+//        _webViewerUrl = ""
+        _currentView = currentView
     }
 
     var body: some View {
@@ -28,19 +31,28 @@ struct VideoView: View {
         Text(splatName)
         let defaultURL = URL(string: "http://osiris.cs.hmc.edu:15002/webviewer/")!
                 
-        Link("Open Web Viewer", destination: URL(string: webViewerUrl) ?? defaultURL)
+        Link("Open Web Viewer", destination: URL(string: viewModel.datasetWriter.webViewerUrl) ?? defaultURL)
                     .padding()
                     .foregroundColor(.blue)
         let videoURL = viewModel.datasetWriter.projectDir.appendingPathComponent("\(splatName).mp4")
         VideoPlayer(player: AVPlayer(url: videoURL))
         
-        Button("Return to Start") {
-//            path.removeAll()
-//            path.wrappedValue.removeAll()
-            print(path.count)
+        Button("Back to intro") {
+            currentView = .introInstructionsView
         }
-        .padding()
-        .buttonStyle(.bordered)
+            .padding(.horizontal,20)
+            .padding(.vertical, 5)
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+        
+//
+//        Button("Return to Start") {
+////            path.removeAll()
+////            path.wrappedValue.removeAll()
+//            print(path.count)
+//        }
+//        .padding()
+//        .buttonStyle(.bordered)
         
 //        let newViewModel = ARViewModel(datasetWriter: datasetWriter, ddsWriter: ddsWriter)
 //        // let contentView = ContentView(viewModel: viewModel)

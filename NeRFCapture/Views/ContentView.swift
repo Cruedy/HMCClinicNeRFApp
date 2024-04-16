@@ -125,6 +125,7 @@ struct ContentView : View {
     @StateObject private var viewModel: ARViewModel  // For bounding box
     @StateObject var dataModel = DataModel()  // For image gallery
     @State private var path = NavigationPath()
+    @State private var currentView: NavigationDestination = .introInstructionsView
 
     
     init(viewModel vm: ARViewModel) {
@@ -132,10 +133,37 @@ struct ContentView : View {
     }
     
     var body: some View {
-        NavigationStack(path: $path) {
-            IntroInstructionsView(viewModel: viewModel, path: $path)  // Start on IntroInstructions view
+        NavigationStack {
+            switch currentView {
+            case .introInstructionsView:
+                IntroInstructionsView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .boundingBoxSMView:
+                BoundingBoxSMView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .takingImagesView:
+                TakingImagesView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .gridView:
+                GridView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .sendImagesToServerView:
+                SendImagesToServerView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .videoView:
+                VideoView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+
+            }
         }
-        .environmentObject(dataModel)
-        .navigationViewStyle(.stack)
+        
+//        NavigationStack(path: $path) {
+//            IntroInstructionsView(viewModel: viewModel, path: $path)  // Start on IntroInstructions view
+//                .environmentObject(dataModel)
+//        }
     }
+}
+
+// Assuming you have an enum for navigation states:
+enum NavigationDestination: Hashable {
+    case introInstructionsView
+    case boundingBoxSMView
+    case takingImagesView
+    case gridView
+    case sendImagesToServerView
+    case videoView
 }
