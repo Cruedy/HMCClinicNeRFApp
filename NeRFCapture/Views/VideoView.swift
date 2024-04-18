@@ -9,9 +9,10 @@ import AVKit
 import SwiftUI
 import Foundation
 
+
 @available(iOS 17.0, *)
 struct VideoView: View {
-
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
@@ -38,7 +39,8 @@ struct VideoView: View {
         VideoPlayer(player: AVPlayer(url: videoURL))
         
         Button("Back to intro") {
-            currentView = .introInstructionsView
+//            currentView = .introInstructionsView
+            appDelegate.resetApplication()
         }
             .padding(.horizontal,20)
             .padding(.vertical, 5)

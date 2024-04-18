@@ -20,7 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ddsWriter = DDSWriter()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
         // Create the SwiftUI view that provides the window contents.
         let viewModel = ARViewModel(datasetWriter: datasetWriter, ddsWriter: ddsWriter)
         // let contentView = ContentView(viewModel: viewModel)
@@ -33,6 +32,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.view = contentView
         window.makeKeyAndVisible()
         return true
+    }
+    
+    func configureRootView() {
+        let viewModel = ARViewModel(datasetWriter: datasetWriter, ddsWriter: ddsWriter)
+        let contentView = ContentView(viewModel: viewModel)
+        if let window = window {
+            window.rootViewController = UIHostingController(rootView: contentView)
+            self.view = contentView
+        } else {
+            let window = UIWindow(frame: UIScreen.main.bounds)
+            window.rootViewController = UIHostingController(rootView: contentView)
+            self.window = window
+            window.makeKeyAndVisible()
+        }
+    }
+
+    func resetApplication() {
+        datasetWriter = DatasetWriter()  // Reinitialize
+        ddsWriter = DDSWriter()          // Reinitialize
+        configureRootView()
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
