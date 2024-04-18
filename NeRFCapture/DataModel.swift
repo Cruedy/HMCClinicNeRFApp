@@ -33,6 +33,7 @@ class DataModel: ObservableObject {
         }
     func initializeGallery() {
         if let documentDirectory = FileManager.default.documentDirectory {
+            items = []
                 let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.hasDirectoryPath}
                 for url in urls {
                     let sub = FileManager.default.getContentsOfDirectory(url).filter{$0.hasDirectoryPath}
