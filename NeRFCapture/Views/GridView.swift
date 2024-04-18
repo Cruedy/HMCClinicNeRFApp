@@ -79,8 +79,8 @@ struct GridView : View {
                 Text("Prepare Files")
             }
             
-            Button("Back to intro") {
-                currentView = .introInstructionsView
+            Button("Take more images") {
+                currentView = .takingImagesView
             }
                 .padding(.horizontal,20)
                 .padding(.vertical, 5)
