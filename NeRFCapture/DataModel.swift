@@ -34,18 +34,18 @@ class DataModel: ObservableObject {
     func initializeGallery() {
         if let documentDirectory = FileManager.default.documentDirectory {
             items = []
-                let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.hasDirectoryPath}
-                for url in urls {
-                    let sub = FileManager.default.getContentsOfDirectory(url).filter{$0.hasDirectoryPath}
-                    let subDirectory = FileManager.default.getContentsOfDirectory(sub[0]).filter{$0.isImage}
-                    for image in subDirectory{
-                        if image.absoluteString.contains("depth") == false {
-                            let item = Item(url: image)
-                            items.append(item)
-                        }
+            let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.hasDirectoryPath}
+            for url in urls {
+                let sub = FileManager.default.getContentsOfDirectory(url).filter{$0.hasDirectoryPath}
+                let subDirectory = FileManager.default.getContentsOfDirectory(sub[0]).filter{$0.isImage}
+                for image in subDirectory{
+                    if image.absoluteString.contains("depth") == false {
+                        let item = Item(url: image)
+                        items.append(item)
                     }
                 }
             }
+        }
     }
     /// Adds an item to the data collection.
     func addItem(_ item: Item) {

@@ -24,6 +24,7 @@ struct TakingImagesView: View {
     @State public var cameraTimer = Timer()
     @State private var isFlashVisible = false
     @Binding var path: NavigationPath // Add this line
+    @Binding var currentView: NavigationDestination
 
     
 //    @Binding var boxVisible: Bool
@@ -38,9 +39,10 @@ struct TakingImagesView: View {
     
     @State private var showingInstructions = false
     
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
+        _currentView = currentView
     }
     
     var body: some View {
@@ -244,11 +246,27 @@ struct TakingImagesView: View {
                     .buttonBorderShape(.capsule)
                 }  // End of case SessionPaused
                 
-                NavigationLink("Next", destination: GridView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
-                .padding(.horizontal,20)
-                .padding(.vertical, 5)
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
+                Button("Back to intro") {
+                    currentView = .introInstructionsView
+                }
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                
+                Button("Next") {
+                    currentView = .gridView
+                }
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                
+//                NavigationLink("Next", destination: GridView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                .padding(.horizontal,20)
+//                .padding(.vertical, 5)
+//                .buttonStyle(.bordered)
+//                .buttonBorderShape(.capsule)
                 HelpButton {
                     showingInstructions = true
                 }

@@ -21,10 +21,13 @@ struct GridView : View {
     
     @State private var showingInstructions = false
     @Binding var path: NavigationPath // Add this line
+    @Binding var currentView: NavigationDestination
 
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
+        _currentView = currentView
     }
     
     private var columnsTitle: String {
@@ -75,13 +78,29 @@ struct GridView : View {
             }){
                 Text("Prepare Files")
             }
-
-            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+            
+            Button("Take more images") {
+                currentView = .takingImagesView
+            }
                 .padding(.horizontal,20)
-                .padding(.horizontal, 20)
                 .padding(.vertical, 5)
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
+            
+            Button("Next") {
+                currentView = .sendImagesToServerView
+            }
+                .padding(.horizontal,20)
+                .padding(.vertical, 5)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+
+//            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
+//                .padding(.horizontal,20)
+//                .padding(.horizontal, 20)
+//                .padding(.vertical, 5)
+//                .buttonStyle(.bordered)
+//                .buttonBorderShape(.capsule)
             
             HelpButton {
                 showingInstructions = true

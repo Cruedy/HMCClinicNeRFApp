@@ -71,40 +71,41 @@ struct InstructionsView: View {
 struct IntroInstructionsView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
-    @Binding var path: NavigationPath // Add this line
-    @State var isAlertShown = false
+    @Binding var path: NavigationPath
+    @State private var projectName: String = ""
+    @State private var isAlertShown = false
+    @State private var shouldNavigate = false
+    @Binding var currentView: NavigationDestination
 
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
-        _viewModel = StateObject(wrappedValue: vm)
-        _path = path // Bind the path
-
-    }
 
     var body: some View {
         VStack{
             InstructionsView()
-        }
 
-        Button("Start Project"){
-            viewModel.datasetWriter.showAlert(
-                viewModel: viewModel,
-                dataModel: dataModel,
-                path: $path,
-                title: "Create Project Name",
-                message: "Please provide a name for your project",
-                hintText: "Enter Title",
-                primaryTitle: "Submit",
-                secondaryTitle: "Cancel",
-                primaryAction: { text in
-                    print(text)
-                },
-                secondaryAction: {
-                    print("Cancelled")
-                }
-            )
+            Button("Start Project") {
+                isAlertShown = true
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            
+            // Programmatically activated NavigationLink
+//            NavigationLink("", destination: BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel), isActive: $shouldNavigate)
         }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
+        .alert("Create Project Name", isPresented: $isAlertShown) {
+            TextField("Enter Title", text: $projectName).foregroundColor(.green)
+            Button("Cancel", role: .cancel) { }
+            Button("Submit") {
+                viewModel.datasetWriter.projName = projectName
+                print(viewModel.datasetWriter.projName)
+//                shouldNavigate = true // Triggers navigation
+                currentView = .boundingBoxSMView
+
+//                path.append(BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel))
+
+            }
+        } message: {
+            Text("Please provide a name for your project")
+        }
         .environmentObject(dataModel)
-    }  // End of body
-}  // End of view
+    }
+}

@@ -36,6 +36,7 @@ class DatasetWriter: ObservableObject {
     var boundingBoxManifest: BoundingBoxManifest?
     var projectName = ""
     var projName = ""
+    var webViewerUrl = ""
     var projectDir = getDocumentsDirectory()
     var useDepthIfAvailable = true
     
@@ -60,32 +61,32 @@ class DatasetWriter: ObservableObject {
         return FileManager.default.fileExists(atPath: projectDir.absoluteString, isDirectory: &isDir)
     }
     
-    func showAlert(viewModel: ARViewModel, dataModel: DataModel, path: Binding<NavigationPath>, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
-        
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
-        alert.addTextField { field in
-            field.placeholder = hintText
-        }
-        
-        alert.addAction(.init(title: secondaryTitle, style: .cancel, handler: { _ in
-            secondaryAction()
-        }))
-        alert.addAction(.init(title: primaryTitle, style: .default, handler: { _ in
-            if let text = alert.textFields?[0].text{
-                self.projName = text
-                primaryAction(text)
-                let customView = BoundingBoxSMView(viewModel: viewModel, path: path).environmentObject(dataModel)
-                let customViewController = BoundingBoxSMController(boundingBoxSMView: customView, dataModel: dataModel)
-                let navigationController = UINavigationController(rootViewController: customViewController)
-                navigationController.modalPresentationStyle = .fullScreen
-                self.rootController().present(navigationController, animated: true, completion: nil)
-                } else {
-                    primaryAction("")
-                }
-        }))
-        rootController().present(alert, animated: true, completion: nil)
-    }
-    
+//    func showAlert(viewModel: ARViewModel, dataModel: DataModel, path: Binding<NavigationPath>, title: String, message: String, hintText: String, primaryTitle: String, secondaryTitle: String, primaryAction: @escaping (String)->(), secondaryAction: @escaping ()->()){
+//        
+//        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
+//        alert.addTextField { field in
+//            field.placeholder = hintText
+//        }
+//        
+//        alert.addAction(.init(title: secondaryTitle, style: .cancel, handler: { _ in
+//            secondaryAction()
+//        }))
+//        alert.addAction(.init(title: primaryTitle, style: .default, handler: { _ in
+//            if let text = alert.textFields?[0].text{
+//                self.projName = text
+//                primaryAction(text)
+//                let customView = BoundingBoxSMView(viewModel: viewModel, path: path).environmentObject(dataModel)
+//                let customViewController = BoundingBoxSMController(boundingBoxSMView: customView, dataModel: dataModel)
+//                let navigationController = UINavigationController(rootViewController: customViewController)
+//                navigationController.modalPresentationStyle = .fullScreen
+//                self.rootController().present(navigationController, animated: true, completion: nil)
+//                } else {
+//                    primaryAction("")
+//                }
+//        }))
+//        rootController().present(alert, animated: true, completion: nil)
+//    }
+//    
     func rootController()->UIViewController{
         guard let screen = UIApplication.shared.connectedScenes.first as? UIWindowScene else{
             return .init()
