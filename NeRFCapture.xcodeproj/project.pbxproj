@@ -11,6 +11,8 @@
 		050A8EFC296E8B8E00C5C638 /* DDSWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050A8EFB296E8B8E00C5C638 /* DDSWriter.swift */; };
 		0512301F29499F50003915D9 /* NeRFCaptureData.c in Sources */ = {isa = PBXBuildFile; fileRef = 0512301C29499F4F003915D9 /* NeRFCaptureData.c */; };
 		0512302029499F50003915D9 /* NeRFCaptureData.idl in Resources */ = {isa = PBXBuildFile; fileRef = 0512301D29499F4F003915D9 /* NeRFCaptureData.idl */; };
+		0512F75F2BCC9329004A5471 /* Disappear.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 0512F75E2BCC9329004A5471 /* Disappear.mp3 */; };
+		0512F7622BCC9997004A5471 /* Sparkle.mov in Resources */ = {isa = PBXBuildFile; fileRef = 0512F7612BCC9997004A5471 /* Sparkle.mov */; };
 		0539EAB12965458E00C51AB9 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 0539EAB02965458E00C51AB9 /* Zip */; };
 		0539EAB429654B0400C51AB9 /* cyclonedds in Frameworks */ = {isa = PBXBuildFile; productRef = 0539EAB329654B0400C51AB9 /* cyclonedds */; };
 		057A7AA82950092E000692A0 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 057A7AA72950092E000692A0 /* Shaders.metal */; };
@@ -70,6 +72,8 @@
 		0512301C29499F4F003915D9 /* NeRFCaptureData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NeRFCaptureData.c; sourceTree = "<group>"; };
 		0512301D29499F4F003915D9 /* NeRFCaptureData.idl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NeRFCaptureData.idl; sourceTree = "<group>"; };
 		0512301E29499F50003915D9 /* NeRFCaptureData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NeRFCaptureData.h; sourceTree = "<group>"; };
+		0512F75E2BCC9329004A5471 /* Disappear.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Disappear.mp3; sourceTree = "<group>"; };
+		0512F7612BCC9997004A5471 /* Sparkle.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = Sparkle.mov; sourceTree = "<group>"; };
 		052D2374287FD53A0083DC5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		057A7AA72950092E000692A0 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		081536152AFC623D0033B144 /* TakingImagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakingImagesView.swift; sourceTree = "<group>"; };
@@ -122,6 +126,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0512F7602BCC9678004A5471 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0512F7612BCC9997004A5471 /* Sparkle.mov */,
+				0512F75E2BCC9329004A5471 /* Disappear.mp3 */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		0531C0A6293735DD005F0929 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -178,6 +191,7 @@
 				057E7774293827F60014E461 /* DDSModel */,
 				057E7765293816800014E461 /* Networking */,
 				052D2374287FD53A0083DC5B /* Info.plist */,
+				0512F7602BCC9678004A5471 /* Resources */,
 				C0C52AA6287EC2090011820F /* Models */,
 				C0C52AA5287EC2040011820F /* Views */,
 				C0C52AA4287EC1FA0011820F /* ViewModels */,
@@ -318,7 +332,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0512F75F2BCC9329004A5471 /* Disappear.mp3 in Resources */,
 				0512302029499F50003915D9 /* NeRFCaptureData.idl in Resources */,
+				0512F7622BCC9997004A5471 /* Sparkle.mov in Resources */,
 				C0C52A99287E7F960011820F /* Preview Assets.xcassets in Resources */,
 				C0C52A96287E7F960011820F /* Assets.xcassets in Resources */,
 			);

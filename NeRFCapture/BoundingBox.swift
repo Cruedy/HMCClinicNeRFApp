@@ -8,6 +8,7 @@
 import ARKit
 import Foundation
 import RealityKit
+import AVFoundation
 
 //fileprivate extension ARView.DebugOptions {
 //
@@ -52,13 +53,14 @@ class BoundingBox {
     // Properties to store bounding box information
     var center: [Float] = [] // x is left-right, z is forward-back, y is down-up (respective to the neg side-pos side)
     // Coordinate axes in ARKit: https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity
-    var positions: [[Float]] = []
+    var positions: [[Float]] = [] // use to add text         
     var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
     var floor: Float? = nil
     var planes: [BoundingBoxPlane] = []
     var plane_counts = [0,0,0,0,0,0]
+    var player: AVAudioPlayer?
     private var cameraRaysAndHitLocations: [(ray: Ray, hitLocation: SIMD3<Float>)] = []
 //    private var sceneView: ARSCNView
     
@@ -343,19 +345,48 @@ scale: \(scale)
         print("number of planes")
         print(plane_descrs.count)
         
-        for p in plane_descrs {
-//            print("Plane Descriptor:")
-//            print("Positions:")
-            for position in p.positions {
-//                print(position)
-            }
-//            print("Indices:")
-//            print(p.primitives)
-        }
-        
         return (line_descrs, plane_descrs)
     }
     
+    func playFinishedSound() {
+        print("tryingSound")
+        print(Bundle.main.url(forResource: "Disappear", withExtension: "mp3"))
+        guard let url = Bundle.main.url(forResource: "Sparkle", withExtension: "mov") else { return }
+        print("pastUrl")
+        print(url)
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            
+            /* The following line is required for the player to work on iOS 11. Change the file type accordingly*/
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+            
+            guard let player = player else { return }
+            player.play()
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
+    func textGen(textString: String) -> ModelEntity {
+        let materialVar = SimpleMaterial(color: .white, roughness: 0, isMetallic: false)
+        
+        let depthVar: Float = 0.001
+        let fontVar = UIFont.systemFont(ofSize: 0.01)
+        let containerFrameVar = CGRect(x: -0.05, y: -0.1, width: 0.1, height: 0.1)
+        let alignmentVar: CTTextAlignment = .center
+        let lineBreakModeVar : CTLineBreakMode = .byWordWrapping
+        
+        let textMeshResource : MeshResource = .generateText(textString,
+                                           extrusionDepth: depthVar,
+                                           font: fontVar,
+                                           containerFrame: containerFrameVar,
+                                           alignment: alignmentVar,
+                                           lineBreakMode: lineBreakModeVar)
+        
+        let textEntity = ModelEntity(mesh: textMeshResource, materials: [materialVar])
+        
+        return textEntity
+    }
     // Add a new bounding box to the scene
     func addNewBoxToScene() -> AnchorEntity{
         let worldOriginAnchor = AnchorEntity(world:.zero)
@@ -387,47 +418,61 @@ scale: \(scale)
 //        var width = 0
 //        var height = 0
         let goal = 10.0
-        // rgb values for green
-        let red = 0.0
-        let green = 1.0
-        let blue = 0.0
         // rgb values for yellow
-        let finalRed = 0.0
-        let finalGreen = 0.5
-        let finalBlue = 0.5
+//        let red = 1.0
+//        let green = 1.0
+//        let blue = 0.0
+        // rgb values for green
+//        let finalRed = 0.0
+//        let finalGreen = 1.0
+//        let finalBlue = 1.0
         var newRed: CGFloat
         var newGreen: CGFloat
         var newBlue: CGFloat
         var color: UIColor
         var progress: Double
+        var entityList: [ModelEntity] = []
         for descr in descriptors.1 {
             var material: UnlitMaterial
 
-//            let progress = Float(plane_counts[i]) / Float(goal)
-//
-//            // Define colors using SIMD3<Float>
-//            let blue = SIMD3<Float>(0, 0, 1)
-//            let red = SIMD3<Float>(1, 0, 0)
-//
-//            // Interpolate between red and blue
-//            let final_rgb = (progress * red) + ((1.0 - progress) * blue)
-//
-//            // Assuming you want to use the interpolated values directly for UIColor
-//            let color = UIColor(red: CGFloat(final_rgb.x), green: CGFloat(final_rgb.y), blue: CGFloat(final_rgb.z), alpha: 0.25)
+            var progress = Float(plane_counts[i]) / Float(goal)
+//            if progress > 1.0{
+//                progress = 1.0
+//            }
 
-            progress = Double(plane_counts[i])/goal
-            let redProgress = (1.0 - progress) * red
-            let greenProgress = (1.0 - progress) * green
-            let blueProgress = (1.0 - progress) * blue
-            let finalRedProgress = progress * finalRed
-            let finalGreenProgress = progress * finalGreen
-            let finalBlueProgress = progress * finalBlue
-            print("colorProgress")
-            print(progress)
-            newRed   = redProgress   + finalRedProgress
-            newGreen = greenProgress + finalGreenProgress
-            newBlue  = blueProgress  + finalBlueProgress
-            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 0.25)
+            // Define colors using SIMD3<Float>
+            // rgb for yellow
+            let rgb = SIMD3<Float>(1, 1, 0)
+            // rgb for green
+            let final_rgb = SIMD3<Float>(0, 1, 1)
+            var opacity = Float(0.0)
+            if progress < 1.0{
+                opacity = 0.25 + (progress * 0.5)
+            } 
+            else if progress == 1.0{
+                print("make sound")
+                playFinishedSound()
+                opacity = 0.0
+            }
+            // Interpolate between red and blue
+            let new_rgb = (progress * final_rgb) + ((1.0 - progress) * rgb)
+
+            // Assuming you want to use the interpolated values directly for UIColor
+            let color = UIColor(red: CGFloat(new_rgb.x), green: CGFloat(new_rgb.y), blue: CGFloat(new_rgb.z), alpha: CGFloat(opacity))
+
+//            progress = Double(plane_counts[i])/goal
+//            let redProgress = (1.0 - progress) * red
+//            let greenProgress = (1.0 - progress) * green
+//            let blueProgress = (1.0 - progress) * blue
+//            let finalRedProgress = progress * finalRed
+//            let finalGreenProgress = progress * finalGreen
+//            let finalBlueProgress = progress * finalBlue
+//            print("colorProgress")
+//            print(progress)
+//            newRed   = redProgress   + finalRedProgress
+//            newGreen = greenProgress + finalGreenProgress
+//            newBlue  = blueProgress  + finalBlueProgress
+//            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 0.5)
             material = UnlitMaterial(color: color)
 //            if plane_counts[i] == 0{
 //                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)
@@ -449,15 +494,17 @@ scale: \(scale)
                 mesh: try! .generate(from: [descr]),
                 materials: [material])
             
-//            generatedModel.collision = CollisionComponent(shapes: [.generateBox(size: [1,1,1])])
-//            let showCollisions = arView.debugOptions.showCollisions()  // here it is
-//            generatedModel.addChild(showCollisions)
+            let generatedText = textGen(textString: "side completed" + String(i))
+            entityList.append(generatedText)
+            print("generatedText")
+            print(entityList)
             generatedModel.generateCollisionShapes(recursive: true)
+            generatedModel.addChild(generatedText)
+            if i == 1{
+                generatedText.position = [0, 0, 12]
+            }
+            generatedText.position = [0, 0, 0]
             worldOriginAnchor.addChild(generatedModel)
-//            if i == 0{
-//                width = self.positions - top_right_front[0]
-//                height = top_left_front[1] - bottom_left_front[1]
-//            }
             var newPlane = BoundingBoxPlane(descr: descr, entity: generatedModel, index: i)
             i = i+1
             planes.append(newPlane)

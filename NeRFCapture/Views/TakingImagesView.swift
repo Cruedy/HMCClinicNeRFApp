@@ -132,7 +132,7 @@ struct TakingImagesView: View {
                             catch {
                                 print("\(error)")
                             }
-//                            viewModel.trackVelocity()
+                            viewModel.trackVelocity()
                             viewModel.startAutomaticCapture()
                         }) {
                             Text("Automatic Capture")
