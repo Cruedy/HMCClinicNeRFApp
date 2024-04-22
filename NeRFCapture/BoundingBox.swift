@@ -9,6 +9,7 @@ import ARKit
 import Foundation
 import RealityKit
 import AVFoundation
+import simd
 
 //fileprivate extension ARView.DebugOptions {
 //
@@ -30,20 +31,13 @@ import AVFoundation
 
 class BoundingBoxPlane {
     var descr: MeshDescriptor
-//    var count: Int
     var index: Int
-//    private(set) var isBusyUpdatingTiles: Bool = false
     var entity: ModelEntity
-//    var width: Float
-//    var height: Float
     
     init(descr: MeshDescriptor, entity: ModelEntity, index: Int) {// width: width, height: height
         self.descr = descr
-//        self.count = 0
         self.entity = entity
         self.index = index
-//        self.width = width
-//        self.height = height
     }
     
     
@@ -53,13 +47,15 @@ class BoundingBox {
     // Properties to store bounding box information
     var center: [Float] = [] // x is left-right, z is forward-back, y is down-up (respective to the neg side-pos side)
     // Coordinate axes in ARKit: https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity
-    var positions: [[Float]] = [] // use to add text         
+    var positions: [[Float]] = []
     var rot_y: Float = 0 // in radians
     var scale: [Float] = [1,1,1]
     var entity_anchor: AnchorEntity = AnchorEntity(world:.zero)
     var floor: Float? = nil
     var planes: [BoundingBoxPlane] = []
     var plane_counts = [0,0,0,0,0,0]
+    var plane_orientations: [simd_quatf] = [simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0)]
+    var plane_centers: [SIMD3<Float>] = [SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0)]
     var player: AVAudioPlayer?
     private var cameraRaysAndHitLocations: [(ray: Ray, hitLocation: SIMD3<Float>)] = []
 //    private var sceneView: ARSCNView
@@ -296,6 +292,23 @@ scale: \(scale)
         return planeDescr
     }
     
+    func getOrientation(from points: [SIMD3<Float>]) -> simd_quatf {
+        let A = points[0]
+        let B = points[1]
+        let C = points[2]
+        
+        var x = normalize(B - A)
+        let tmp = C - A
+        
+        var z = cross(x, tmp)
+        z = normalize(z)
+        var y = cross(z, x)
+        y = normalize(y)
+        
+        let rotationMatrix = simd_float3x3(columns: (x, y, z))
+        return simd_quatf(rotationMatrix)
+    }
+    
     // Helper function to create bounding box lines
     func createBoundingBox(corners: [[Float]], thickness: Float) -> ([MeshDescriptor], [MeshDescriptor]) {
         
@@ -311,6 +324,34 @@ scale: \(scale)
         let top_right_back = corners[5]
         let bottom_right_back = corners[6]
         let bottom_left_back = corners[7]
+        
+        // Add orientation of each face
+        // front face
+        self.plane_orientations[0] = getOrientation(from : [SIMD3<Float>(bottom_right_front), SIMD3<Float>(bottom_left_front), SIMD3<Float>(top_right_front)])
+        // left face
+        self.plane_orientations[1] = getOrientation(from : [SIMD3<Float>(bottom_left_front), SIMD3<Float>(bottom_left_back), SIMD3<Float>(top_left_back)])
+        // right face
+        self.plane_orientations[2] = getOrientation(from : [SIMD3<Float>(bottom_right_back), SIMD3<Float>(bottom_right_front), SIMD3<Float>(top_right_front)])
+        // bottom face
+        self.plane_orientations[3] = getOrientation(from : [SIMD3<Float>(bottom_left_front), SIMD3<Float>(bottom_right_front), SIMD3<Float>(bottom_left_back)])
+        // top face
+        self.plane_orientations[4] = getOrientation(from : [SIMD3<Float>(top_right_front), SIMD3<Float>(top_left_front), SIMD3<Float>(top_right_back)])
+        // back face
+        self.plane_orientations[5] = getOrientation(from : [SIMD3<Float>(bottom_left_back), SIMD3<Float>(bottom_right_back), SIMD3<Float>(top_left_back)])
+        
+        // Add centers of each face
+        // front face
+        self.plane_centers[0] = SIMD3<Float>((top_left_front[0] + top_right_front[0])/2.0, (top_left_front[1] + bottom_left_front[1])/2.0, (top_left_front[2] + top_right_front[2])/2.0)
+        // left face
+        self.plane_centers[1] = SIMD3<Float>((top_left_front[0] + top_left_back[0])/2.0, (top_left_back[1] + bottom_left_back[1])/2.0, (bottom_left_front[2] + bottom_left_back[2])/2.0)
+        // right face
+        self.plane_centers[2] = SIMD3<Float>((top_right_front[0] + top_right_back[0])/2.0, (bottom_right_front[1] + top_right_front[1])/2.0, (bottom_right_front[2] + bottom_right_back[2])/2.0)
+        // bottom face
+        self.plane_centers[3] = SIMD3<Float>((bottom_left_front[0] + bottom_right_back[0])/2.0, (bottom_right_front[1] + bottom_left_back[1])/2.0, (bottom_left_front[2] + bottom_right_back[2])/2.0)
+        // top face
+        self.plane_centers[4] = SIMD3<Float>((top_left_back[0] + top_right_front[0])/2.0, (top_right_back[1] + top_left_front[1])/2.0, (top_left_front[2] + top_right_back[2])/2.0)
+        // back face
+        self.plane_centers[5] = SIMD3<Float>((top_left_back[0] + top_right_back[0])/2.0, (top_left_back[1] + bottom_left_back[1])/2.0, (top_left_back[2] + top_right_back[2])/2.0)
         
         // Connect all the points to create a hollow box, the bounding box
         line_descrs.append(createLine(corners: [top_left_front, top_right_front], thickness: thickness))
@@ -342,9 +383,6 @@ scale: \(scale)
         // Adding back of bounding
         plane_descrs.append(createPlaneFromCorners(corners: [top_left_back, top_right_back, bottom_right_back, bottom_left_back], shrinkScalar: thickness*1.5))
         
-        print("number of planes")
-        print(plane_descrs.count)
-        
         return (line_descrs, plane_descrs)
     }
     
@@ -367,6 +405,7 @@ scale: \(scale)
             print(error.localizedDescription)
         }
     }
+    
     func textGen(textString: String) -> ModelEntity {
         let materialVar = SimpleMaterial(color: .white, roughness: 0, isMetallic: false)
         
@@ -395,13 +434,6 @@ scale: \(scale)
         print("positions")
         print(self.positions)
         let descriptors = createBoundingBox(corners: self.positions, thickness: 0.001)
-//        let line_descrs = descriptors.0
-//        print("planesDesc")
-//        print(planes)
-//        print("returnedPlaneDesc")
-//        print(descriptors.1.first)
-//        print("returnedLineDesc")
-//        print(descriptors.0.first)
         for descr in descriptors.0 {
             let material = UnlitMaterial(color: .purple)
             
@@ -412,34 +444,12 @@ scale: \(scale)
             
             worldOriginAnchor.addChild(generatedModel)
         }
-        print("planesLen")
-        print(planes.count)
         var i = 0
-//        var width = 0
-//        var height = 0
         let goal = 10.0
-        // rgb values for yellow
-//        let red = 1.0
-//        let green = 1.0
-//        let blue = 0.0
-        // rgb values for green
-//        let finalRed = 0.0
-//        let finalGreen = 1.0
-//        let finalBlue = 1.0
-        var newRed: CGFloat
-        var newGreen: CGFloat
-        var newBlue: CGFloat
-        var color: UIColor
-        var progress: Double
         var entityList: [ModelEntity] = []
         for descr in descriptors.1 {
             var material: UnlitMaterial
-
-            var progress = Float(plane_counts[i]) / Float(goal)
-//            if progress > 1.0{
-//                progress = 1.0
-//            }
-
+            let progress = Float(plane_counts[i]) / Float(goal)
             // Define colors using SIMD3<Float>
             // rgb for yellow
             let rgb = SIMD3<Float>(1, 1, 0)
@@ -450,7 +460,6 @@ scale: \(scale)
                 opacity = 0.25 + (progress * 0.5)
             } 
             else if progress == 1.0{
-                print("make sound")
                 playFinishedSound()
                 opacity = 0.0
             }
@@ -459,58 +468,22 @@ scale: \(scale)
 
             // Assuming you want to use the interpolated values directly for UIColor
             let color = UIColor(red: CGFloat(new_rgb.x), green: CGFloat(new_rgb.y), blue: CGFloat(new_rgb.z), alpha: CGFloat(opacity))
-
-//            progress = Double(plane_counts[i])/goal
-//            let redProgress = (1.0 - progress) * red
-//            let greenProgress = (1.0 - progress) * green
-//            let blueProgress = (1.0 - progress) * blue
-//            let finalRedProgress = progress * finalRed
-//            let finalGreenProgress = progress * finalGreen
-//            let finalBlueProgress = progress * finalBlue
-//            print("colorProgress")
-//            print(progress)
-//            newRed   = redProgress   + finalRedProgress
-//            newGreen = greenProgress + finalGreenProgress
-//            newBlue  = blueProgress  + finalBlueProgress
-//            color = UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 0.5)
             material = UnlitMaterial(color: color)
-//            if plane_counts[i] == 0{
-//                let transparentYellowColor = UIColor.yellow.withAlphaComponent(0.25)
-//                material = UnlitMaterial(color: transparentYellowColor)
-//            } else {
-//                count = count + 1
-//                print("trackCount")
-//                print(count)
-//                print(plane_counts[i])
-//                print(plane_counts)
-//                let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
-//                material = UnlitMaterial(color: lessTransparentYellowColor)
-//            }
-            
-//            material.color = UIColor(white: 1.0, alpha: 0.0)
-//            var mat = UnlitMaterial.Blending.transparent(opacity: 0.5)
-            // material.opacityThreshold = 0.0
             let generatedModel = ModelEntity(
                 mesh: try! .generate(from: [descr]),
                 materials: [material])
-            
-            let generatedText = textGen(textString: "side completed" + String(i))
-            entityList.append(generatedText)
-            print("generatedText")
-            print(entityList)
             generatedModel.generateCollisionShapes(recursive: true)
-            generatedModel.addChild(generatedText)
-            if i == 1{
-                generatedText.position = [0, 0, 12]
+            if progress == 1.0 {
+                let generatedText = textGen(textString: "side completed")
+                generatedModel.addChild(generatedText)
+                generatedText.position = self.plane_centers[i]
+                generatedText.orientation = plane_orientations[i]
             }
-            generatedText.position = [0, 0, 0]
             worldOriginAnchor.addChild(generatedModel)
             var newPlane = BoundingBoxPlane(descr: descr, entity: generatedModel, index: i)
             i = i+1
             planes.append(newPlane)
         }
-//        print("worldOriginAnchor:")
-//        print(worldOriginAnchor.children)
         self.entity_anchor = worldOriginAnchor
         return worldOriginAnchor
     }
