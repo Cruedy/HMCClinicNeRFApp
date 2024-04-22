@@ -15,14 +15,16 @@ struct SendImagesToServerView: View {
     @State private var serverResponse: String = "Awaiting response..."
     @State private var serverStatus: ServerStatus?
     @State private var serverError: String = ""
-    @State private var webViewerUrl: String = ""
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
+    @Binding var currentView: NavigationDestination
 
-    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>) {
+
+    init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
+        _currentView = currentView
     }
     
     @State private var timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
@@ -109,7 +111,8 @@ struct SendImagesToServerView: View {
                     } else if let url = url {
                         print("Web Viewer URL: \(url)")
                         // Use the URL here, e.g., open it in a web view or UI component
-                        webViewerUrl = url
+                        viewModel.datasetWriter.webViewerUrl = url
+//                        webViewerUrl = url
                     }
                 }
             }) {
@@ -149,7 +152,8 @@ struct SendImagesToServerView: View {
                     } else if let url = url {
                         print("Web Viewer URL: \(url)")
                         // Use the URL here, e.g., open it in a web view or UI component
-                        webViewerUrl = url
+                        viewModel.datasetWriter.webViewerUrl = url
+//                        webViewerUrl = url
                     }
                 }
 
@@ -165,11 +169,28 @@ struct SendImagesToServerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
         
-        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path, webViewerUrl: $webViewerUrl).environmentObject(dataModel)).navigationViewStyle(.stack)
-            .padding(.horizontal, 20)
+        Button("Back to intro") {
+            currentView = .introInstructionsView
+        }
+            .padding(.horizontal,20)
             .padding(.vertical, 5)
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
+        
+        Button("Next") {
+            currentView = .videoView
+        }
+            .padding(.horizontal,20)
+            .padding(.vertical, 5)
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+        
+        
+//        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path, webViewerUrl: $webViewerUrl, currentView: $currentView).environmentObject(dataModel)).navigationViewStyle(.stack)
+//            .padding(.horizontal, 20)
+//            .padding(.vertical, 5)
+//            .buttonStyle(.bordered)
+//            .buttonBorderShape(.capsule)
     }
     
     func convertDirectoryPathToZipPath(directoryPath: String) -> String {
