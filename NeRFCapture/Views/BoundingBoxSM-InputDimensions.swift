@@ -42,6 +42,7 @@ struct InputDimensionsView : View {
         }
     
     var body: some View{
+        Spacer()
         Slider(
             value: $slider_xyz[0],
             in: 0...5,
@@ -70,15 +71,30 @@ struct InputDimensionsView : View {
         }
         Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
         
-        Button(action: {
-            bbox_placement_states = BoundingBoxPlacementStates.PlaceBox
-        }) {
-            Text("Go Next")
-                .padding(.horizontal,20)
-                .padding(.vertical, 5)
+        HStack{
+            Button(action: {
+                bbox_placement_states = BoundingBoxPlacementStates.IdentifyFloor
+            }) {
+                Text("Back")
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            
+            Button(action: {
+                bbox_placement_states = BoundingBoxPlacementStates.PlaceBox
+            }) {
+                Text("Next")
+                    .padding(.horizontal,20)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
         }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
-
+    
     }
+
 }
+
+

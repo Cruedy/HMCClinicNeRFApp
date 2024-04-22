@@ -56,14 +56,7 @@ struct BoundingBoxSMView: View {
                     }
                 }
 
-//            VStack {
-//                HStack{
-//                    BoxSummaryView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz)
-//                    Spacer()
-//                }
-//                Spacer()
-//                self.content
-//            }
+
             VStack {
                 GeometryReader { geometry in
                     HStack {
@@ -74,22 +67,30 @@ struct BoundingBoxSMView: View {
                 }
                 Spacer()
                 self.content
-                Text("stack count \(String(path.count))")
-                Button("Back to intro") {
-                    currentView = .introInstructionsView
-                }
-                    .padding(.horizontal,20)
-                    .padding(.vertical, 5)
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
                 
-                Button("Complete Bounding Box") {
-                    currentView = .takingImagesView
+                HelpButton {
+                    showingInstructions = true
                 }
-                    .padding(.horizontal,20)
-                    .padding(.vertical, 5)
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
+                .sheet(isPresented: $showingInstructions) {
+                    VStack {
+                        InstructionsView()
+                    }
+                }
+//                Button("Back to intro") {
+//                    currentView = .introInstructionsView
+//                }
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
+                
+//                Button("Complete Bounding Box") {
+//                    currentView = .takingImagesView
+//                }
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
                 
 //                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
 //                    .padding(.horizontal,20)
@@ -123,7 +124,7 @@ struct BoundingBoxSMView: View {
         case .InputDimensions: return AnyView(InputDimensionsView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible,
                                                                   box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))
         case .PlaceBox: return AnyView(PlaceBoxView(vm: viewModel, states: $bbox_placement_states,
-                                                    place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))
+                                                    place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz, currentView: $currentView))
         }
       }
     

@@ -27,11 +27,6 @@ struct TakingImagesView: View {
     @Binding var currentView: NavigationDestination
 
     
-//    @Binding var boxVisible: Bool
-//    @Binding var moveLeft: Bool
-//    @Binding var moveRight: Bool
-//    @Binding var rotate_angle: Float
-//    @Binding var slider: [Float]
 
     // TODO: Only make navigation link active after image collection session is complete
     @State private var isLinkActive = false
@@ -108,24 +103,10 @@ struct TakingImagesView: View {
                 Spacer()
 
                 if case .Offline = viewModel.appState.appMode {
-                    
                     // View when not taking images
                     if viewModel.appState.writerState == .SessionNotStarted {
                         Spacer()
-                        
-                        
-                        Spacer()
-                        // Button to reset world origin
-                        Button(action: {
-                            viewModel.resetWorldOrigin()
-                        }) {
-                            Text("Reset")
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 5)
-                        }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
-                        
+
                         // Button to start image collection session
                         Button(action: {
                             do {
@@ -137,39 +118,14 @@ struct TakingImagesView: View {
                             viewModel.trackVelocity()
                             viewModel.startAutomaticCapture()
                         }) {
-                            Text("Automatic Capture")
+                            Text("Begin Capture")
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 5)
                         }
                         .buttonStyle(.bordered)
                         .buttonBorderShape(.capsule)
-//                        Button(action: {
-//                            do {
-//                                try viewModel.datasetWriter.initializeProject()
-//                            }
-//                            catch {
-//                                print("\(error)")
-//                            }
-//                        }) {
-//                            Text("Start")
-//                                .padding(.horizontal, 20)
-//                                .padding(.vertical, 5)
-//                        }
-//                        .buttonStyle(.borderedProminent)
-//                        .buttonBorderShape(.capsule)
                         
-                        // Button to send the data
-//                        Button(action: {
-//                                if let frame = viewModel.session?.currentFrame {
-//                                    viewModel.ddsWriter.writeFrameToTopic(frame: frame)
-//                                }
-//                            }) {
-//                                Text("Send")
-//                                    .padding(.horizontal, 20)
-//                                    .padding(.vertical, 5)
-//                            }
-//                            .buttonStyle(.borderedProminent)
-//                            .buttonBorderShape(.capsule)
+                        
                         
                     }   // End of case SessionNotStarted
                 }
@@ -186,36 +142,25 @@ struct TakingImagesView: View {
                         viewModel.datasetWriter.pauseSession()
                         viewModel.stopAutomaticCapture()
                     }) {
-                        Text("Stop Automatic Capture")
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
-                    Button(action: {
-                        viewModel.datasetWriter.finalizeSession()
-                        viewModel.stopAutomaticCapture()
-                        dataModel.initializeGallery()
-                    }) {
-                        Text("End")
+                        Text("Pause Automatic Capture")
                             .padding(.horizontal, 20)
                             .padding(.vertical, 5)
                     }
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
                     
-                    // Button to save the current frame
 //                    Button(action: {
-//                        if let frame = viewModel.session?.currentFrame {
-//                            viewModel.datasetWriter.writeFrameToDisk(frame: frame)
-//                        }
+//                        viewModel.datasetWriter.finalizeSession()
+//                        viewModel.stopAutomaticCapture()
+//                        dataModel.initializeGallery()
 //                    }) {
-//                        Text("Save Frame")
+//                        Text("End")
 //                            .padding(.horizontal, 20)
 //                            .padding(.vertical, 5)
 //                    }
-//                    .buttonStyle(.borderedProminent)
+//                    .buttonStyle(.bordered)
 //                    .buttonBorderShape(.capsule)
+                    
                 }  // End of case SessionStarted
                 
                 // View when session is paused
@@ -227,34 +172,33 @@ struct TakingImagesView: View {
                         viewModel.trackVelocity()
                         viewModel.appState.writerState = .SessionStarted
                     }) {
-                        Text("Automatic Capture")
+                        Text("Continue Automatic Capture")
                             .padding(.horizontal, 20)
                             .padding(.vertical, 5)
                     }
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
-                    Button(action: {
-                        viewModel.datasetWriter.finalizeSession()
-                        viewModel.stopAutomaticCapture()
-                        dataModel.initializeGallery()
-                    }) {
-                        Text("End")
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 5)
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
+                    
+                    
+//                    Button(action: {
+//                        viewModel.datasetWriter.finalizeSession()
+//                        viewModel.stopAutomaticCapture()
+//                        dataModel.initializeGallery()
+//                    }) {
+//                        Text("End")
+//                            .padding(.horizontal, 20)
+//                            .padding(.vertical, 5)
+//                    }
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
+                    
+                    
                 }  // End of case SessionPaused
                 
-                Button("Back to intro") {
-                    currentView = .introInstructionsView
-                }
-                    .padding(.horizontal,20)
-                    .padding(.vertical, 5)
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
-                
-                Button("Next") {
+                Button("View Gallery") {
+                    viewModel.datasetWriter.finalizeSession()
+                    viewModel.stopAutomaticCapture()
+                    dataModel.initializeGallery()
                     currentView = .gridView
                 }
                     .padding(.horizontal,20)
@@ -262,11 +206,6 @@ struct TakingImagesView: View {
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
                 
-//                NavigationLink("Next", destination: GridView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
-//                .padding(.horizontal,20)
-//                .padding(.vertical, 5)
-//                .buttonStyle(.bordered)
-//                .buttonBorderShape(.capsule)
                 HelpButton {
                     showingInstructions = true
                 }

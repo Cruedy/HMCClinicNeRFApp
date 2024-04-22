@@ -16,14 +16,15 @@ struct VideoView: View {
     @StateObject var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
     @Binding var path: NavigationPath // Add this line
-//    @Binding private var webViewerUrl: String
     @Binding var currentView: NavigationDestination
+    @State private var showAlert = false // State variable to toggle alert visibility
+
+
 
 
     init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
-//        _webViewerUrl = ""
         _currentView = currentView
     }
 
@@ -38,14 +39,33 @@ struct VideoView: View {
         let videoURL = viewModel.datasetWriter.projectDir.appendingPathComponent("\(splatName).mp4")
         VideoPlayer(player: AVPlayer(url: videoURL))
         
-        Button("Back to intro") {
-//            currentView = .introInstructionsView
-            appDelegate.resetApplication()
-        }
+        HStack {
+            Button("Back") {
+                currentView = .sendImagesToServerView
+            }
             .padding(.horizontal,20)
             .padding(.vertical, 5)
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
+            
+            Button("Return to Start") {
+                showAlert = true // Show the alert when button is tapped
+
+            }
+                .padding(.horizontal,20)
+                .padding(.vertical, 5)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                .alert("Confirm Return", isPresented: $showAlert) {
+                            Button("Cancel", role: .cancel) {} // No action needed for cancel, just closes the alert
+                            Button("Confirm", role: .destructive) {
+                                appDelegate.resetApplication() // Resets the application
+                            }
+                        } message: {
+                            Text("If you return to start, you will not be able to return to this view. Your splat may be stilled online at \(viewModel.datasetWriter.webViewerUrl)")
+                        }
+        }
+        
         
 //
 //        Button("Return to Start") {
