@@ -44,19 +44,19 @@ struct IdentifyFloorView : View {
         VStack{
             
             Spacer()
-//            Text("Tap on the screen to place the BoundingBox on a surface.")
             GeometryReader { geometry in
-                        Text("Tap on the screen to place the BoundingBox on a surface.")
-                            .font(.title) // Sets the font type to title style.
-                            .fontWeight(.bold) // Makes the font bold.
-                            .foregroundColor(.white) // Sets the text color to white.
-                            .padding() // Adds padding around the text.
-                            .frame(width: geometry.size.width, height: geometry.size.height * 0.20) // Sets the height to 20% of the screen.
-                            .background(Color.blue.opacity(0.5)) // Sets the background color to blue with 50% transparency.
-                            .multilineTextAlignment(.center) // Aligns text to the center of its container.
-                    }
-                    .edgesIgnoringSafeArea(.all) // Ensures the view extends to the edges of the display.
-
+                Text("Tap on the screen to place the BoundingBox on a surface.")
+                    .font(.title) // Sets the font type to title style.
+                    .fontWeight(.bold) // Makes the font bold.
+                    .foregroundColor(.white) // Sets the text color to white.
+                    .padding() // Adds padding around the text.
+                    .frame(width: geometry.size.width, height: geometry.size.height * 0.20) // Sets the height to 20% of the screen.
+                    .background(Color.blue.opacity(0.5)) // Sets the background color to blue with 50% transparency.
+                    .multilineTextAlignment(.center) // Aligns text to the center of its container.
+                    .lineLimit(nil) // Allows the text to wrap to multiple lines if needed.
+                    .minimumScaleFactor(0.5) // Allows the font size to scale down if the text exceeds the frame bounds.
+            }
+            .edgesIgnoringSafeArea(.all) // Ensures the view extends to the edges of the display.
             Button(action: {
                 bbox_placement_states = BoundingBoxPlacementStates.InputDimensions
             }) {

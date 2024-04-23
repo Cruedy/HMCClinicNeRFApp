@@ -44,25 +44,25 @@ struct SendImagesToServerView: View {
                 print(zipPath)
                 uploadZipFile(urlString: urlString, zipFilePath: URL(string: zipPath)!, splatName: viewModel.datasetWriter.projectName)
             }) {
-                Text("Send zip to Server")
+                Text("Begin Rendering")
                     .padding(.horizontal, 20)
                     .padding(.vertical, 5)
             }
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
             
-            Spacer()
-            Button(action: {
-                print("trigger full pipeline")
-                let urlString = "http://osiris.cs.hmc.edu:15002/full_pipeline"
-                startFullPipeline(urlString: urlString)
-            }) {
-                Text("Generate Splatt")
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 5)
-            }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
+//            Spacer()
+//            Button(action: {
+//                print("trigger full pipeline")
+//                let urlString = "http://osiris.cs.hmc.edu:15002/full_pipeline"
+//                startFullPipeline(urlString: urlString)
+//            }) {
+//                Text("Generate Splatt")
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 5)
+//            }
+//            .buttonStyle(.bordered)
+//            .buttonBorderShape(.capsule)
             
             Spacer()
 
@@ -80,24 +80,24 @@ struct SendImagesToServerView: View {
             
             Spacer()
 
-            Button(action: {
-                print("get url")
-                let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
-                getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWriter.projName) { url, error in
-                    if let error = error {
-                        print("Error fetching URL: \(error.localizedDescription)")
-                    } else if let url = url {
-                        print("Web Viewer URL: \(url)")
-                        viewModel.datasetWriter.webViewerUrl = url
-                    }
-                }
-            }) {
-                Text("get url")
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 5)
-            }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
+//            Button(action: {
+//                print("get url")
+//                let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
+//                getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWriter.projName) { url, error in
+//                    if let error = error {
+//                        print("Error fetching URL: \(error.localizedDescription)")
+//                    } else if let url = url {
+//                        print("Web Viewer URL: \(url)")
+//                        viewModel.datasetWriter.webViewerUrl = url
+//                    }
+//                }
+//            }) {
+//                Text("get url")
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 5)
+//            }
+//            .buttonStyle(.bordered)
+//            .buttonBorderShape(.capsule)
 
             
             Button("View Results") {
@@ -119,7 +119,7 @@ struct SendImagesToServerView: View {
         }
         .onAppear {
                     // Reconnect the timer if needed when the view appears or reappears
-                    self.timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+                    self.timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         }
         .onReceive(timer) { _ in
             let urlString = "http://osiris.cs.hmc.edu:15002/status"
@@ -626,12 +626,18 @@ struct SendImagesToServerView: View {
                 print("Error downloading file: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
+            if FileManager.default.fileExists(atPath: localURL.path) {
+                print("Temporary file exists: \(localURL.path)")
+            } else {
+                print("Temporary file does not exist.")
+                return
+            }
             
             // Optionally, move the file to a permanent location in your app's sandbox container
             // Here's how you might do that:
             do {
                 let fileManager = FileManager.default
-                let documentsPath = try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                let documentsPath = try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
                 let savedURL = documentsPath.appendingPathComponent("\(splatName).mp4")
                 
                 // Check if file exists, remove it

@@ -65,32 +65,6 @@ struct VideoView: View {
                             Text("If you return to start, you will not be able to return to this view. Your splat may be stilled online at \(viewModel.datasetWriter.webViewerUrl)")
                         }
         }
-        
-        
-//
-//        Button("Return to Start") {
-////            path.removeAll()
-////            path.wrappedValue.removeAll()
-//            print(path.count)
-//        }
-//        .padding()
-//        .buttonStyle(.bordered)
-        
-//        let newViewModel = ARViewModel(datasetWriter: datasetWriter, ddsWriter: ddsWriter)
-//        // let contentView = ContentView(viewModel: viewModel)
-//        let contentView = ContentView(viewModel: viewModel)
-        
-//        NavigationStack {
-//            IntroInstructionsView(viewModel: viewModel)  // Start on IntroInstructions view
-//        }
-//        .environmentObject(dataModel)
-//        .navigationViewStyle(.stack)
-//        NavigationLink("Create a New Splatt", destination: IntroInstructionsView(viewModel: viewModel).environmentObject(dataModel)
-//).navigationViewStyle(.stack)
-//            .padding(.horizontal, 20)
-//            .padding(.vertical, 5)
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
 
     }
 }
