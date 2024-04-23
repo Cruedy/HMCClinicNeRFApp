@@ -202,22 +202,44 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
             print(firstResult)
             // Assuming you have a way to access your planes
             // You'll need to identify which plane was hit and change its color
+            var i = 0
+            let goal = 10.0
             for plane in boundingbox.planes {
-                print("current plane")
-                print(plane.entity)
                 if plane.entity == firstResult.entity {
-                    print("True")
                     // Change the color of the hit plane
-                    let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
-                    let newMaterial = UnlitMaterial(color: lessTransparentYellowColor)
+                    let progress = Float(boundingbox.plane_counts[i]) / Float(goal)
+                    // Define colors using SIMD3<Float>
+                    // rgb for yellow
+                    let rgb = SIMD3<Float>(1, 1, 0)
+                    // rgb for green
+                    let final_rgb = SIMD3<Float>(0, 1, 1)
+                    var opacity = Float(0.0)
+                    if progress < 1.0{
+                        opacity = 0.25 + (progress * 0.5)
+                    }
+                    else if progress == 1.0{
+                        boundingbox.playFinishedSound()
+                        opacity = 0.0
+                    }
+                    // Interpolate between red and blue
+                    let new_rgb = (progress * final_rgb) + ((1.0 - progress) * rgb)
+//                    let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
+                    // Assuming you want to use the interpolated values directly for UIColor
+                    let color = UIColor(red: CGFloat(new_rgb.x), green: CGFloat(new_rgb.y), blue: CGFloat(new_rgb.z), alpha: CGFloat(opacity))
+                    let newMaterial = UnlitMaterial(color: color)
                     plane.entity.model?.materials = [newMaterial]
-                    print("checkCounts")
-                    print(plane.index)
-                    print(boundingbox.plane_counts[plane.index])
+                    if progress == 1.0 {
+                        let generatedText = boundingbox.textGen(textString: "side completed")
+                        plane.entity.addChild(generatedText)
+                        generatedText.position = boundingbox.plane_centers[plane.index]
+                        generatedText.orientation = boundingbox.plane_orientations[plane.index]
+                    }
                     boundingbox.plane_counts[plane.index]  = boundingbox.plane_counts[plane.index]+1
                     print("counts: \(boundingbox.plane_counts)")
+                    i = i+1
                     break
                 }
+                i = i+1
             }
         }
 //        for result in raycastResults {

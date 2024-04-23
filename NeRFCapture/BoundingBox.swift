@@ -339,6 +339,7 @@ scale: \(scale)
         // back face
         self.plane_orientations[5] = getOrientation(from : [SIMD3<Float>(bottom_left_back), SIMD3<Float>(bottom_right_back), SIMD3<Float>(top_left_back)])
         
+        
         // Add centers of each face
         // front face
         self.plane_centers[0] = SIMD3<Float>((top_left_front[0] + top_right_front[0])/2.0, (top_left_front[1] + bottom_left_front[1])/2.0, (top_left_front[2] + top_right_front[2])/2.0)
@@ -431,8 +432,6 @@ scale: \(scale)
         let worldOriginAnchor = AnchorEntity(world:.zero)
 //        let worldOriginAnchor = AnchorEntity(plane:.horizontal) // This is for letting the object move on the ground
         self.positions = self.pos_from_center(self.center)
-        print("positions")
-        print(self.positions)
         let descriptors = createBoundingBox(corners: self.positions, thickness: 0.001)
         for descr in descriptors.0 {
             let material = UnlitMaterial(color: .purple)
@@ -473,12 +472,12 @@ scale: \(scale)
                 mesh: try! .generate(from: [descr]),
                 materials: [material])
             generatedModel.generateCollisionShapes(recursive: true)
-            if progress == 1.0 {
-                let generatedText = textGen(textString: "side completed")
-                generatedModel.addChild(generatedText)
-                generatedText.position = self.plane_centers[i]
-                generatedText.orientation = plane_orientations[i]
-            }
+//            if progress == 1.0 {
+//                let generatedText = textGen(textString: "side completed")
+//                generatedModel.addChild(generatedText)
+//                generatedText.position = self.plane_centers[i]
+//                generatedText.orientation = plane_orientations[i]
+//            }
             worldOriginAnchor.addChild(generatedModel)
             var newPlane = BoundingBoxPlane(descr: descr, entity: generatedModel, index: i)
             i = i+1
