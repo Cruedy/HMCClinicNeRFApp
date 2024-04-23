@@ -70,31 +70,60 @@ struct GridView : View {
                 }
                 .padding()
             }
-            Button(isEditing ? "Done" : "Edit") {
+            Button(isEditing ? "Done" : "Delete Images") {
                 withAnimation { isEditing.toggle() }
             }
-            Button(action: {
-                viewModel.datasetWriter.finalizeProject()
-            }){
-                Text("Prepare Files")
-            }
+            .padding(.horizontal,20)
+            .padding(.vertical, 5)
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+//            Button(action: {
+//                viewModel.datasetWriter.finalizeProject()
+//            }){
+//                Text("Prepare Files")
+//            }
             
-            Button("Take more images") {
-                currentView = .takingImagesView
-            }
-                .padding(.horizontal,20)
-                .padding(.vertical, 5)
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-            
-            Button("Next") {
-                currentView = .sendImagesToServerView
-            }
-                .padding(.horizontal,20)
-                .padding(.vertical, 5)
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
+            HStack{
+                Spacer() // Flexible spacer pushes everything to the center
+                            
+                            Button("Back to Camera") {
+                                currentView = .takingImagesView
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
 
+                            Spacer(minLength: 10) // Fixed-width spacer to separate the buttons from the center
+
+                            Button("Send Data to Server") {
+                                viewModel.datasetWriter.finalizeProject()
+                                currentView = .sendImagesToServerView
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 5)
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+
+                            Spacer() // Flexible spacer pushes everything to the center
+//                Button("Back") {
+//                    currentView = .takingImagesView
+//                }
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
+//                
+//                Button("Send Data to Server") {
+//                    viewModel.datasetWriter.finalizeProject()
+//                    currentView = .sendImagesToServerView
+//                }
+//                    .padding(.horizontal,20)
+//                    .padding(.vertical, 5)
+//                    .buttonStyle(.bordered)
+//                    .buttonBorderShape(.capsule)
+            }
+            
 //            NavigationLink("Next", destination: SendImagesToServerView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
 //                .padding(.horizontal,20)
 //                .padding(.horizontal, 20)

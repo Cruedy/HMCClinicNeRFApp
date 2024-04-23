@@ -27,7 +27,7 @@ struct SendImagesToServerView: View {
         _currentView = currentView
     }
     
-    @State private var timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 //    @State private var splatName: String = "iPad5"
 
     var body: some View {
@@ -35,26 +35,7 @@ struct SendImagesToServerView: View {
             Text(testForStatus(status: serverStatus))
             .padding()
             Spacer()
-//            TextField("Enter splat name", text: $splatName)
-//                            .padding()
-//                            .textFieldStyle(RoundedBorderTextFieldStyle())
-//                            .padding()
-//            Spacer()
-//            Text(serverResponse) // Display server response
-//                .padding()
-//            Button(action: {
-//                print("send")
-//                let urlString = "http://osiris.cs.hmc.edu:15002/heartbeat"
-//                makeGetRequest(urlString: urlString) { data, response, error in
-//                    processData(data: data, response: response, error: error)
-//                }
-//            }) {
-//                Text("Send Data to Server")
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 5)
-//            }
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
+            
             Button(action: {
                 print("send zip to server")
                 let urlString = "http://osiris.cs.hmc.edu:15002/upload_device_data"
@@ -89,9 +70,6 @@ struct SendImagesToServerView: View {
                 print("get video")
                 let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projName)"
                 downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projName)
-//                let urlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projectName)"
-//                downloadVideo(urlString: urlString, splatName: viewModel.datasetWriter.projectName)
-
             }) {
                 Text("get video")
                     .padding(.horizontal, 20)
@@ -110,9 +88,7 @@ struct SendImagesToServerView: View {
                         print("Error fetching URL: \(error.localizedDescription)")
                     } else if let url = url {
                         print("Web Viewer URL: \(url)")
-                        // Use the URL here, e.g., open it in a web view or UI component
                         viewModel.datasetWriter.webViewerUrl = url
-//                        webViewerUrl = url
                     }
                 }
             }) {
@@ -123,6 +99,14 @@ struct SendImagesToServerView: View {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
 
+            
+            Button("View Results") {
+                currentView = .videoView
+            }
+                .padding(.horizontal,20)
+                .padding(.vertical, 5)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
             
             HelpButton {
                 showingInstructions = true
@@ -153,7 +137,6 @@ struct SendImagesToServerView: View {
                         print("Web Viewer URL: \(url)")
                         // Use the URL here, e.g., open it in a web view or UI component
                         viewModel.datasetWriter.webViewerUrl = url
-//                        webViewerUrl = url
                     }
                 }
 
@@ -168,29 +151,6 @@ struct SendImagesToServerView: View {
         .navigationBarTitle("Send to Server")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-        
-        Button("Back to intro") {
-            currentView = .introInstructionsView
-        }
-            .padding(.horizontal,20)
-            .padding(.vertical, 5)
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-        
-        Button("Next") {
-            currentView = .videoView
-        }
-            .padding(.horizontal,20)
-            .padding(.vertical, 5)
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-        
-        
-//        NavigationLink("Next", destination: VideoView(viewModel: viewModel, path: $path, webViewerUrl: $webViewerUrl, currentView: $currentView).environmentObject(dataModel)).navigationViewStyle(.stack)
-//            .padding(.horizontal, 20)
-//            .padding(.vertical, 5)
-//            .buttonStyle(.bordered)
-//            .buttonBorderShape(.capsule)
     }
     
     func convertDirectoryPathToZipPath(directoryPath: String) -> String {
@@ -227,6 +187,14 @@ struct SendImagesToServerView: View {
                 return "Server is rendering video"
             case .rendering_ended:
                 return "Server finished rendering video"
+            case .data_upload_error:
+                return "Error: data upload failed"
+            case .preprocessing_error:
+                return "Error: preprocessing failed"
+            case .training_error:
+                return "Error: training failed"
+            case .rendering_error:
+                return "Error: rendering failed"
             }
         }
         return serverError
@@ -335,7 +303,16 @@ struct SendImagesToServerView: View {
                         self.serverStatus = ServerStatus.rendering_started
                     } else if status == "rendering_ended" {
                         self.serverStatus = ServerStatus.rendering_ended
-                    } else{
+                    } else if status == "data_upload_error" {
+                        self.serverStatus = ServerStatus.data_upload_error
+                    } else if status == "preprocessing_error" {
+                        self.serverStatus = ServerStatus.preprocessing_error
+                    } else if status == "training_error" {
+                        self.serverStatus = ServerStatus.training_error
+                    } else if status == "rendering_error" {
+                        self.serverStatus = ServerStatus.rendering_error
+                    }
+                    else{
                         self.serverStatus = nil
                     }
                 }
@@ -769,5 +746,10 @@ enum ServerStatus {
     case training_ended
     case rendering_started
     case rendering_ended
+    case data_upload_error
+    case preprocessing_error
+    case training_error
+    case rendering_error
+
 }
 
