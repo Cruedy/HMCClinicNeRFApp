@@ -28,6 +28,7 @@ Once the bounding box is placed, the user then enters the dimensions of the prod
 <br>
 
 The last part of creating the bounding box is making adjustments. In this part the user can:
+<br>
 Translate the Bounding Box
 <br>
 <img src="docs/assets_readme/translate.PNG" height="342"/>
