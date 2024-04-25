@@ -1,10 +1,31 @@
 ## Instructions View
-<img src="docs/assets_readme/IntroInstructionsView.PNG" height="342"/>
+These instructions help the user when they initially open up the app:
+<img src="docs/assets_readme/IntroInstructions.PNG" height="342"/>
 
-These instructions help the user when they initially open up the app. It breaks down what the user should do in future steps and recommends how they can can get the best resulting model. There is a *next* button in the top right of the view to take the user to the next view.
+It breaks down what the user should do in future steps and recommends how they can can get the best resulting model. There is a *Start Projext* button at the bottom of the screen, which the user presses to enter the name of their project. Once the project is started, this will pop up:
+<img src="docs/assets_readme/CreateProject.PNG" height="342"/>
+
+The user can enter any name they want for the project, then press the submit button to go to the next step.
 
 ## Bounding Box View
-<img src="docs/assets_readme/BoundingBox.PNG" height="342"/>
+The user is first prompted to place the bounding box the same surface that the product is on:
+<img src="docs/assets_readme/PlaceBBox1.PNG" height="342"/>
+
+This is done by tapping on the screen:
+<img src="docs/assets_readme/PlaceBBox2.PNG" height="342"/>
+
+Once the bounding box is placed, the user then enters the dimensions of the product. This is the second step because users of this app will usually already know the dimensions of their product.
+<img src="docs/assets_readme/EnterDimensions.PNG" height="342"/>
+
+The last part of creating the bounding box is making adjustments. In this part the user can:
+Translate the Bounding Box
+<img src="docs/assets_readme/translate.PNG" height="342"/>
+Rotate the Bounding Box
+<img src="docs/assets_readme/rotate.PNG" height="342"/>
+Re-scale the Bounding Box
+<img src="docs/assets_readme/rescale.PNG" height="342"/>
+Extend the Sides of Bounding Box
+<img src="docs/assets_readme/extend.PNG" height="342"/>
 
 In this view the user can create an edit a bounding box to closely surround the object that they are taking pictures of. The user can:
 * move the box around
