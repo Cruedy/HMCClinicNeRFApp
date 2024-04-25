@@ -2,10 +2,12 @@
 These instructions help the user when they initially open up the app:
 <br>
 <img src="docs/assets_readme/IntroInstructions.PNG" height="342"/>
+<br>
 
 It breaks down what the user should do in future steps and recommends how they can can get the best resulting model. There is a *Start Projext* button at the bottom of the screen, which the user presses to enter the name of their project. Once the project is started, this will pop up:
 <br>
 <img src="docs/assets_readme/CreateProject.PNG" height="342"/>
+<br>
 
 The user can enter any name they want for the project, then press the submit button to go to the next step.
 
@@ -13,28 +15,35 @@ The user can enter any name they want for the project, then press the submit but
 The user is first prompted to place the bounding box the same surface that the product is on:
 <br>
 <img src="docs/assets_readme/PlaceBBox1.PNG" height="342"/>
+<br>
 
 This is done by tapping on the screen:
 <br>
 <img src="docs/assets_readme/PlaceBBox2.PNG" height="342"/>
+<br>
 
 Once the bounding box is placed, the user then enters the dimensions of the product. This is the second step because users of this app will usually already know the dimensions of their product.
 <br>
 <img src="docs/assets_readme/EnterDimensions.PNG" height="342"/>
+<br>
 
 The last part of creating the bounding box is making adjustments. In this part the user can:
 Translate the Bounding Box
 <br>
 <img src="docs/assets_readme/translate.PNG" height="342"/>
+<br>
 Rotate the Bounding Box
 <br>
 <img src="docs/assets_readme/rotate.PNG" height="342"/>
+<br>
 Re-scale the Bounding Box
 <br>
 <img src="docs/assets_readme/rescale.PNG" height="342"/>
+<br>
 Extend the Sides of Bounding Box
 <br>
 <img src="docs/assets_readme/extend.PNG" height="342"/>
+<br>
 
 In this view the user can create an edit a bounding box to closely surround the object that they are taking pictures of. The user can:
 * move the box around
