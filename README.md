@@ -1,5 +1,6 @@
 ## Instructions View
 These instructions help the user when they initially open up the app:
+<br>
 <img src="docs/assets_readme/IntroInstructions.PNG" height="342"/>
 
 It breaks down what the user should do in future steps and recommends how they can can get the best resulting model. There is a *Start Projext* button at the bottom of the screen, which the user presses to enter the name of their project. Once the project is started, this will pop up:
