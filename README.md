@@ -1,3 +1,4 @@
+# User Guide
 ## Instructions View
 These instructions help the user when they initially open up the app:
 <br>
@@ -80,6 +81,8 @@ In this view they can delete the images that are too blurry/don't have a good ne
 <img src="docs/assets_readme/SendImagesToServer.PNG" height="342"/>
 
 This view is currently just a placeholder for the progress bar that shows how much model creation time is left.
+
+# Developer Guide
 
 
 
