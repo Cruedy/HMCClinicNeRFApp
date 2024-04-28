@@ -126,6 +126,12 @@ Once the user is satisfied with the images that they've compiled after viewing t
 This view has 5 buttons that should be press in the order that they are presented on the screen. To start the process of generating a 3D model on the server side, the user should first press the *Send zip to Server* button. The user will be notified when this process is done. Then they can move on to pressing the *Generate Splatt* button, which will generate the 3D model from gaussian splatts. To view their model, the user should press *get video*. The button *get url* is available for the user to be able to view their 3D model on the Web View. The user can also have direct access to their results by pressing the *View Results* button.
 
 # Developer Guide
+## Running the App
+Follow this guide to get the project in your xcode:
+<br>
+<a href="https://medium.com/@sayalee.blogs/using-xcode-with-github-repo-e4253cffa895" target="_blank">Xcode Repo Tutorial</a>
+
+
 
 
 
