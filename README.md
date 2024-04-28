@@ -129,7 +129,7 @@ This view has 5 buttons that should be press in the order that they are presente
 ## Running the App
 Follow this guide to get the project in your xcode:
 <br>
-<a href="https://medium.com/@sayalee.blogs/using-xcode-with-github-repo-e4253cffa895">Xcode Repo Tutorial</a>
+[Xcode Repo Tutorial](https://medium.com/@sayalee.blogs/using-xcode-with-github-repo-e4253cffa895){:target="_blank"}
 
 
 
