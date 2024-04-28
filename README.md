@@ -129,7 +129,10 @@ This view has 5 buttons that should be press in the order that they are presente
 ## Running the App
 Follow this guide to get the project in your xcode:
 <br>
-[Xcode Repo Tutorial](https://medium.com/@sayalee.blogs/using-xcode-with-github-repo-e4253cffa895){:target="_blank"}
+[Xcode Repo Tutorial](https://developer.apple.com/documentation/xcode/configuring-your-xcode-project-to-use-source-control#Get-a-project-from-a-remote-repository)
+<br>
+Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the traingle-shaped button in the top left.
+
 
 
 
