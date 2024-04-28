@@ -132,6 +132,17 @@ Follow this guide to get the project in your xcode:
 [Xcode Repo Tutorial](https://developer.apple.com/documentation/xcode/configuring-your-xcode-project-to-use-source-control#Get-a-project-from-a-remote-repository)
 <br>
 Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the traingle-shaped button in the top left.
+## Breaking Down the Code
+### Intro Instructions View
+#### Instructions View
+This area just contains text that is stored in 2 lists of strings. One list contains a list of instructions on taking images, and the other list contains a list of best practices for getting quality images
+
+#### Intro Instructions View
+This contains the *Instructions View* and the *Start Project Button*. When the *Start Project Button* is pressed, an alert is created. This alert contains a submit button, which takes the user to the *BoundingBoxSMView*
+
+#### Bounding Box SM View
+
+
 
 
 
