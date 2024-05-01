@@ -22,6 +22,7 @@ struct GridView : View {
     @State private var showingInstructions = false
     @Binding var path: NavigationPath // Add this line
     @Binding var currentView: NavigationDestination
+    @State private var finalizedDataset = false
 
 
     init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
@@ -95,15 +96,30 @@ struct GridView : View {
                             .buttonBorderShape(.capsule)
 
                             Spacer(minLength: 10) // Fixed-width spacer to separate the buttons from the center
-
-                            Button("Send Data to Server") {
-                                viewModel.datasetWriter.finalizeProject()
-                                currentView = .sendImagesToServerView
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 5)
-                            .buttonStyle(.bordered)
-                            .buttonBorderShape(.capsule)
+                            
+                if finalizedDataset {
+                    Button("Send Data to Server") {
+//                        viewModel.datasetWriter.finalizeProject()
+                        currentView = .sendImagesToServerView
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                } else {
+                    Button("Finalize Dataset") {
+                        viewModel.datasetWriter.finalizeProject()
+                        finalizedDataset = true
+//                        currentView = .sendImagesToServerView
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 5)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                }
+                           
+                
+                            
 
                             Spacer() // Flexible spacer pushes everything to the center
 //                Button("Back") {
