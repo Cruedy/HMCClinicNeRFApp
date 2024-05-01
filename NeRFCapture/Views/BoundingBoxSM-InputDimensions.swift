@@ -22,6 +22,19 @@ struct InputDimensionsView : View {
     @Binding public var rotate_angle: Float
     @Binding public var slider_xyz: [Float]
     
+    /**
+     Initializes a new instance of the `BoundingBoxSMView-InputDimensions` view. It is a helper for `BoundingBoxSMView`
+
+     - Parameter vm: An instance of `ARViewModel` that will manage the augmented reality data and interactions.
+     - Parameter states: A binding to `BoundingBoxPlacementStates` used to change to change the content in BoundingBoxSMView.
+     - Parameter place_box_mode: A binding to a `MovementModes` enum. (unused)
+     - Parameter boxVisible: A binding to track the visibility of the box throughout Boundingbox interactions
+     - Parameter box_center: A binding to track the center coordinate of the box (x,y,z) throughout
+     - Parameter rotate_angle: A binding to track the angle of the box (degrees) throughout
+     - Parameter slider_xyz: A binding to track the dimension of the box (along x,y,z axis) throughout
+
+     Note: The `place_box_mode` parameter is unused, but added to keep constructors between the different helper views consistent. It is a stylistic choice, but you may safely remove it.
+    */
     init( vm: ARViewModel, states: Binding<BoundingBoxPlacementStates>, place_box_mode: Binding<MovementModes>,
           boxVisible: Binding<Bool>, box_center: Binding<[Float]>, rotate_angle: Binding<Float>, slider_xyz: Binding<[Float]>){
         viewModel = vm
@@ -32,17 +45,17 @@ struct InputDimensionsView : View {
         _rotate_angle = rotate_angle
         _slider_xyz = slider_xyz
     
+        // sets all properties of the box, visibility, center, angle, and scale/dimension
         viewModel.display_box(boxVisible: boxVisible.wrappedValue)
         viewModel.set_center(new_center: box_center.wrappedValue)
         viewModel.set_angle(new_angle: rotate_angle.wrappedValue)
         viewModel.set_scale(new_scale: slider_xyz.wrappedValue)
-//        ActionManager.shared.actionStream.send(.set_center(box_center.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_angle(rotate_angle.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_scale(slider_xyz.wrappedValue))
         }
     
     var body: some View{
         Spacer()
+        
+        // three sliders to change the three dimensions of the box
         Slider(
             value: $slider_xyz[0],
             in: 0...5,
@@ -71,7 +84,10 @@ struct InputDimensionsView : View {
         }
         Text("\(slider_xyz[2], specifier: "Z: %.2f m")")
         
+        
+        // Go to another step/state
         HStack{
+            // Back to placing the box on the floor
             Button(action: {
                 bbox_placement_states = BoundingBoxPlacementStates.IdentifyFloor
             }) {
@@ -82,6 +98,7 @@ struct InputDimensionsView : View {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
             
+            // Next to finetune the box
             Button(action: {
                 bbox_placement_states = BoundingBoxPlacementStates.PlaceBox
             }) {
@@ -92,7 +109,7 @@ struct InputDimensionsView : View {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
         }
-    
+
     }
 
 }
