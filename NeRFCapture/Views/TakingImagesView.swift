@@ -149,18 +149,6 @@ struct TakingImagesView: View {
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
                     
-//                    Button(action: {
-//                        viewModel.datasetWriter.finalizeSession()
-//                        viewModel.stopAutomaticCapture()
-//                        dataModel.initializeGallery()
-//                    }) {
-//                        Text("End")
-//                            .padding(.horizontal, 20)
-//                            .padding(.vertical, 5)
-//                    }
-//                    .buttonStyle(.bordered)
-//                    .buttonBorderShape(.capsule)
-                    
                 }  // End of case SessionStarted
                 
                 // View when session is paused

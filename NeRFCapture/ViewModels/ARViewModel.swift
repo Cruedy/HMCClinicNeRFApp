@@ -331,7 +331,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     
     @objc func changeInterval() {
         if let frame = self.session?.currentFrame {
-            // call raycast function here
             self.datasetWriter.writeFrameToDisk(frame: frame)
             self.side()
             // Trigger the flash effect
@@ -341,17 +340,14 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
                 self.isFlashVisible = false
             }
             if velocity >= 8 && velocity < 10 {
-                print("Interval 1.0")
                 interval = 1.0
                 startAutomaticCapture()
             }
             else if velocity >= 5 && velocity < 8 {
-                print("Interval 2.0")
                 interval = 2.0
                 startAutomaticCapture()
             }
             else if velocity < 5 {
-                print("Interval 3.0")
                 interval = 3.0
                 startAutomaticCapture()
             }

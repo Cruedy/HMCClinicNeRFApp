@@ -100,9 +100,6 @@ class DatasetWriter: ObservableObject {
     }
     
     func initializeProject() throws {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "YYMMddHHmmss"
-//        projectName = .environmentObject(dataModel)
         projectName = self.projName
         projectDir = getDocumentsDirectory()
             .appendingPathComponent(projectName)
@@ -151,7 +148,6 @@ class DatasetWriter: ObservableObject {
     }
     
     func finalizeSession() {
-        print("finalize session")
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
@@ -171,15 +167,12 @@ class DatasetWriter: ObservableObject {
     }
      
     func finalizeProject(zip: Bool = true) {
-        print("finalize project")
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
             .appendingPathComponent("transforms.json")
 
         if let documentDirectory = FileManager.default.documentDirectory {
-            print("document Directory")
-            print(documentDirectory)
             let urls = FileManager.default.getContentsOfDirectory(documentDirectory).filter { $0.isImage }}
         
         writeManifestToPath(path: manifest_path)
