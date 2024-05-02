@@ -191,10 +191,61 @@ Appear when the image taking session is in the `.sessionNotStarted` state. The v
 
 ##### Velocity Tracking
 
-##### Automatic Capture
+##### Automatic Capture##### Grid Item
+Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
+
+##### Buttons 
+###### Begin Capture
+Appears when the image taking session is in the `.SessionNotStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
+
+When this button is pressed, it calls the `initializeProject()`  from the `datasetWriter` class. This function creates a directory that has the name that was set in the `IntroInstructionsView`. The function also sets the `SessionState` to `.SessionStarted`.
+
+`trackVelocity()` from the `ARViewModel` class is also called. This function creates a timer that goes off everyone 0.25 seconds. Every time the timer goes off, it gets the position of the device from the camera transform. Then it derives the x,y, and z velocities from the difference in the current and previous positions. Then we got the velocity magnitude by calculating the Euclidean norm between the three velocities. This function also sets a user warning to say Speed Up if the velocity magnitude is slightly too slow a Slow Down if the velocity magnitude is slightly too fast. 
+
+`startAutomaticCapture()` from the `ARViewModel` class is also called. This function starts a timer that calls a function called `changeInterval()` every time the timer goes off. `changeInterval` causes the screen to flash white, indicating to the user that an image is taken. The function also shortens the timer if the device starts moving faster and lengthens the timer if the device starts moving slower. 
+
+###### Pause Automatic Capture
+Appears when the image taking session is in the `.SessionStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
+
+When this button is pressed, it calls the `writeFrameToTopic(frame)`  from the `ddsWriter` class. This function create the image frame and depth file to be added to the directory for the project.
+
+`stopTrackingLocation()` from the `ARViewModel` class is also called. This function stops the timer that calls for the location of the device to be tracked. 
+
+`stopTrackingVelocity()` from the `ARViewModel` class is also called. This function stops the timer that calls for the velocity of the device to be tracked. 
+
+`pauseSession()` from the `datasetWriter` class is also called. This function changes the SessionState to `.SessionPaused`. 
+
+`stopAutomaticCapture()` from the `ARViewModel` class is also called. This function turns the screen flash to false and stops the timer that is run in the automatic capture process.
+
+###### Continue Automatic Capture
+Appears when the image taking session is in the `.SessionPaused` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
+
+This button will call `startAutomaticCapture()` and `trackVelocity()` which were previously defined. It will also set the SessionState to `.SessionStarted`.
+
+###### View Gallery
+Appears no matter what the session state is. 
+
+This button will call `finalizeSession()` from the `datasetWriter` class. This will add the transforms and bounding box files to the project directory. 
+
+`stopAutomaticCapture()`, which was defined earlier, from the `ARViewModel` class is also called.
+
+`initializeGallery()` from the `dataModel` class is also called. This function grabs all the image files from the project directory adds them to the gallery. 
+
+The `currentView` is then switched to the `.gridView`.
+
+##### Image Tracking
+This is done using a `currentFrameCounter` which increases every time a frame is written to the disk. 
 
 #### Image Gallery View
+##### Butttons
+###### Delete Images
+Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` buttton which takes the user back to the grid view.
 
+###### Back To Camera
+Appears when the user first enters the grid view. This button switches the `currentView` to the `.takingImagesView`.
+
+###### Finalize Dataset
+Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causign the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
 
 #### Send to Server View
 The goal of this view is to send data to and from the server (`http://osiris.cs.hmc.edu:15002/`). The following endpoints are used.
