@@ -180,7 +180,18 @@ The final implementation detail of this state is switching between different mod
 
 #### Taking Images View
 
-##### Grid Item
+##### Buttons 
+###### Begin Capture
+Appear when the image taking session is in the `.sessionNotStarted` state. The various states are defined in the *SessionState* enum in the **
+###### Pause Automatic Capture
+###### Continue Automatic Capture
+###### View Gallery
+
+##### Image Tracking
+
+##### Velocity Tracking
+
+##### Automatic Capture##### Grid Item
 Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
 
 ##### Buttons 
@@ -286,20 +297,131 @@ The goal of this view is to relay information from the server to the user. It pl
 
 
 ### Bounding Box
-#### Parameters
+#### Parameters Overview
+`BoundingBox.swift` contains the low level implementations controlling the bounding box. When implementing a new feature of the bounding box, this is the file to edit first.
+
+```
+// Pseudo Code
+class BoundingBox {
+    
+    // decides the location, orientation, and scale of the bounding box
+    var center: [Float] = [] // [x,y,z]
+    var positions: [[Float]] = [] // [[x1,y1,z1]*12]
+    var rot_y: Float = 0 // in radians
+    var scale: [Float] = [1,1,1] // meters
+    var floor: Float? = nil // height of the floor. If nil, then the box appears floating in space. If not nil, then the box appears sitting on the floor.
+
+    // handles eproperties of each face of the bounding box
+    var planes: [BoundingBoxPlane] = []
+    var plane_counts = [0,0,0,0,0,0]
+    var plane_orientations: [simd_quatf] = [simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0)]*5
+    private var cameraRaysAndHitLocations: [(ray: Ray, hitLocation: SIMD3<Float>)] = []
+    ...
+}
+```
+
+image of axis
+
+The shape and location of the bounding box is determined by the `center`, `scale`, `rot_y`, `floor` parameters. Using these four parameters, the `pos_from_center` function calculates each of the twelve corners of the bounding box, which is stored in the `positions` parameter. 
+
+*Here is an example calculation for the top, left, front corner:*
+
+Defining the Point: Before transformation, the top_left_front corner in local coordinates relative to the center is defined by:
+
+$$\text{local point} = \left[-\frac{1.0 \times \text{scale}[0]}{2.0}, \frac{1.0 \times \text{scale}[1]}{2.0}, -\frac{1.0 \times \text{scale}[2]}{2.0}\right]$$
+
+This point represents the top-left-front corner of the bounding box, with each component scaled appropriately.
+
+Rotation: Apply the rotation about the Y-axis using the rot_about_y function:
+$$\text{rotated point} = R_{y}(\text{rot}_y) \cdot \text{local point}$$
+
+where $R_{y}(\text{rot}_y)$ is the rotation matrix derived from the `rot_y` parameter. This step adjusts the orientation of the point based on the bounding box's rotation.
+
+Translation: The final world coordinates of the top_left_front corner are obtained by adding the rotated point to the center:
+$$\text{world coordinates} = \text{center} + \text{rotated point}$$
+This translates the corner to its appropriate position in 3D space.
+
+Respecting Floor: Finally, the world coordinate of the corner cannot be lower than the floor, therefore we take the max between the floor and calculated position as the final coordinate of the corner.
+
+Generating each corner from the four parameters requires the above complicated steps, but once implemented makes editing the bounding box easy and consistent. For example, to rotate the box, all we need to do it set the `rot_y` parameter and call `pos_from_center` to regenerate all corners.
+
+#### Changing Parameters
+Changing parameters happens at three levels in our app. Users use `BoundingBoxSMView` and its helper views described in their section to collect user inputs. Each of the buttons and gestures are tied to functions in `ARViewModel.swift`. `ARViewModel.swift` takes user inputs and maps them to the appropiate calls in `BoundingBox.swift`. These methods will be described in this and the next section. Finally, the functions in `BoundingBox.swift` directly modify properties of the bounding box. They are in charge of the underlying logic and controls very corner, edge, and face of the bounding box. These functions are also described in this section.
+
+Let's start with the low level functions in `BoundingBox.swift` since they are the building block for higher level functions in `ARViewModel.swift`
+
+Functions that update the parameter with an offset:
+* `func update_center(_ offset:[Float]) -> [Float]`
+* `func update_scale(_ scale_mult:[Float]) -> [Float]` (Respects Floor)
+* `func update_angle(_ offset: Float) -> Float`
+* `func extend_side(_ offset: [Float]) -> ([Float], [Float])`
+* `func shrink_side(_ offset: [Float]) -> ([Float], [Float])`
+
+Functions that (re)sets the parameter with a new value:
+* `func set_center(_ new_center:[Float]) -> [Float]`
+* `func set_scale(_ new_scale:[Float]) -> [Float]` (Respects Floor)
+* `func set_angle(_ new_angle: Float) -> Float`
+* `func setFloor(height:Float)` (Updates Floor)
+* `func set_center_xy(newCenter: SIMD3<Float>) -> [Float]` (Respects Floor)
+
+The implementation for these functions are mostly straightforward. The only nunance is how they interact with the Floor parameters. For example, it is a good idea to look at the implementation for `set_center` and `set_center_xy`. Namely the difference is `set_center` uses the user-inputed y position in `new_center` which can make the bounding box appear floating in space. On the other hand, `set_center_xy` only accepts the user-inputed x and z position. It calculates the y position to be half of the bounding box height above the floor (`y_center = scale[1]/2 + floor`). This way the bottom of the bounding box will touch the floor.
+
+
+Methods in `ARViewModel.swift`:
+*Updates rendering and manifest*
+* `func set_center(new_center: [Float]) -> [Float]`
+* `func set_angle(new_angle: Float) -> Float`
+* `func set_scale(new_scale: [Float]) -> [Float]`
+* `func extend_sides(offset: [Float]) -> ([Float], [Float])`
+* `func shrink_sides(offset: [Float]) -> ([Float], [Float])`
+* `func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]`
+*Does not update rendering and manifest*
+* `func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame)`
+
+All methods mentioned above besides the last one performs four tasks. First, they translate user input and calls the appriopiate function in `BoundingBox.swift`. For instance, `set_angle` takes a user input that is in degrees, converts it to radians, and calls the `BoundingBox.set_angle` method. Second, they call the `ARViewModel.display_box` method to render the bounding box if appriopriate. Thirdly, they update the `boundingbox.json` file using the `update_boundingbox_manifest` method. Finally, they return value of the parameter of the bounding box that was changed (in this example, that would simply be the new angle). Steps 2 and 3 will be discussed in more detail in the [Rendering Section](#rendering) and [Saving Section](#saving)
+
+#### Raycasting
+While most of the methods in `ARViewModel` are short and very similar to their corresponding methods in `BoundingBox.swift`, we want to draw attention to two methods that use raycasting to update the bounding box, which are not represented in `BoundingBox.swift`. 
+
+These methods are:
+* `func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]`
+*Does not update rendering and manifest*
+* `func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame)`
+
+These methods make use of `arView.raycast` ([Swift documentation](https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:))):
+```
+func raycast(
+    from point: CGPoint,
+    allowing target: ARRaycastQuery.Target,
+    alignment: ARRaycastQuery.TargetAlignment
+) -> [ARRaycastResult]
+```
+We use raycast with tap gesture recognition to update the bounding box according to the physical environment. The `findFloorHeight` method uses `arView.raycast` with the location on the device's screen the user tapped on to send a ray from that location into the physical world. It will detect the intersections between the physical world and this ray and give the results in an array, where the elements are ordered from the [closest to the furthest](https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:)). We use the y position of the first element of the returned array as the height of the bounding box. This is done by calling the `BoundingBox.setFloor` function.
+
+The `raycast_bounding_box_center` method also uses `arView.raycast` to find the intersection between a ray sent from the user tapped location and the physical world. This time, the x,y,z position of the first/closest intersection is used to update the center of the bounding box using `BoundingBox.set_center_xy`. This method updates the `x` and `z` coordinates of the bounding box and sets the `y` coordinate to be half of the bounding box height above the floor. In effect, `raycast_bounding_box_center` teleports the bounding box to be centered at where the user tapped on the screen, while respecting the floor.
+
+We found that the Raycast functions are very intuitive. Specifically, `raycast_bounding_box_center` simplifies the task of repositioning the bounding box much more than manual translation. Since the raycast positions the center of the box at the intersection point, you can be confident that the bounding box properly overlaps with the object of interest. On the other hand, manually translating the box often makes it challenging to determine whether the box is merely in front of the object or actually enclosing it, due to issues with perspective.
 
 #### Rendering
+The rendering of the bounding box is handled in the `BoundingBox.swift` and `ARViewModel.swift` files.
+
+`BoundingBox.swift`
+Within `BoundingBox.swift`, rendering of the bounding box is structured into multiple helper functions that manage different aspects of the bounding box's appearance and behavior in a 3D or augmented reality environment. Key functions include:
+
+`createLine`:
+This function generates lines by thickening them into planes. Since RealityKit does not support rendering 1D objects, the lines are represented as very thin planes to make them visible. For each line, the function adjusts positions around the specified corners with a small thickness offset, effectively creating a plane. These are configured to ensure visibility from all viewing angles by duplicating and positioning the offset points counterclockwise.
+`createPlaneFromCorners`:
+To represent bounding box faces, this function takes corner points and creates plane surfaces. It compensates for the inability to render 1D objects by offsetting points slightly in 3D space, ensuring no dimension collapses to zero. The planes are slightly shrunk towards their centroid before rendering to distinguish edges and faces visually.
+`createBoundingBox`:
+Combines lines and planes to form a complete bounding box. It calculates the necessary descriptors for each face and line of the box, applies orientations, and ensures all components connect to form a coherent bounding structure.
 
 `createLine` to render the lines.
-`createSquare` -- pretty sure useless right?
 `createPlaneFromCorners` to render the planes
 `createBoundingBox`
 `addNewBoxToScene`
 
 ARViewModel
 `display_box`
-#### Updating
-
 
 
 #### Saving
