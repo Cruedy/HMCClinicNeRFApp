@@ -100,7 +100,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     }
     
     func set_center(new_center: [Float]) -> [Float] {
-        let center = boundingbox.set_center(new_center) // a bit of a misnomer rn this should be the actual position not offset
+        let center = boundingbox.set_center(new_center)
         display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
         return center
@@ -122,6 +122,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
     
     func extend_sides(offset: [Float]) -> ([Float], [Float]){
         let (center, scale) = boundingbox.extend_side(offset)
+        display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
         return (center, scale)
     }
@@ -133,18 +134,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
         return (center, scale)
     }
     
-//    func get_box_scale() -> [Float]{
-//        return boundingbox.scale;
-//    }
-//    
-//    func get_box_center() -> [Float]{
-//        return boundingbox.center;
-//    }
-//    
-//    func get_box_rotation() -> Float{
-//        return boundingbox.rot_y
-//    }
-    
     func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]{
         
         // Check if arView is not nil
@@ -152,12 +141,8 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
             print("arView is nil")
             return boundingbox.center
         }
-        
-        // Calculate the screen center
-//        let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
-        
+                
         // Perform the raycast
-//        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
         let raycastResults = arView.raycast(from: screenPoint, allowing: .estimatedPlane, alignment: .any)
 
         
@@ -171,7 +156,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
         let translation = hitResult.worldTransform * translationMatrix
         let userFocusPoint = SIMD3<Float>(translation.x, translation.y, translation.z)
 
-        let center = boundingbox.set_center_xy(newCenter: userFocusPoint)
+        let center = boundingbox.set_center_xz(newCenter: userFocusPoint)
         display_box(boxVisible: boxVisible)
         update_boundingbox_manifest()
         return center

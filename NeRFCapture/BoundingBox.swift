@@ -58,7 +58,6 @@ class BoundingBox {
     var plane_centers: [SIMD3<Float>] = [SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0), SIMD3<Float>(0.0, 0.0, 0.0)]
     var player: AVAudioPlayer?
     private var cameraRaysAndHitLocations: [(ray: Ray, hitLocation: SIMD3<Float>)] = []
-//    private var sceneView: ARSCNView
     
     // Initialize the bounding box with a center point
     init(center point: [Float]){
@@ -78,19 +77,8 @@ scale: \(scale)
 """)
     }
     
-//    struct VertexComponent: MeshComponent {
-//        var position: SIMD3<Float>
-//        var normal: SIMD3<Float>
-//        var uv: SIMD2<Float>
-//
-//        static var bufferIndex: MeshBufferIndex {
-//            MeshBufferIndex(vertices: Self.self)
-//        }
-//    }
-    
     func encode_as_json() -> BoundingBoxManifest
     {
-//        let bounding_box_center = BoundingBoxManifest.XYZ(x: center[0], y: center[1], z: center[2])
         let bounding_box_center = array_to_XYZ(array: self.center)
         let rad_rot_about_y = rot_y
         let bounding_box_positions = BoundingBoxManifest.Corners(top_left_front: array_to_XYZ(array: self.positions[0]),
@@ -590,7 +578,7 @@ scale: \(scale)
         return (center, scale)
     }
     
-    func set_center_xy(newCenter: SIMD3<Float>) -> [Float]
+    func set_center_xz(newCenter: SIMD3<Float>) -> [Float]
     {
         let y_center: Float
         if let floor = floor {
