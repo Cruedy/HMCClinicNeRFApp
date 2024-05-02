@@ -11,14 +11,10 @@ import RealityKit
 
 @available(iOS 17.0, *)
 struct BoundingBoxSMView: View {
-//    @ObservedObject var viewModel: ContentViewModel
     @StateObject private var viewModel: ARViewModel
     @EnvironmentObject var dataModel: DataModel
-    @Binding var path: NavigationPath // Add this line
+    @Binding var path: NavigationPath // unused
     @Binding var currentView: NavigationDestination
-
-
-    
     @State private var showSheet: Bool = false
     
     // controls the bounding box
@@ -32,6 +28,15 @@ struct BoundingBoxSMView: View {
     // help button
     @State private var showingInstructions = false
     
+    /**
+        Initializes a new instance of the `BoundingBoxSMView` view.
+
+        - Parameter viewModel: An instance of `ARViewModel` that will manage the augmented reality data and interactions.
+        - Parameter path: A binding to a `NavigationPath` object which tracks the navigation state within the app. This parameter is currently unused in this view.
+        - Parameter currentView: A binding to a `NavigationDestination` that tracks the current view in the navigation hierarchy.
+
+        Note: The `path` parameter is marked as unused and might be reserved for future routing enhancements or navigation controls.
+    */
     init(viewModel vm: ARViewModel, path: Binding<NavigationPath>, currentView: Binding<NavigationDestination>) {
         _viewModel = StateObject(wrappedValue: vm)
         _path = path
@@ -41,15 +46,18 @@ struct BoundingBoxSMView: View {
     @available(iOS 17.0, *)
     var body: some View {
         ZStack {
-
             // ARViewContainer with gesture recognizer
             ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture(coordinateSpace: .global) { location in
                     if let frame = viewModel.session?.currentFrame {
+                        
+                        // allows the user to tap to place box on the floor
                         if bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor{
                             viewModel.findFloorHeight(at: location, frame: frame)
                         }
+                        
+                        // used whenever the user can tap to reposition the box (including when placing on the floor)
                         if (bbox_placement_states == BoundingBoxPlacementStates.IdentifyFloor || bbox_placement_states == BoundingBoxPlacementStates.PlaceBox){
                             box_center = viewModel.raycast_bounding_box_center(at:location, frame: frame)
                         }
@@ -60,12 +68,15 @@ struct BoundingBoxSMView: View {
             VStack {
                 GeometryReader { geometry in
                     HStack {
+                        // Place a Summary UI in the top left of the screen.
                         BoxSummaryView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz)
                             .frame(width: min(max(geometry.size.width * 0.3, 150), 300)) // 30% of screen width, min 150, max 300
                         Spacer()
                     }
                 }
                 Spacer()
+                
+                // This is the main content and takes up most of the screen
                 self.content
                 
                 HelpButton {
@@ -82,31 +93,46 @@ struct BoundingBoxSMView: View {
         // --- Navigation Bar ---
         .navigationBarTitle("Create Bounding Box")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)  
-        // Prevents navigation back button from being shown
-
+        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
+        // --- Tool Bar ---
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//
+//            }
+//        }
     }
     
     
     @available(iOS 17.0, *)
     private var content: some View {
         switch bbox_placement_states {
+        
+        // first, let the user the bounding box on the floor
         case .IdentifyFloor: return  AnyView(IdentifyFloorView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible,
                                                                  box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))
+        
+        // secondly, let the user input the dimension of the box
         case .InputDimensions: return AnyView(InputDimensionsView(vm: viewModel, states: $bbox_placement_states, place_box_mode: $mode, boxVisible: $boxVisible,
                                                                   box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz))
+        
+        // lastly, let the user fine tune the box to fit the object as best as they can
         case .PlaceBox: return AnyView(PlaceBoxView(vm: viewModel, states: $bbox_placement_states,
                                                     place_box_mode: $mode, boxVisible: $boxVisible, box_center: $box_center, rotate_angle: $rotate_angle, slider_xyz: $slider_xyz, currentView: $currentView))
         }
       }
-    
 }  // End of BoundingBoxView
 
+// Enum used in switching between content
+enum BoundingBoxPlacementStates {
+    case IdentifyFloor
+    case InputDimensions
+    case PlaceBox
+}
 
+// unused
 @available(iOS 17.0, *)
 class BoundingBoxSMController<BoundingBoxSMView: View>: UIViewController {
     let boundingBoxSMView: BoundingBoxSMView
-//    let environmentObject: EnvironmentObject<DataModel>
     let dataModel: DataModel
     
     init(boundingBoxSMView: BoundingBoxSMView, dataModel: DataModel) {
@@ -136,34 +162,3 @@ class BoundingBoxSMController<BoundingBoxSMView: View>: UIViewController {
         hostingController.didMove(toParent: self)
     }
 }
-
-
-enum BoundingBoxPlacementStates {
-    case IdentifyFloor
-    case InputDimensions
-    case PlaceBox
-}
-
-@available(iOS 17.0, *)
-struct TestView: View {
-    @ObservedObject var viewModel: ARViewModel
-    init(vm: ARViewModel){
-        viewModel = vm
-    }
-    var body: some View {
-        VStack{
-            Spacer()
-            Text("hello")
-        }
-    }
-}
-
-//#if DEBUG
-//@available(iOS 17.0, *)
-//struct BoundingBoxSM_Previews : PreviewProvider {
-//    static var previews: some View {
-//        BoundingBoxSMView(viewModel: ARViewModel(datasetWriter: DatasetWriter(), ddsWriter: DDSWriter()), path: NavigationPath())
-//            .previewInterfaceOrientation(.portrait)
-//    }
-//}
-//#endif

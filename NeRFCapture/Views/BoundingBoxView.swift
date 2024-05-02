@@ -8,154 +8,50 @@
 import SwiftUI
 import ARKit
 import RealityKit
-//
-//struct BoundingBoxView: View {
-//    @StateObject private var viewModel: ARViewModel
-//    @StateObject var dataModel = DataModel()
-//    @State private var showSheet: Bool = false
-//    
-//    // controls the bounding box
-//    @State public var boxVisible: Bool = false
-//    @State public var box_center: [Float] = [0,0,0]
-//    @State public var rotate_angle: Float = 0
-//    @State public var slider_xyz: [Float] = [0.1,0.1,0.1]
-//    @State public var mode =  MovementModes.translate // start in the translate mode
-//    
-//    // help button
-//    @State private var showingInstructions = false
-//    
-//    init(viewModel vm: ARViewModel) {
-//        _viewModel = StateObject(wrappedValue: vm)
-//    }
-//    
-//    var body: some View {
-//        ZStack{
-//            ZStack(alignment: .topTrailing) {
-//                ARViewContainer(vm: viewModel, bv: $boxVisible, cet: $box_center, rot: $rotate_angle, slider: $slider_xyz).edgesIgnoringSafeArea(.all)
-//                VStack() {
-//                    ZStack() {
-//                        HStack() {  // HStack because originally showed Offline/Online mode
-//                            Spacer()
-//                            
-//                            // Shows mode is Offline
-//                            Picker("Mode", selection: $viewModel.appState.appMode) {
-//                                Text("Offline").tag(AppMode.Offline)
-//                            }
-//                            
-//                            // Pick bounding box mode
-//                            Picker("Translation Mode", selection: $mode) {
-//                                Text("Translate").tag(MovementModes.translate)
-//                                Text("Rotate").tag(MovementModes.rotate)
-//                                Text("Scale").tag(MovementModes.scale)
-//                                Text("Extend").tag(MovementModes.extend)
-//                                Text("Point Cloud").tag(MovementModes.pointCloud)
-//                            }
-//                            .frame(maxWidth: 200)
-//                            .padding(0)
-//                            .pickerStyle(.segmented)
-//                            .disabled(viewModel.appState.writerState
-//                                      != .SessionNotStarted)
-//    
-//                            Spacer()
-//                        }
-//                    }.padding(8)
-//                }
-//            }   // End of inner ZStack
-//            
-//            VStack {
-//                // Offline Mode
-//                if case .Offline = viewModel.appState.appMode {
-//                    VStack{
-//                        Spacer()
-//
-//                        HStack{
-//                            Spacer()
-//                            // TODO: Can probably move Create Bounding Box button out like the movement commands
-//                            Button(action: {
-//                                print("Before: \(boxVisible)")
-//                                boxVisible.toggle()
-//                                ActionManager.shared.actionStream.send(.display_box(boxVisible))
-//                                ActionManager.shared.actionStream.send(.set_center(box_center))
-//                                ActionManager.shared.actionStream.send(.set_angle(rotate_angle))
-//                                ActionManager.shared.actionStream.send(.set_scale(slider_xyz))
-//                                print("After: \(boxVisible)")
-//                            }) {
-//                                Text("Create Bounding Box")
-//                                    .padding(.horizontal,20)
-//                                    .padding(.vertical, 5)
-//                            }
-//                            .buttonStyle(.bordered)
-//                            .buttonBorderShape(.capsule)
-//                        }
-//                        
-//                        HStack{
-//                            if mode == MovementModes.translate{
-//                                MovementControlsView(center: $box_center, vm: viewModel)
-//                            }
-//                            else if mode == MovementModes.rotate{
-//                                RotateControlsView(angle: $rotate_angle, vm: viewModel)
-//                            }
-//                            else if mode == MovementModes.scale{
-//                                ScaleControlsView(xyz: $slider_xyz, vm: viewModel)
-//                            }
-//                            else if mode == MovementModes.extend{
-//                                ExtendControlsView(center: $box_center, xyz: $slider_xyz, vm: viewModel)
-//                            }
-//                            else if mode == MovementModes.pointCloud{
-//                                PointCloudControlsView(vm: viewModel)
-//                            }
-//                        }
-//                    }
-//                }
-//                HelpButton {
-//                    showingInstructions = true
-//                }
-//                .sheet(isPresented: $showingInstructions) {
-//                    VStack {
-//                        InstructionsView()
-//                    }
-//                }
-//            }  // End of inner VStack
-//            .padding()
-//            
-//        } // End of main ZStack
-//        .preferredColorScheme(.dark)
-//        // --- Navigation Bar ---
-//        .navigationBarTitle("Create Bounding Box")
-//        .navigationBarTitleDisplayMode(.inline)
-//        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-//        // --- Tool Bar ---
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel)).environmentObject(dataModel) // Link to Taking Images View
-//                                .navigationViewStyle(.stack)
-//            }
-//        }
-//        
-//    }  // End of body
-//}  // End of BoundingBoxView
+
+enum MovementModes {
+    case translate
+    case rotate
+    case scale
+    case extend
+    case pointCloud
+}
 
 @available(iOS 17.0, *)
 struct MovementControlsView : View
     {
         @ObservedObject var viewModel: ARViewModel
         @Binding var box_center: [Float]
+    
+        /**
+        A view for translating the bounding box.
+         
+        - Parameter center: A binding to an array of floats representing the x,y,z coordinates of the center of the box.
+        - Parameter vm: The ARViewModel that holds the `BoundingBox` object and methods for updating it.
+         */
         init(center: Binding<[Float]>, vm: ARViewModel){
             _box_center = center
             viewModel = vm
         }
+    
         var body: some View {
             VStack{
                 Spacer()
+                
+                // Each Button updates the bounding box in one direction, relative to the camera. There are 6 in total.
+                
                 // Start of left right forward back
                 Button(action: {
                     print("move forward")
+                    
+                    // Notice here we make adjustments so that movements are not axis aligned to the world coordinates but the camera's local reference view.
                     let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     box_center = [box_center[0]+0.1*sin(-1*camera_angle!), box_center[1], box_center[2]-0.1*cos(-1*camera_angle!)]
-//                    ActionManager.shared.actionStream.send(.set_center(box_center))
+                    
+                    // Calls a helper function in viewModel to update the box, and also updates the state with the return value.
                     box_center = viewModel.set_center(new_center: box_center)
                 }) {
-                    Text("Forward (-Z)")
+                    Text("Forward")
                         .padding(.horizontal,20)
                         .padding(.vertical, 5)
                 }
@@ -167,10 +63,9 @@ struct MovementControlsView : View
                         print("move left")
                         let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                         box_center = [box_center[0]-0.1*cos(-1*camera_angle!), box_center[1], box_center[2]-0.1*sin(-1*camera_angle!)]
-//                        ActionManager.shared.actionStream.send(.set_center(box_center))
                         box_center = viewModel.set_center(new_center: box_center)
                     }) {
-                        Text("Left (-X)")
+                        Text("Left")
                             .padding(.horizontal,20)
                             .padding(.vertical, 5)
                     }
@@ -181,10 +76,9 @@ struct MovementControlsView : View
                         print("move right")
                         let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                         box_center = [box_center[0]+0.1*cos(-1*camera_angle!), box_center[1], box_center[2]+0.1*sin(-1*camera_angle!)]
-//                        ActionManager.shared.actionStream.send(.set_center(box_center))
                         box_center = viewModel.set_center(new_center: box_center)
                     }) {
-                        Text("Right (+X)")
+                        Text("Right")
                             .padding(.horizontal,20)
                             .padding(.vertical, 5)
                     }
@@ -196,10 +90,9 @@ struct MovementControlsView : View
                     print("move Back")
                     let camera_angle = viewModel.arView?.session.currentFrame?.camera.eulerAngles.y
                     box_center = [box_center[0]-0.1*sin(-1*camera_angle!), box_center[1], box_center[2]+0.1*cos(-1*camera_angle!)]
-//                    ActionManager.shared.actionStream.send(.set_center(box_center))
                     box_center = viewModel.set_center(new_center: box_center)
                 }) {
-                    Text("Back (+Z)")
+                    Text("Back")
                         .padding(.horizontal,20)
                         .padding(.vertical, 5)
                 }
@@ -214,10 +107,9 @@ struct MovementControlsView : View
                 Button(action: {
                     print("move up")
                     box_center = [box_center[0], box_center[1]+0.1, box_center[2]]
-//                    ActionManager.shared.actionStream.send(.set_center(box_center))
                     box_center = viewModel.set_center(new_center: box_center)
                 }) {
-                    Text("Up (+Y)")
+                    Text("Up")
                         .padding(.horizontal,20)
                         .padding(.vertical, 5)
                 }
@@ -227,10 +119,9 @@ struct MovementControlsView : View
                 Button(action: {
                     print("move down")
                     box_center = [box_center[0], box_center[1]-0.1, box_center[2]]
-//                    ActionManager.shared.actionStream.send(.set_center(box_center))
                     box_center = viewModel.set_center(new_center: box_center)
                 }) {
-                    Text("Down (-Y)")
+                    Text("Down")
                         .padding(.horizontal,20)
                         .padding(.vertical, 5)
                 }
@@ -245,6 +136,13 @@ struct MovementControlsView : View
 struct RotateControlsView : View {
     @ObservedObject var viewModel: ARViewModel
     @Binding var rotate_angle: Float
+    
+    /**
+     A view for updating the angle of the bounding box, rotated about the y-axis (rotation parallel to the ground plane).
+     
+     - Parameter angle: a binding to a float representing the angle about the y-axis that is in radian
+     - Parameter vm: The ARViewModel that holds the `BoundingBox` object and methods for updating it.
+     */
     init(angle: Binding<Float>, vm: ARViewModel){
         _rotate_angle = angle
         viewModel = vm
@@ -257,6 +155,8 @@ struct RotateControlsView : View {
 
         ).onChange(of: rotate_angle) {new_angle in
             print(new_angle)
+            
+            // updates the angle of the box using the viewModel and also update the value of rotate_angle
             rotate_angle = viewModel.set_angle(new_angle: new_angle)
         }.padding(15)
         Text("\(rotate_angle, specifier: "angle (degrees): %.2f")")
@@ -267,6 +167,13 @@ struct RotateControlsView : View {
 struct ScaleControlsView : View {
     @ObservedObject var viewModel: ARViewModel
     @Binding var slider_xyz: [Float]
+    
+    /**
+    A view for changing the dimension of each side of the bounding box.
+     
+    - Parameter center: A binding to an array of floats representing the x,y,z dimension of the box.
+    - Parameter vm: The ARViewModel that holds the `BoundingBox` object and methods for updating it.
+     */
     init(xyz: Binding<[Float]>, vm: ARViewModel){
         _slider_xyz = xyz
         viewModel = vm
@@ -274,10 +181,12 @@ struct ScaleControlsView : View {
     
     var body: some View{
         Slider(
-            value: $slider_xyz[0],
+            value: $slider_xyz[0], // the 0th element is the dimension of the x along the x axis
             in: 0...5,
             step: 0.1
         ).onChange(of: slider_xyz) {new_scale in
+            
+            // Here the dimension of the box along the x axis is updated.
             slider_xyz = viewModel.set_scale(new_scale: slider_xyz)
         }
         Text("\(slider_xyz[0], specifier: "X: %.2f m")")
@@ -303,6 +212,9 @@ struct ScaleControlsView : View {
     }
 }
 
+/**
+    Creates a button that repeats an action if the user holds it down.
+ */
 struct PressAndHoldButton: View {
     @State private var timer: Timer?
     @State var isLongPressing = false
@@ -349,6 +261,14 @@ struct ExtendControlsView : View {
     @Binding var slider_xyz: [Float]
     @Binding var box_center: [Float]
 
+    /**
+     A view for expanding and shrinking each face of the bounding box individually. This view differs from the `ScaleControlView` in that `ScaleControlView` will extend both ends of an edge to fit the new length, but
+     `ExtendControlsView` will only extend/shrink one end of an edge to fit the new length.
+     
+     - Parameter center: A binding to an array of floats representing the center of the box.
+     - Parameter xyz: A binding to an array of floats representing the scale of the box.
+     - Parameter vm: The ARViewModel that holds the `BoundingBox` object and methods for updating it.
+     */
     init(center: Binding<[Float]>, xyz: Binding<[Float]>, vm: ARViewModel){
         viewModel = vm
         _slider_xyz = xyz
@@ -358,6 +278,7 @@ struct ExtendControlsView : View {
         HStack{
             VStack{
                 Spacer()
+                // Calls the `viewModel.extend_sides` function to expand the box in an axis aligned manner
                 Text("Extend Side")
                 PressAndHoldButton(action:{
                     (box_center, slider_xyz) = viewModel.extend_sides(offset: [0,0,-0.1])
@@ -397,6 +318,7 @@ struct ExtendControlsView : View {
     }
 }
 
+// Unused
 @available(iOS 17.0, *)
 struct PointCloudControlsView: View {
     @ObservedObject var viewModel: ARViewModel
@@ -415,13 +337,7 @@ struct PointCloudControlsView: View {
         }
     }
 }
-enum MovementModes {
-    case translate
-    case rotate
-    case scale
-    case extend
-    case pointCloud
-}
+
 
 //#if DEBUG
 //struct BoundingBox_Previews : PreviewProvider {

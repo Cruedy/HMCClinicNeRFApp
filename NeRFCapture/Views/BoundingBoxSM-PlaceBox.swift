@@ -31,7 +31,17 @@ struct PlaceBoxView : View {
     @Binding public var rotate_angle: Float
     @Binding public var slider_xyz: [Float]
 
-    
+    /**
+     Initializes a new instance of the `BoundingBoxSMView-PlaceBox` view. It is a helper for `BoundingBoxSMView`. This view allows the user to finetune the position, rotation, and scale of the box.
+
+     - Parameter vm: An instance of `ARViewModel` that will manage the augmented reality data and interactions.
+     - Parameter states: A binding to `BoundingBoxPlacementStates` used to change to change the content in BoundingBoxSMView.
+     - Parameter place_box_mode: A binding to a `MovementModes` enum.
+     - Parameter boxVisible: A binding to track the visibility of the box throughout Boundingbox interactions
+     - Parameter box_center: A binding to track the center coordinate of the box (x,y,z) throughout
+     - Parameter rotate_angle: A binding to track the angle of the box (degrees) throughout
+     - Parameter slider_xyz: A binding to track the dimension of the box (along x,y,z axis) throughout
+    */
     init( vm: ARViewModel, states: Binding<BoundingBoxPlacementStates>, place_box_mode: Binding<MovementModes>,
           boxVisible: Binding<Bool>, box_center: Binding<[Float]>, rotate_angle: Binding<Float>, slider_xyz: Binding<[Float]>, currentView: Binding<NavigationDestination>){
             viewModel = vm
@@ -42,14 +52,12 @@ struct PlaceBoxView : View {
             _rotate_angle = rotate_angle
             _slider_xyz = slider_xyz
             _currentView = currentView
+        
+        // updates the bounding box location upon creating this view.
         viewModel.display_box(boxVisible: boxVisible.wrappedValue)
         viewModel.set_center(new_center: box_center.wrappedValue)
         viewModel.set_angle(new_angle: rotate_angle.wrappedValue)
         viewModel.set_scale(new_scale: slider_xyz.wrappedValue)
-//        ActionManager.shared.actionStream.send(.display_box(boxVisible.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_center(box_center.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_angle(rotate_angle.wrappedValue))
-//        ActionManager.shared.actionStream.send(.set_scale(slider_xyz.wrappedValue))
         }
     
     
@@ -60,13 +68,12 @@ struct PlaceBoxView : View {
                     ZStack() {
                         HStack() {  // HStack because originally showed Offline/Online mode
                             Spacer()
-                            // Pick bounding box mode
+                            // Pick bounding box controls mode
                             Picker("Translation Mode", selection: $place_box_mode) {
                                 Text("Translate").tag(MovementModes.translate)
                                 Text("Rotate").tag(MovementModes.rotate)
                                 Text("Scale").tag(MovementModes.scale)
                                 Text("Extend").tag(MovementModes.extend)
-//                                Text("Point Cloud").tag(MovementModes.pointCloud)
                             }
                             .frame(maxWidth: 200)
                             .padding(0)
@@ -76,25 +83,26 @@ struct PlaceBoxView : View {
                         }
                     }.padding(8)
                 }
-            }   // End of inner ZStack
+            }
             
             VStack {
-                // Offline Mode
                     VStack{
                         Spacer()
                         GeometryReader { geometry in
                             Text("Tap on the screen to reposition the box. Use the buttons to translate, rotate, and expand/shrink the box.")
-                                .font(.title) // Sets the font type to title style.
-                                .fontWeight(.bold) // Makes the font bold.
-                                .foregroundColor(.white) // Sets the text color to white.
-                                .padding() // Adds padding around the text.
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding()
                                 .frame(width: geometry.size.width, height: geometry.size.height * 0.20) // Sets the height to 20% of the screen.
-                                .background(Color.blue.opacity(0.5)) // Sets the background color to blue with 50% transparency.
-                                .multilineTextAlignment(.center) // Aligns text to the center of its container.
-                                .lineLimit(nil) // Allows the text to wrap to multiple lines if needed.
+                                .background(Color.blue.opacity(0.5))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(nil)
                                 .minimumScaleFactor(0.5) // Allows the font size to scale down if the text exceeds the frame bounds.
                         }
                         .edgesIgnoringSafeArea(.all) // Ensures the view extends to the edges of the display.
+                        
+                        // Updates the controls between translating the box, rotating the box, and scaling and extending the box
                         HStack{
                             if place_box_mode == MovementModes.translate{
                                 MovementControlsView(center: $box_center, vm: viewModel)
@@ -105,13 +113,13 @@ struct PlaceBoxView : View {
                             else if place_box_mode == MovementModes.scale{
                                 ScaleControlsView(xyz: $slider_xyz, vm: viewModel)
                             }
+                            
                             else if place_box_mode == MovementModes.extend{
                                 ExtendControlsView(center: $box_center, xyz: $slider_xyz, vm: viewModel)
                             }
-//                            else if place_box_mode == MovementModes.pointCloud{
-//                                PointCloudControlsView(vm: viewModel)
-//                            }
                         }
+                        
+                        // Moves to the user to a totally new view. `takingImagesView` allows users to collect image data with guidance.
                         Button("Complete Bounding Box") {
                             currentView = .takingImagesView
                         }
