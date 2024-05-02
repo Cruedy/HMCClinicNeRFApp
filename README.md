@@ -132,12 +132,15 @@ Follow this guide to get the project in your xcode:
 [Xcode Repo Tutorial](https://developer.apple.com/documentation/xcode/configuring-your-xcode-project-to-use-source-control#Get-a-project-from-a-remote-repository)
 <br>
 Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the traingle-shaped button in the top left.
+
+## File Directory Overview
+
 ## Breaking Down the Code
+
 ### Intro Instructions View
 #### Instructions View
 This area just contains text that is stored in 2 lists of strings. One list contains a list of instructions on taking images, and the other list contains a list of best practices for getting quality images
 
-### File Directory Overview
 
 #### Intro Instructions View
 This contains the *Instructions View* and the *Start Project Button*. When the *Start Project Button* is pressed, an alert is created. This alert contains a submit button, which takes the user to the *BoundingBoxSMView*
@@ -175,3 +178,79 @@ Therefore, it is important for use the return values of the viewModel to update 
 
 The final implementation detail of this state is switching between different modes. To switch between modes 2 - 5, a `Picker` UI is used to pick values of an Enum `MovementModes`. The UI to display is controls using a series of `if` statements. Mode 1 is always active, so the user can always tap to teleport the bounding box.
 
+#### Taking Images View
+
+
+
+#### Image Gallery View
+
+
+#### Send to Server View
+The goal of this view is to send data to and from the server (`http://osiris.cs.hmc.edu:15002/`). The following endpoints are used.
+| Server Endpoint              | Purpose |
+| :---------------- | :------ |
+| `/status`        |   GET server status   |
+| `/upload_device_data`    |  POST all data (in zip) and splatt name; starts rendering  |
+| `/download_video/{splatt_name}`           |   GET rendered preview video   |
+| `/get_webviewer_link/{splatt_name}` |  GET detailed view website link   |
+
+These are standard endpoints and you can interface with them in manys ways. Here is how we do it in the app using helper functions that internally call `URLSession.shared.dataTask`:
+* `/status`
+```
+let urlString = "http://osiris.cs.hmc.edu:15002/status"
+makeGetRequest(urlString: urlString) { data, response, error in
+    pollServerStatus(data: data, response: response, error: error)
+}
+```
+* `/upload_device_data`
+```
+let urlString = "http://osiris.cs.hmc.edu:15002/upload_device_data"
+let directoryPath = viewModel.datasetWriter.projectDir
+let zipPath = convertDirectoryPathToZipPath(directoryPath: directoryPath.absoluteString)
+uploadZipFile(urlString: urlString, zipFilePath: URL(string: zipPath)!, splatName: viewModel.datasetWriter.projectName)
+```
+* `/download_video/{splatt_name}`
+```
+let videoUrlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projName)"
+downloadVideo(urlString: videoUrlString, splatName: viewModel.datasetWriter.projName)
+```
+* `get_webviewer_link/{splatt_name}`
+```
+let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
+getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWriter.projName) { url, error in
+    if let error = error {
+        print("Error fetching URL: \(error.localizedDescription)")
+    } else if let url = url {
+        print("Web Viewer URL: \(url)")
+        // saves the url
+        viewModel.datasetWriter.webViewerUrl = url
+    }
+}
+```
+
+Functionally, this view is quite simple. The app continuously polls the `/status` endpoint every `1s` (can be configured) and prints the server status at the top of the screen. The user can press a button called "Begin Rendering" to post the zip file containing all the app data (boundingbox.json, images, etc) with ` viewModel.datasetWriter.projName` as the splatt name to the server. This triggers all rendering steps on the server, starting with preprocessing and ending with generating the preview video. While the server is working, the app's status message will track the progress every `1s`. After checking the status and detecting the status as `rendering_ended`, the app will automatically send GET requests to `/download_video/{splatt_name}` and  `get_webviewer_link/{splatt_name}` to get the preview video and url. Here, there is the assumption that both the preview video and webviewer_link are available when rendering ends, which is currently true. The preview video will be saved at `NeRF Capture/{splatt_name}.mp4` in the file directory, and the url will be saved within the `viewModel` object (`viewModel.datasetWriter.webViewerUrl`).
+
+#### Video View
+The goal of this view is to relay information from the server to the user. It plays the preview video saved at `NeRF Capture/{splatt_name}.mp4`, has a clickable link leading to the url saved at `viewModel.datasetWriter.webViewerUrl`. Finally, the user can on a button called "Return to Start" to return to the `IntroInstructionView`. Since there is no current way to view data from another session, returning to the start will be treated as an entirely new session. Also note that this functionality is currently bugged, specifically, on the second run, whil image data is saved to a project bearing the project name of the new session, the `SendImagesToServerView` and `VideoView` sometimes still use the name of the initial project. More on this in the [bugs section](#Known-Bugs).
+
+
+### Bounding Box
+#### Parameters
+
+#### Rendering
+
+`createLine` to render the lines.
+`createSquare` -- pretty sure useless right?
+`createPlaneFromCorners` to render the planes
+`createBoundingBox`
+`addNewBoxToScene`
+
+ARViewModel
+`display_box`
+#### Updating
+
+
+
+#### Saving
+
+## Known Bugs
