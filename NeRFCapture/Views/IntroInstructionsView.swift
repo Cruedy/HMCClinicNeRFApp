@@ -89,18 +89,13 @@ struct IntroInstructionsView: View {
             .buttonBorderShape(.capsule)
             
             // Programmatically activated NavigationLink
-//            NavigationLink("", destination: BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel), isActive: $shouldNavigate)
         }
         .alert("Create Project Name", isPresented: $isAlertShown) {
             TextField("Enter Title", text: $projectName).foregroundColor(.green)
             Button("Cancel", role: .cancel) { }
             Button("Submit") {
                 viewModel.datasetWriter.projName = projectName
-                print(viewModel.datasetWriter.projName)
-//                shouldNavigate = true // Triggers navigation
                 currentView = .boundingBoxSMView
-
-//                path.append(BoundingBoxSMView(viewModel: viewModel, path: $path).environmentObject(dataModel))
 
             }
         } message: {

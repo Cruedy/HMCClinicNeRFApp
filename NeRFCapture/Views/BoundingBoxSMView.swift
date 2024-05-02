@@ -76,43 +76,15 @@ struct BoundingBoxSMView: View {
                         InstructionsView()
                     }
                 }
-//                Button("Back to intro") {
-//                    currentView = .introInstructionsView
-//                }
-//                    .padding(.horizontal,20)
-//                    .padding(.vertical, 5)
-//                    .buttonStyle(.bordered)
-//                    .buttonBorderShape(.capsule)
-                
-//                Button("Complete Bounding Box") {
-//                    currentView = .takingImagesView
-//                }
-//                    .padding(.horizontal,20)
-//                    .padding(.vertical, 5)
-//                    .buttonStyle(.bordered)
-//                    .buttonBorderShape(.capsule)
-                
-//                NavigationLink("Complete Bounding Box", destination: TakingImagesView(viewModel: viewModel, path: $path).environmentObject(dataModel)).navigationViewStyle(.stack)
-//                    .padding(.horizontal,20)
-//                    .padding(.vertical, 5)
-//                    .buttonStyle(.bordered)
-//                    .buttonBorderShape(.capsule)
-//                if bbox_placement_states == BoundingBoxPlacementStates.PlaceBox{
-//                    NavigationLink("Next", destination: TakingImagesView(viewModel: viewModel).environmentObject(dataModel)).navigationViewStyle(.stack)
-//                }
             }
         }
         .preferredColorScheme(.dark)
         // --- Navigation Bar ---
         .navigationBarTitle("Create Bounding Box")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)  // Prevents navigation back button from being shown
-        // --- Tool Bar ---
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//
-//            }
-//        }
+        .navigationBarBackButtonHidden(true)  
+        // Prevents navigation back button from being shown
+
     }
     
     
@@ -150,7 +122,6 @@ class BoundingBoxSMController<BoundingBoxSMView: View>: UIViewController {
         super.viewDidLoad()
         
         // Embed the SwiftUI view within a UIHostingController
-//        let hostingController = UIHostingController(rootView: boundingBoxSMView.environmentObject(dataModel))
         let hostingController = UIHostingController(rootView: boundingBoxSMView)
         
         // Add the hosting controller as a child of this view controller
