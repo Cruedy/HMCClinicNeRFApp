@@ -137,16 +137,40 @@ Once the repository is cloned into your xcode, set the device that you want to r
 
 ## Breaking Down the Code
 
+### Switching Between Views
+All user facing code is contained in various [`Views`](https://developer.apple.com/documentation/swiftui/view). Before discussing the views of our app, we will first explain how the app decides which `View` to display.
+
+The foundation for switching between views is implemented in the `ContentView.swift` file. The key is the `NavigationStack` and the switch statement inside of the Stack. The relavant code is below:
+```
+@State private var currentView: NavigationDestination = .introInstructionsView
+
+enum NavigationDestination: Hashable {
+    case introInstructionsView
+    case boundingBoxSMView
+}
+
+NavigationStack {
+            switch currentView {
+            case .introInstructionsView:
+                IntroInstructionsView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            case .boundingBoxSMView:
+                BoundingBoxSMView(viewModel: viewModel, path: $path, currentView: $currentView).environmentObject(dataModel)
+            ...
+            }
+}
+```
+The view being displayed is decided by the value of the currentView parameter. We pass a binding to this variable to every view, so that each view can update this variable and decide the next view the user sees. This is as simple as `currentView = .boundingBoxSMView` to switch from the `IntroInstructionsView` to `BoundingBoxSMView`. To add a new view, simply add a new value to the `NavigationDestination` enum and complete the switch statement for the new value of `NavigationDestination`.
+
+
 ### Intro Instructions View
 #### Instructions View
 This area just contains text that is stored in 2 lists of strings. One list contains a list of instructions on taking images, and the other list contains a list of best practices for getting quality images
 
-
 #### Intro Instructions View
 This contains the *Instructions View* and the *Start Project Button*. When the *Start Project Button* is pressed, an alert is created. This alert contains a submit button, which takes the user to the *BoundingBoxSMView*
 
-#### Bounding Box SM View
-This contains all the user-facing code for placing and editing the bounding box. The "SM" in the name stands for state machine, and this view consists of three states -- `IdentifyFloor`, `InputDimensions`, and `PlaceBox`. Each state will render within the `BoundingBoxSMView` their own view `IdentifyFloorView`, `InputDimensionsView`, and `PlaceBoxView` (Link to code). To switch between views, change `BoundingBoxSMView.content` to one of the statements. For example, to rendering `IdentityFloor` do `BoundingBoxSMView.content = BoundingBoxPlacementStates.IdentifyFloor`.
+### Bounding Box State Machine View
+ `BoundingBoxSMView.swift`, its related files  `BoundingBoxSMView-*.swift`, and the `BoundingBoxSMView.swift` contains all the user-facing code for placing and editing the bounding box. The UI consists of three states -- `IdentifyFloor`, `InputDimensions`, and `PlaceBox`. Each state will render within the `BoundingBoxSMView` their own view `IdentifyFloorView`, `InputDimensionsView`, and `PlaceBoxView`. To switch between views, change `BoundingBoxSMView.content` to one of the states. For example, to rendering `IdentityFloor`, do `BoundingBoxSMView.content = BoundingBoxPlacementStates.IdentifyFloor`.
 
 The states are rendered in the order of `IdentifyFloor` -> `InputDimensions` -> `PlaceBox`:
 
@@ -178,21 +202,7 @@ Therefore, it is important for use the return values of the viewModel to update 
 
 The final implementation detail of this state is switching between different modes. To switch between modes 2 - 5, a `Picker` UI is used to pick values of an Enum `MovementModes`. The UI to display is controls using a series of `if` statements. Mode 1 is always active, so the user can always tap to teleport the bounding box.
 
-#### Taking Images View
-
-##### Buttons 
-###### Begin Capture
-Appear when the image taking session is in the `.sessionNotStarted` state. The various states are defined in the *SessionState* enum in the **
-###### Pause Automatic Capture
-###### Continue Automatic Capture
-###### View Gallery
-
-##### Image Tracking
-
-##### Velocity Tracking
-
-##### Automatic Capture##### Grid Item
-Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
+### Taking Images View 
 
 ##### Buttons 
 ###### Begin Capture
@@ -222,7 +232,7 @@ Appears when the image taking session is in the `.SessionPaused` state. The vari
 
 This button will call `startAutomaticCapture()` and `trackVelocity()` which were previously defined. It will also set the SessionState to `.SessionStarted`.
 
-###### View Gallery
+<!-- ###### View Gallery
 Appears no matter what the session state is. 
 
 This button will call `finalizeSession()` from the `datasetWriter` class. This will add the transforms and bounding box files to the project directory. 
@@ -233,8 +243,11 @@ This button will call `finalizeSession()` from the `datasetWriter` class. This w
 
 The `currentView` is then switched to the `.gridView`.
 
+##### Grid Item
+Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
+
 ##### Image Tracking
-This is done using a `currentFrameCounter` which increases every time a frame is written to the disk. 
+This is done using a `currentFrameCounter` which increases every time a frame is written to the disk.  -->
 
 ##### Image Distribution
 The code for this can be found in the `side()` function inside of the `ARView` class.
@@ -268,7 +281,7 @@ if progress == 1.0 {
 ```
 As you can see the text has the same position and orientation as the bounding box face that it replaces. The `boundingbox.plane_cneters` and `boundingbox.plane_orientations` are created in the `BoundingBox` class when the box is first created. They are both created by the locations of the corners of the bounding box.
 
-#### Image Gallery View
+### Image Gallery View
 ##### Butttons
 ###### Delete Images
 Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` buttton which takes the user back to the grid view.
@@ -279,7 +292,7 @@ Appears when the user first enters the grid view. This button switches the `curr
 ###### Finalize Dataset
 Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causign the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
 
-#### Send to Server View
+### Send to Server View
 The goal of this view is to send data to and from the server (`http://osiris.cs.hmc.edu:15002/`). The following endpoints are used.
 | Server Endpoint              | Purpose |
 | :---------------- | :------ |
@@ -324,7 +337,7 @@ getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWrite
 
 Functionally, this view is quite simple. The app continuously polls the `/status` endpoint every `1s` (can be configured) and prints the server status at the top of the screen. The user can press a button called "Begin Rendering" to post the zip file containing all the app data (boundingbox.json, images, etc) with ` viewModel.datasetWriter.projName` as the splatt name to the server. This triggers all rendering steps on the server, starting with preprocessing and ending with generating the preview video. While the server is working, the app's status message will track the progress every `1s`. After checking the status and detecting the status as `rendering_ended`, the app will automatically send GET requests to `/download_video/{splatt_name}` and  `get_webviewer_link/{splatt_name}` to get the preview video and url. Here, there is the assumption that both the preview video and webviewer_link are available when rendering ends, which is currently true. The preview video will be saved at `NeRF Capture/{splatt_name}.mp4` in the file directory, and the url will be saved within the `viewModel` object (`viewModel.datasetWriter.webViewerUrl`).
 
-#### Video View
+### Video View
 The goal of this view is to relay information from the server to the user. It plays the preview video saved at `NeRF Capture/{splatt_name}.mp4`, has a clickable link leading to the url saved at `viewModel.datasetWriter.webViewerUrl`. Finally, the user can on a button called "Return to Start" to return to the `IntroInstructionView`. Since there is no current way to view data from another session, returning to the start will be treated as an entirely new session. Also note that this functionality is currently bugged, specifically, on the second run, whil image data is saved to a project bearing the project name of the new session, the `SendImagesToServerView` and `VideoView` sometimes still use the name of the initial project. More on this in the [bugs section](#Known-Bugs).
 
 
@@ -352,7 +365,12 @@ class BoundingBox {
 }
 ```
 
-image of axis
+<br>
+<img src="docs/assets_readme/arkit-axis.PNG" height="342"/>
+    <figcaption>
+    By default, Y is vertical. X and Z are horizontal.
+    </figcaption>
+<br>
 
 The shape and location of the bounding box is determined by the `center`, `scale`, `rot_y`, `floor` parameters. Using these four parameters, the `pos_from_center` function calculates each of the twelve corners of the bounding box, which is stored in the `positions` parameter. 
 
@@ -481,7 +499,6 @@ The Bounding Box is not only used by the app for user feedback but also used on 
 
 As usual, `BoundingBox.swift` implements the low level conversion from bounding box parameters to an object of the `BoundingBoxManifest` type within the `encode_as_json` function. `ARViewModel.swift` implements the `update_boundingbox_manfiest` function saves the current manifest to `datsetWriter.boundingBoxManifest` whenever user inputs changes the properties of the box. Finally, `DatasetWriter.swift` implements the `finalizeSession` function which uses the `JSONEncoder` to save the bounding box to `NeRF Capture/{projectName}/boundingbox.json`, which will later be zipped up and ready to send to the server when the user clicks on the "Finalize Dataset" button in the `GalleryView`.
 
-#### Switching Between Views
 
 ## Known Bug
 1. The `VideoView` does not reliably play the video depsite the video appears to be saved at `NeRF Capture/{splatt_name}.mp4` in the files app. Otherwise, the video will appear once but quickly disappear. In these cases, we often see the error message "Could not zip" which can be traced back to the `finalizeProject` function. We started seeing this error after combining the zipping step and proceeding to the `SendImagesToServerView` inside the same button in the `GridView`. Since then, we separated the logic into one "Finalize Dataset" button and another "Send Data to Server" button. Now, the video does not disappear after appearing, but could still not show the video at all. Since we encountered this error right before code freeze, we were able not able to fully investigate it. However, the way forward would likely be programmatically seeing if the video exists at `NeRF Capture/{splatt_name}` when the user is in the `VideoView` view. 
@@ -497,17 +514,13 @@ The text on the top and bottom faces of the bounding box doesn't rotate based on
 
 ## Pitfalls
 While developing the app, we faced several pitfalls we want to share.
+1. To switch between views of the app, we initially used `NavigationLink`. This became a problem when we wanted to skip between multiple views. We attempted to use a `NavigationPath` object to pragrammatically control the views on the `NavigationStack` object as described [here](https://developer.apple.com/documentation/swiftui/navigationstack#Navigate-to-different-view-types). However, we were not able to use this combination to skip to an arbitrary view. Instead, we went with a custom solution described [in the Switching Between Views section](#Switching-Between-Views).
 
-1. Changing Between Views: 
-2. Use of ActionManager to call functions in the ViewModel
+2. Our app is built upon an open sourced project called "NeRF Capture." When we were first exploring how to call methods in the `ARViewModel.swift` file from Views, we stumbled on Swift's `PassthroughSubject`. Using `PassthroughSubject`, one can setup a publisher-subscriber network. In our case, the Views would be the publisher, and the `ARViewModel` would be the subscriber, performing the neccessary actions. We realized later that returning a value from a subcriber to a View is complicated. Afterwards, we simply called methods in the `ARViewModel` class directly. In hindsight, this should have been the obvious thing to do.
 
 ## Future Work
-Besides fixing the bugs, future directions for the app includes
-1. Spltting the bounding box plane into smaller planes, so that 
-2. 
-
-- Should prob make it into an environment model instead of view model
-Make the input dimension accept any values
-Convert calculations in the BoundingBox.swift into simd
-Noticed that set_center_xy is a misnomer afterwards, 
-
+Besides fixing the bugs, future directions for the app includes:
+1. Spltting the bounding box plane into smaller planes, so that each subplane can have their own color. This will give the user more feedback on the distribution of images already captured. Another idea is to try a more circular shape to provide feedback on the distrbution. This can better convey the distribution of angles captured.
+2. Update the `InputDimensionsView` to let users input values in a textbox rather than a slider. This will give the users more finegrain control.
+3. Reimplement any calculations in the `BoundingBox.swift` file to use [`simd` types](https://developer.apple.com/documentation/accelerate/simd). These types are more efficient.
+4. In conjunction with the server, add more server states. We noticed that uploading the zip file containing images can take a long time, so more states to indicate to the user that *something is happening* on the server will improve usability.
