@@ -286,23 +286,23 @@ class BoundingBox {
 }
 ```
 
-The shape and location of the Bounding Box is determined by the the combination of `center`, `scale`, `rot_y`, and `floor` parameters. Using these four parameters, the `pos_from_center` function calculates each of the twelve corners of the bounding box, which is stored in the `positions` parameter.
+The shape and location of the Bounding Box is determined by the the combination of `center`, `scale`, `rot_y`, and `floor` parameters. Using these four parameters, the `pos_from_center` function calculates each of the positions of the twelve corners of the bounding box, which is stored in the `positions` parameter.
 
 _Here is an example calculation for the top-left-front corner:_
 
 1. Define the Corner: Before transformation, the top-left-front corner in local coordinates relative to the center is defined by:
+    $$\text{local point} = \left[-\frac{1.0 \times \text{scale}[0]}{2.0}, \frac{1.0 \times \text{scale}[1]}{2.0}, -\frac{1.0 \times \text{scale}[2]}{2.0}\right]$$
 
-$$\text{local point} = \left[-\frac{1.0 \times \text{scale}[0]}{2.0}, \frac{1.0 \times \text{scale}[1]}{2.0}, -\frac{1.0 \times \text{scale}[2]}{2.0}\right]$$
-
-This point represents the top-left-front corner of the bounding box, with each component scaled appropriately.
+    This point represents the top-left-front corner of the bounding box, with each component scaled appropriately.
 
 2. Match the Bounding Box Rotation: Apply the rotation about the Y-axis using the `rot_about_y` function:
    $$\text{rotated point} = R*{y}(\text{rot}\_y) \cdot \text{local point}$$
 
-where $R_{y}(\text{rot}_y)$ is the rotation matrix derived from the `rot_y` parameter. This step adjusts the orientation of the point based on the Bounding Box's rotation.
+    where $R_{y}(\text{rot}_y)$ is the rotation matrix derived from the `rot_y` parameter. This step adjusts the orientation of the point based on the Bounding Box's rotation.
 
 3. Translation: The world coordinates of the top-left-front corner are obtained by adding the rotated point to the `center`:
    $$\text{world coordinates} = \text{center} + \text{rotated point}$$
+   
    This translates the corner to its appropriate position in 3D space.
 
 4. Accounting for Floor: Finally, the world coordinate of the corner cannot be lower than the floor, therefore we take the max between the floor and calculated position as the final coordinate of the corner.
@@ -323,7 +323,7 @@ Functions that update the parameter with an offset:
 - `func extend_side(_ offset: [Float]) -> ([Float], [Float])`
 - `func shrink_side(_ offset: [Float]) -> ([Float], [Float])`
 
-Functions that (re)sets the parameter with a new value:
+Functions that (re)set the parameter with a new value:
 
 - `func set_center(_ new_center:[Float]) -> [Float]`
 - `func set_scale(_ new_scale:[Float]) -> [Float]` (Respects Floor)
