@@ -473,3 +473,11 @@ Besides fixing the bugs, future directions for the app includes
 Make the input dimension accept any values
 Convert calculations in the BoundingBox.swift into simd
 Noticed that set_center_xy is a misnomer afterwards, 
+
+### Bounding Box
+#### Face Text
+##### Scaling
+The text that says *side completed* on the faces of the bounding box doesn't scale up or down when the bounding box is scaled up or down. Fixes to this would likely have to happen in the `ARViewModel` class, specifically inside of the private function `side()`. Inside this function a `ModelEntity()` called `GeneratedText` is created. This `ModelEntity()` would need to be scaled when the bounding box is scaled. 
+
+##### Top and Bottom Rotation
+The text on the top and bottom faces of the bounding box doesn't rotate based on where the device is relative to the bounding box, so it isn't always easy to read from every angle. Fixes to this issue would also probably need to be done to the `GeneratedText` inside of the `side()` function, inside the `ARViewModel` class.
