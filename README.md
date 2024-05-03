@@ -245,7 +245,7 @@ Here is a high-level description of relevant directory/files:
 
 In ARKit, by default, the y-axis points upward, the x-axis points to the right of the device, and the z-axis points facing the user ([Image Source](https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity)).
 <br>
-<img src="docs/assets_readme/arkit-axis.PNG" height="342"/>
+<img src="docs/assets_readme/arkit-axis.png" height="342"/>
 <br>
 
 The world coordinate origin is placed at the location of the device when the `ARViewModel.createARConfiguration` function is called. This occurs when the user opens up the `BoundingBoxSMView` for the first time.
