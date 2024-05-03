@@ -497,32 +497,6 @@ scale: \(scale)
                (localMin.z...localMax.z).contains(pointInWorld.z)
     }
     
-//    func updateCapturingProgress(corners: [[Float]], plane: BoundingBoxPlane) {
-////        guard let camera = sceneView.pointOfView, !self.contains(camera.simdWorldPosition, corners: corners) else { return }
-//        
-//        
-////        plane.count += 1
-//        
-//        // Add new hit test rays at a lower frame rate to keep the list of previous rays
-//        // at a reasonable size.
-//        if plane.count % 20 == 0 {
-//            plane.count = 0
-//            
-////            // Create a new hit test ray. A line segment defined by its start and end point
-////            // is used to hit test against bounding box tiles. The ray's length allows for
-////            // intersections if the user is no more than five meters away from the bounding box.
-////            let currentRay = Ray(normalFrom: camera, length: 5.0)
-////            
-////            // Only remember the ray if it hit the bounding box,
-////            // and the hit location is significantly different from all previous hit locations.
-////            if let (_, hitLocation) = tile(hitBy: currentRay) {
-////                if isHitLocationDifferentFromPreviousRayHitTests(hitLocation) {
-////                    cameraRaysAndHitLocations.append((ray: currentRay, hitLocation: hitLocation))
-////                }
-////            }
-//        }
-//    }
-    
     // update properties using some kind of offset
     func update_center(_ offset:[Float]) -> [Float] {
         center = pairwise_add(center, offset)

@@ -167,20 +167,9 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
             print("arView is nil")
             return (side: nil, hitLocation: SIMD3<Float>(boundingbox.center))
         }
-//        guard let cameraTransform = arView.session.currentFrame?.camera.transform else { return (side: nil, hitLocation: SIMD3<Float>(boundingbox.center)) }
-//        let cameraPosition = SIMD3<Float>(cameraTransform.columns.3.x, cameraTransform.columns.3.y, cameraTransform.columns.3.z)
-//        let cameraForward = SIMD3<Float>(-cameraTransform.columns.2.x, -cameraTransform.columns.2.y, -cameraTransform.columns.2.z)
         let screenCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
-//        let planeSize = CGSize(width: <#T##CGFloat#>, height: <#T##CGFloat#>)
-//        let planeRect = CGRect(origin: screenCenter, size: planeSize)
         
         let collisionResult = arView.hitTest(screenCenter)
-        print("collisionresult")
-        print(collisionResult)
-        
-        // Perform hit test with given ray
-//        let raycastResults = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .any)
-        
         // We cannot just look at the first result because we might have hits with other than the tile geometries.
         if let firstResult = collisionResult.first {
             print("firstResult")
@@ -208,7 +197,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
                     }
                     // Interpolate between red and blue
                     let new_rgb = (progress * final_rgb) + ((1.0 - progress) * rgb)
-//                    let lessTransparentYellowColor = UIColor.yellow.withAlphaComponent(0.75)
                     // Assuming you want to use the interpolated values directly for UIColor
                     let color = UIColor(red: CGFloat(new_rgb.x), green: CGFloat(new_rgb.y), blue: CGFloat(new_rgb.z), alpha: CGFloat(opacity))
                     let newMaterial = UnlitMaterial(color: color)
@@ -227,20 +215,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject, CLLocationMan
                 i = i+1
             }
         }
-//        for result in raycastResults {
-//            print("result")
-//            print(result)
-//            print("---------")
-////            if let tile = result.node as? BoundingBoxPlane, side.isBusyUpdatingTiles {
-////                // Each ray should only hit one tile, so we can stop iterating through results if a hit was successful.
-////                return (side: side, hitLocation: SIMD3<Float>(result.worldCoordinates))
-////            }
-//        }
         return nil
-    }
-    
-    func rayCast_changeBoundingColor(at screenPoint: CGPoint, frame: ARFrame){
-        
     }
     
     func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame){

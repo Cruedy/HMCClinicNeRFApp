@@ -153,7 +153,6 @@ This view only has 2 buttons and a status message at the top. To start the proce
 In this view, the user can press the video to play a preview of the generated 3D model. To get a better look at the model, the user can press the *Open Web Viewer* button to go to a detailed view. On the Web Viewer, the user can use a single finger to rotate the object, use two fingers to move the object, and pinch to zoom in. Finally, back in the app view, the user may *return to start* to create another 3D model. After this point, the user can only view their current model on the Web Viewer.
 
 # Developer Guide
-## Table of Contents
 
 ## Set Up/Installation
 Follow this guide to get the project in your xcode:
@@ -170,14 +169,16 @@ HMCClinicNeRFApp
 │   ├── README.md   
 │   │
 │   └── NeRFCapture
+│       ├── DDSModel
 │       ├── Models
 │       │   ├── AppState.swift
 │       │   ├── BoundingBoxManifest.swift
 │       │   └── Manifest.swift
 │       ├── Networking
+│       ├── Preview Content
 │       ├── Resources
 │       │   ├── Disappear.mp3
-│       │   └── Sparkle.mov
+│       │   └── Sparkle.mov (Unused)
 │       ├── ViewModels
 │       │   └── ARViewModel.swift
 │       ├── Views
@@ -195,17 +196,17 @@ HMCClinicNeRFApp
 │       │   ├── GridItemView.swift
 │       │   ├── GridView.swift
 │       │   ├── IntroInstructionsView.swift
+│       │   ├── originalContentView.swift (Unused)
 │       │   ├── SendImagesToServerView.swift
 │       │   ├── SwiftUIView.swift
 │       │   ├── TakingImagesView.swift
-│       │   ├── VideoView.swift
-│       │   └── originalContentView.swift
+│       │   └── VideoView.swift
 │       ├── AppDelegate.swift
 │       ├── BoundingBox.swift
 │       ├── ColumnStepper.swift
-│       ├── DDSWriter.swift
 │       ├── DataModel.swift
-│       ├── DataWriter.swift
+│       ├── DatasetWriter.swift
+│       ├── DDSWriter.swift
 │       ├── FileManagerExtensions.swift
 │       ├── ImageGalleryApp.swift
 │       ├── Info.plist
