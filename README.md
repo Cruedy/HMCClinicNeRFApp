@@ -450,3 +450,10 @@ The Bounding Box is not only used by the app for user feedback but also used on 
 As usual, `BoundingBox.swift` implements the low level conversion from bounding box parameters to an object of the `BoundingBoxManifest` type within the `encode_as_json` function. `ARViewModel.swift` implements the `update_boundingbox_manfiest` function saves the current manifest to `datsetWriter.boundingBoxManifest` whenever user inputs changes the properties of the box. Finally, `DatasetWriter.swift` implements the `finalizeSession` function which uses the `JSONEncoder` to save the bounding box to `NeRF Capture/{projectName}/boundingbox.json`, which will later be zipped up and ready to send to the server when the user clicks on the "Finalize Dataset" button in the `GalleryView`.
 
 ## Known Bugs
+### Bounding Box
+#### Face Text
+##### Scaling
+The text that says *side completed* on the faces of the bounding box doesn't scale up or down when the bounding box is scaled up or down. Fixes to this would likely have to happen in the `ARViewModel` class, specifically inside of the private function `side()`. Inside this function a `ModelEntity()` called `GeneratedText` is created. This `ModelEntity()` would need to be scaled when the bounding box is scaled. 
+
+##### Top and Bottom Rotation
+The text on the top and bottom faces of the bounding box doesn't rotate based on where the device is relative to the bounding box, so it isn't always easy to read from every angle. Fixes to this issue would also probably need to be done to the `GeneratedText` inside of the `side()` function, inside the `ARViewModel` class.
