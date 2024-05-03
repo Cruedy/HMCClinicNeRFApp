@@ -164,7 +164,73 @@ Once the repository is cloned into your xcode, set the device that you want to r
 
 
 ## File Structure and File Description
-Here is a high-level description of each file and its relevance to the webviewer:
+Here are the key files for the app
+HMCClinicNeRFApp
+│---README.md   
+│
+└───NeRFCapture
+│   └──Models
+|      └──AppState.swift
+|      └──BoundingBoxManifest.swift
+|      └──Manifest.swift
+|   └──Networking
+|   └──Resources
+|      └──Disappear.mp3
+|      └──Sparkle.mov
+|   └──ViewModels
+|      └──ARVewModel.swift
+|   └──Views
+|      └──ARViewContainer.swift
+|      └──BoundingBox-SummaryView.swift
+|      └──BoundingBoxSM-IdentifyFloor.swift
+|      └──BoundingBoxSM-InputDimension
+|      └──BoundingBoxSM-PlaceBox.swift
+|      └──BoundingBoxSMView.swift
+|      └──BoundingBoxView.swift
+|      └──ContentView.swift
+|      └──ContentViewSwitcher.swift
+|      └──CustomerARView.swift
+|      └──DetailView.swift
+|      └──GridItemView.swift
+|      └──GridView.swift
+|      └──IntroinstructionsView.swift
+|      └──SendImagesToServerView.swift
+|      └──SwiftUIView.swift
+|      └──TakingImagesView.swift
+|      └──VideoView.swift
+|      └──originalContentView.swift
+|   |---AppDelegate.swift
+|   |---BoundingBox.swift
+|   |---ColumnStepper.swift
+|   |---DDSWriter.swift
+|   |---DataModel.swift
+|   |---DataWriter.swift
+|   |---FileManagerExtensions.swift
+|   |---ImageGalleryApp.swift
+|   |---Info.plist
+|   |---Item.swift
+|   |---PhotoPicker.swift
+|   |---PointCloudBoundingBoxUtils.swift
+|   |---Shaders.metal
+|   |---Utils.swift
+|---LICENCE
+
+Here is a high-level description of relavant directory/files:
+1. `NeRFCapture/Models/*`: These files all model data that can be saved. `Manifest.swift` handles saving images. `BoundingBoxManifest.swift` handles saving Bounding Box. `AppState.swift` is mostly unused and a remenant of the original NeRF Capture project.
+2. `NeRFCapture/Resources/*`: These files are effects (for example, sound effects) for the providing user with feedback in the [`Image Taking View`](#taking-images-view).
+3. `NeRFCapture/ViewModels/ARVewModel.swift`: This is a very important file that handles all the AR interactions. Both the [`Bounding Box State Machine View`](#bounding-box-state-machine-view) and [`Image Taking View`](#taking-images-view) makes heavy use of the methods in this file to modify the Bounding Box.
+4. `NeRFCapture/ViewModels/BoundingBox*.swift`: `ViewModels/BoundingBoxSMView.swift` is the main UI for enabling the user to create a Bounding Box. The rest of the files contain helper views. See the [`Bounding Box State Machine View` section](#bounding-box-state-machine-view).
+5. `NeRFCapture/ViewModels/ContentView.swift`: This file controls the current view being displayed. It's discussed [in the Switching Between Views section](#switching-between-views).
+6. `NeRFCapture/ViewModel/CustomerARView.swift`: This file initializes the AR World but is mostly unused.
+7. `NeRFCapture/ViewModel/DetailView.swift`, `ViewModel/GridItemView.swift`, and `ViewModel/GridView.swift`: These files create the [`Gallery View`](#gallery-view).
+8. `NeRFCapture/ViewModel/IntroinstructionsView.swift`: This file contains code for the first view of the app described in [`Intro-instructions View`](#intro-instructions-view).
+9. `NeRFCapture/ViewModel/SendImagesToServerView.swift`: This file contains code for app to server communication described in [`Send Images to Server View`](#send-images-to-server-view).
+10. `NeRFCapture/ViewModel/TakingImagesView.swift`: This file contains code for the collecting all image and pose data described in [`Taking Images View`](#taking-images-view).
+11. `NeRFCapture/ViewModel/VideoView.swift`: This file contains code to display a preview video of the 3D model and is described in [`Video View`](#video-view)
+12. `NeRFCapture/AppDelegate.swift`: This file contains code for starting the app and creating the initial `ContentView`.
+13. `NeRFCapture/BoundingBox.swift`: This file is also very important and contains the low level implementation and control of the Bounding Box. It is described in detail in [The Bounding Box section](#the-bounding-box).
+14. `NeRFCapture/DataModel.swift` and `NeRFCapture/DatasetWriter.swift`: These file handles the saving image, bounding box, and other data into the file system.
+15. `NeRFCapture/Info.plist`: This file handles some configuration for the app, most notably Network Security.
 
 ## The Bounding Box
 
