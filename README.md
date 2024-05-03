@@ -165,6 +165,7 @@ Once the repository is cloned into your xcode, set the device that you want to r
 
 ## File Structure and File Description
 Here are the key files for the app
+```
 HMCClinicNeRFApp
 │   ├── README.md   
 │   │
@@ -214,7 +215,7 @@ HMCClinicNeRFApp
 │       ├── Shaders.metal
 │       └── Utils.swift
 └── LICENCE
-
+```
 
 Here is a high-level description of relavant directory/files:
 1. `NeRFCapture/Models/*`: These files all model data that can be saved. `Manifest.swift` handles saving images. `BoundingBoxManifest.swift` handles saving Bounding Box. `AppState.swift` is mostly unused and a remenant of the original NeRF Capture project.
