@@ -34,7 +34,7 @@ This is done by tapping on the screen:
 <img src="docs/assets_readme/PlaceBBox2.PNG" height="342"/>
 <br>
 
-### Enter Dimesions
+### Enter Dimension
 
 Once the bounding box is placed, the user then enters the dimensions of the product. This is the second step because users of this app will usually already know the dimensions of their product.
 <br>
@@ -143,30 +143,33 @@ Once the user is satisfied with the images that they've compiled after viewing t
 
 <img src="docs/assets_readme/SendToServer2.jpeg" height="342"/>
 
-This view only has 2 buttons and a status message at the top. To start the process of generating a 3D model on the server side, the user should first press the *Begn Rendering* button. The user will be notified when this process is done by reading the status message. When the status message switches from *Server finished rendering video* to *Server is ready for upload*. The user can also have direct access to their results by pressing the _View Results_ button.
+This view only has 2 buttons and a status message at the top. To start the process of generating a 3D model on the server side, the user should first press the _Begin Rendering_ button. The user will be notified when this process is done by reading the status message. When the status message switches from _Server finished rendering video_ to _Server is ready for upload_. The user can also have direct access to their results by pressing the _View Results_ button.
 
 ## Video View
 
 <img src="docs/assets_readme/VideoView.jpeg" height="342"/>
 <img src="docs/assets_readme/MobileWebViewer.PNG" height="342"/>
 
-In this view, the user can press the video to play a preview of the generated 3D model. To get a better look at the model, the user can press the *Open Web Viewer* button to go to a detailed view. On the Web Viewer, the user can use a single finger to rotate the object, use two fingers to move the object, and pinch to zoom in. Finally, back in the app view, the user may *return to start* to create another 3D model. After this point, the user can only view their current model on the Web Viewer.
+In this view, the user can press the video to play a preview of the generated 3D model. To get a better look at the model, the user can press the _Open Web Viewer_ button to go to a detailed view. On the Web Viewer, the user can use a single finger to rotate the object, use two fingers to move the object, and pinch to zoom in. Finally, back in the app view, the user may _return to start_ to create another 3D model. After this point, the user can only view their current model on the Web Viewer.
 
 # Developer Guide
 
+
 ## Set Up/Installation
+
 Follow this guide to get the project in your xcode:
 <br>
 [Xcode Repo Tutorial](https://developer.apple.com/documentation/xcode/configuring-your-xcode-project-to-use-source-control#Get-a-project-from-a-remote-repository)
 <br>
-Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the traingle-shaped button in the top left.
-
+Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the triangle-shaped button in the top left.
 
 ## File Structure and File Description
+
 Here are the key files for the app
+
 ```
 HMCClinicNeRFApp
-│   ├── README.md   
+│   ├── README.md
 │   │
 │   └── NeRFCapture
 │       ├── DDSModel
@@ -218,15 +221,16 @@ HMCClinicNeRFApp
 └── LICENCE
 ```
 
-Here is a high-level description of relavant directory/files:
-1. `NeRFCapture/Models/*`: These files all model data that can be saved. `Manifest.swift` handles saving images. `BoundingBoxManifest.swift` handles saving Bounding Box. `AppState.swift` is mostly unused and a remenant of the original NeRF Capture project.
+Here is a high-level description of relevant directory/files:
+
+1. `NeRFCapture/Models/*`: These files dictate how data is saved. `Manifest.swift` handles saving images. `BoundingBoxManifest.swift` handles saving Bounding Box. `AppState.swift` is mostly unused and a remnant of the original NeRF Capture project.
 2. `NeRFCapture/Resources/*`: These files are effects (for example, sound effects) for the providing user with feedback in the [`Image Taking View`](#taking-images-view).
 3. `NeRFCapture/ViewModels/ARVewModel.swift`: This is a very important file that handles all the AR interactions. Both the [`Bounding Box State Machine View`](#bounding-box-state-machine-view) and [`Image Taking View`](#taking-images-view) makes heavy use of the methods in this file to modify the Bounding Box.
 4. `NeRFCapture/ViewModels/BoundingBox*.swift`: `ViewModels/BoundingBoxSMView.swift` is the main UI for enabling the user to create a Bounding Box. The rest of the files contain helper views. See the [`Bounding Box State Machine View` section](#bounding-box-state-machine-view).
 5. `NeRFCapture/ViewModels/ContentView.swift`: This file controls the current view being displayed. It's discussed [in the Switching Between Views section](#switching-between-views).
 6. `NeRFCapture/ViewModel/CustomerARView.swift`: This file initializes the AR World but is mostly unused.
 7. `NeRFCapture/ViewModel/DetailView.swift`, `ViewModel/GridItemView.swift`, and `ViewModel/GridView.swift`: These files create the [`Gallery View`](#gallery-view).
-8. `NeRFCapture/ViewModel/IntroinstructionsView.swift`: This file contains code for the first view of the app described in [`Intro-instructions View`](#intro-instructions-view).
+8. `NeRFCapture/ViewModel/IntroInstructions.swift`: This file contains code for the first view of the app described in [`Intro-instructions View`](#intro-instructions-view).
 9. `NeRFCapture/ViewModel/SendImagesToServerView.swift`: This file contains code for app to server communication described in [`Send Images to Server View`](#send-images-to-server-view).
 10. `NeRFCapture/ViewModel/TakingImagesView.swift`: This file contains code for the collecting all image and pose data described in [`Taking Images View`](#taking-images-view).
 11. `NeRFCapture/ViewModel/VideoView.swift`: This file contains code to display a preview video of the 3D model and is described in [`Video View`](#video-view)
@@ -238,12 +242,14 @@ Here is a high-level description of relavant directory/files:
 ## The Bounding Box
 
 ### ARKit Coordinate Frame
+
 In ARKit, by default, the y-axis points upward, the x-axis points to the right of the device, and the z-axis points facing the user ([Image Source](https://developer.apple.com/documentation/arkit/arconfiguration/worldalignment/gravity)).
 <br>
 <img src="docs/assets_readme/arkit-axis.PNG" height="342"/>
 <br>
 
 The world coordinate origin is placed at the location of the device when the `ARViewModel.createARConfiguration` function is called. This occurs when the user opens up the `BoundingBoxSMView` for the first time.
+
 ```
 // ARViewModel.swift
 func createARConfiguration() -> ARWorldTrackingConfiguration {
@@ -252,7 +258,8 @@ func createARConfiguration() -> ARWorldTrackingConfiguration {
     ...
 }
 ```
-All of the parameters controlling the Bounding Box are defined using world coordinates. This makes understanding where the Bounding Box will be rendered easy, but it can make the math of updating the parameters more difficult. 
+
+All of the parameters controlling the Bounding Box are defined using world coordinates. This makes understanding where the Bounding Box will be rendered easy, but it can make the math of updating the parameters more difficult.
 
 ### Parameters Overview
 
@@ -270,7 +277,7 @@ class BoundingBox {
     var scale: [Float] = [1,1,1] // meters
     var floor: Float? = nil // height of the floor. If nil, then the box appears floating in space. If not nil, then the box appears sitting on the floor.
 
-    // handles eproperties of each face of the bounding box
+    // handles properties of each face of the bounding box
     var planes: [BoundingBoxPlane] = []
     var plane_counts = [0,0,0,0,0,0]
     var plane_orientations: [simd_quatf] = [simd_quatf(ix: 0, iy: 0, iz: 1, r: 0), simd_quatf(ix: 0, iy: 0, iz: 1, r: 0)]*5
@@ -290,13 +297,13 @@ $$\text{local point} = \left[-\frac{1.0 \times \text{scale}[0]}{2.0}, \frac{1.0 
 This point represents the top-left-front corner of the bounding box, with each component scaled appropriately.
 
 2. Match the Bounding Box Rotation: Apply the rotation about the Y-axis using the `rot_about_y` function:
-$$\text{rotated point} = R*{y}(\text{rot}\_y) \cdot \text{local point}$$
+   $$\text{rotated point} = R*{y}(\text{rot}\_y) \cdot \text{local point}$$
 
 where $R_{y}(\text{rot}_y)$ is the rotation matrix derived from the `rot_y` parameter. This step adjusts the orientation of the point based on the Bounding Box's rotation.
 
 3. Translation: The world coordinates of the top-left-front corner are obtained by adding the rotated point to the `center`:
-$$\text{world coordinates} = \text{center} + \text{rotated point}$$
-This translates the corner to its appropriate position in 3D space.
+   $$\text{world coordinates} = \text{center} + \text{rotated point}$$
+   This translates the corner to its appropriate position in 3D space.
 
 4. Accounting for Floor: Finally, the world coordinate of the corner cannot be lower than the floor, therefore we take the max between the floor and calculated position as the final coordinate of the corner.
 
@@ -324,7 +331,7 @@ Functions that (re)sets the parameter with a new value:
 - `func setFloor(height:Float)` (Updates Floor)
 - `func set_center_xy(newCenter: SIMD3<Float>) -> [Float]` (Respects Floor)
 
-The implementation for these functions are mostly straightforward. The only nunance is how they interact with the `Floor` parameter. We recommand reading the implementation for `set_center` and `set_center_xz`. Namely the difference is `set_center` uses the user-inputed y position in `new_center` which can make the bounding box appear floating in space. On the other hand, `set_center_xz` only accepts the user-inputed x and z position. It calculates the y position to be half of the bounding box height above the floor (`y_center = scale[1]/2 + floor`). This way, the bottom of the Bounding Box will appear to touch the floor.
+The implementation for these functions are mostly straightforward. The only nuance is how they interact with the `Floor` parameter. We recommend reading the implementation for `set_center` and `set_center_xz`. Namely the difference is `set_center` uses the user-inputted y position in `new_center` which can make the bounding box appear floating in space. On the other hand, `set_center_xz` only accepts the user-inputted x and z position. It calculates the y position to be half of the bounding box height above the floor (`y_center = scale[1]/2 + floor`). This way, the bottom of the Bounding Box will appear to touch the floor.
 
 ```
 // BoundingBox.swift
@@ -348,6 +355,7 @@ func set_center_xz(newCenter: SIMD3<Float>) -> [Float]
 ```
 
 Methods in `ARViewModel.swift`:
+
 - `func set_center(new_center: [Float]) -> [Float]`
 - `func set_angle(new_angle: Float) -> Float`
 - `func set_scale(new_scale: [Float]) -> [Float]`
@@ -356,9 +364,10 @@ Methods in `ARViewModel.swift`:
 - `func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]`
 - `func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame)`
 
-All methods mentioned above besides the last one performs four tasks. 
+All methods mentioned above besides the last one performs four tasks.
+
 1. Convert user input from the UI to appropriate values for functions in `BoundingBox.swift`. For instance, `set_angle` takes a user input that is in degrees, converts it to radians, and calls the `BoundingBox.set_angle` method.
-2. Call the `ARViewModel.display_box` method to render the bounding box if appriopriate. Rendering is explained [here](#rendering).
+2. Call the `ARViewModel.display_box` method to render the bounding box if appropriate. Rendering is explained [here](#rendering).
 3. Update the `boundingbox.json` file using the `update_boundingbox_manifest` method. The manifest is used for saving the Bounding Box and explained [here](#saving).
 4. Return value of the parameter of the bounding box that was changed (in this example, that would simply be the new angle).
 
@@ -371,7 +380,7 @@ These methods are:
 - `func raycast_bounding_box_center(at screenPoint: CGPoint, frame: ARFrame) -> [Float]`
 - `func findFloorHeight(at screenPoint: CGPoint, frame: ARFrame)`
 
-They make use of `arView.raycast` ([Swift documentation](https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:))):
+They make use of `arView.raycast` ([Swift documentation](<https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:)>)):
 
 ```
 func raycast(
@@ -383,8 +392,7 @@ func raycast(
 
 <!-- We use raycast with tap gesture recognition to update the bounding box according to the physical environment. The `findFloorHeight` method uses `arView.raycast` with the location on the device's screen the user tapped on to send a ray from that location into the physical world. It will detect the intersections between the physical world and this ray and give the results in an array, where the elements are ordered from the [closest to the furthest](<https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:)>). We use the y position of the first element of the returned array as the height of the bounding box. This is done by calling the `BoundingBox.setFloor` function. -->
 
-We utilize raycasting combined with tap gesture recognition to dynamically adjust the bounding box based on the physical surroundings. Specifically, the `findFloorHeight` method employs `arView.raycast`, triggered by the user tapping on the device's screen. This action casts a ray into the physical environment from the tapped location. It then detects where this ray intersects with physical objects and returns the results as an array. These results are organized by proximity, from the [closest to the furthest object](https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:)). The y-coordinate of the first array element is used to set the height of the Bounding Box through the `BoundingBox.setFloor` function.
-
+We utilize raycasting combined with tap gesture recognition to dynamically adjust the bounding box based on the physical surroundings. Specifically, the `findFloorHeight` method employs `arView.raycast`, triggered by the user tapping on the device's screen. This action casts a ray into the physical environment from the tapped location. It then detects where this ray intersects with physical objects and returns the results as an array. These results are organized by proximity, from the [closest to the furthest object](<https://developer.apple.com/documentation/realitykit/arview/raycast(from:allowing:alignment:)>). The y-coordinate of the first array element is used to set the height of the Bounding Box through the `BoundingBox.setFloor` function.
 
 The `raycast_bounding_box_center` method leverages `arView.raycast` to pinpoint the intersection between a ray emitted from the user's tapped location and the physical environment. In this instance, the x, y, and z coordinates of the initial or closest intersection determine the new center of the bounding box. The method `BoundingBox.set_center_xz` is then used to update the x and z coordinates of the bounding box, positioning the y coordinate at half the height of the bounding box above the floor. Essentially, `raycast_bounding_box_center` repositions the Bounding Box to center it at the user's tapped location, while maintaining its alignment with the floor.
 
@@ -402,7 +410,7 @@ The overall steps to render an object are:
 2. Create an `AnchorEntity`
 3. Add the `AnchorEntity` to the `arView.scene.anchors`
 
-In this section, We will now discuss relavant functions in the above steps (`MeshDescriptor` -> `AnchorEntity` -> `arView.scene.anchors`).
+In this section, We will now discuss relevant functions in the above steps (`MeshDescriptor` -> `AnchorEntity` -> `arView.scene.anchors`).
 
 `BoundingBox.swift`
 Within `BoundingBox.swift`, rendering of the bounding box is structured into multiple helper functions that manage different aspects of the bounding box's appearance and behavior in a 3D or augmented reality environment. Key functions include:
@@ -410,7 +418,7 @@ Within `BoundingBox.swift`, rendering of the bounding box is structured into mul
 `createLine(corners: [[Float]], thickness: Float) -> MeshDescriptor`:
 This function takes two corners in the `corners` parameter and creates a `MeshDescriptor` object that draws a line between the two corners. Since RealityKit does not support rending 1D objects, we create a thin rectangular prism to represent the line. The width of the base of the prism is controlled by the `thickness` parameter. We use the `.polygons` function from RealityKit to render create the primitives for the MeshDescriptor.
 
-> The documention on ".polygons" is sparse, therefore, we will briefly describe how to use the function here. More information can be found in this [article](https://maxxfrazer.medium.com/getting-started-with-realitykit-procedural-geometries-5dd9eca659ef). It accepts two parameters, the first is an array describing how many points to use to form a plane, and the second is an array describing the index of the points themselves.
+> The documentation on ".polygons" is sparse, therefore, we will briefly describe how to use the function here. More information can be found in this [article](https://maxxfrazer.medium.com/getting-started-with-realitykit-procedural-geometries-5dd9eca659ef). It accepts two parameters, the first is an array describing how many points to use to form a plane, and the second is an array describing the index of the points themselves.
 
 > For example, if you want to want to create a square and a triangle do the following:
 
@@ -422,16 +430,16 @@ descr.primitives = .polygons([4, 3], [1, 2, 0, 3, 3, 0, 2, ])
 
 > The elements of `descr.primitives` at index 0,3,1,2 will be joined into a square and the elements at index 3,0,2 will be joined into a triangle.
 
-Finally, we supply the vertices for each face of the plane in the `.polygons` call in both clockwise and counterclockwise manner. This is neccessary because the face is only viewable when it is drawn counterclockwise facing the direction of the camera. Therefore, to ensure all faces of the edges are viewable from every camera location, we render each face twice.
+Finally, we supply the vertices for each face of the plane in the `.polygons` call in both clockwise and counterclockwise manner. This is necessary because the face is only viewable when it is drawn counterclockwise facing the direction of the camera. Therefore, to ensure all faces of the edges are viewable from every camera location, we render each face twice.
 
 `createPlaneFromCorners(corners: [[Float]], shrinkScalar: Float) -> MeshDescriptor`
-This function works similarily to `createLine`. It takes four corner points and creates plane surfaces. We shrink the corners of the plane towards the centroid by the `shrinkScalar`, which we reccomend to be `1.5*thickness` used for the edges. This is to ensure the edges and face are not rendered at the same location, which can cause jittering in the Bounding Box render.
+This function works similarly to `createLine`. It takes four corner points and creates plane surfaces. We shrink the corners of the plane towards the centroid by the `shrinkScalar`, which we recommend to be `1.5*thickness` used for the edges. This is to ensure the edges and face are not rendered at the same location, which can cause jittering in the Bounding Box render.
 
 `createBoundingBox(corners: [[Float]], thickness: Float) -> ([MeshDescriptor], [MeshDescriptor])`
 This function calls `createLine` and `createPlaneFromCorners` for every edge and face of the Bounding Box based on input corner points. This input is typically just `BoundingBox.positions`. It returns two arrays of `MeshDescriptor`, one for the edges and one for the faces.
 
 `addNewBoxToScene() -> AnchorEntity`
-The previous methods all deal with creating `MeshDescriptor`. This method creates a singular `AnchorEntity` that represents the whole Bounding Box. `addNewBoxToScene` calls `createBoundingBox` to generate all the neccessary meshs, then it gives each mesh their color using an `UnlitMaterial`, which is nonreflective. It also attaches a `collisionComponent` to each face of the Bounding Box. This step allows the face to interact with other virtual objects and used to track the number of images taken from a particular face of the bounding box (see [here](#image-distribution)).
+The previous methods all deal with creating `MeshDescriptor`. This method creates a singular `AnchorEntity` that represents the whole Bounding Box. `addNewBoxToScene` calls `createBoundingBox` to generate all the necessary mesh, then it gives each mesh their color using an `UnlitMaterial`, which is nonreflective. It also attaches a `collisionComponent` to each face of the Bounding Box. This step allows the face to interact with other virtual objects and used to track the number of images taken from a particular face of the bounding box (see [here](#image-distribution)).
 
 `ARViewModel.swift`
 `display_box(boxVisible: Bool)`
@@ -439,16 +447,15 @@ There is only one method in `ARViewModel.swift` that handles rendering, but this
 
 ### Saving
 
-The Bounding Box is not only used by the app for user feedback but also used on the backend for the [Background Culling Step](https://github.com/JoshuaG-K/wayfair23-serverV2/tree/0c18a4c03812e3ea25ba12c6602aecbd8c0dc9c5?tab=readme-ov-file#rendering). To send the Bounding Box data to the server, we save the Bounding Box to a file called `boundingbox.json` using [`JSONEncoder` from Swift](https://developer.apple.com/documentation/foundation/jsonencoder). Since this is a common usecase of `JSONEncoder` and the comprehensive documentation available, we will keep the description brief. The encoder processes classes that conform to the `Codable` protocol. Therefore, we created the class `BoundingBoxManifest` to include the information about the Bounding Box that we want to send to the server, specifically the center, rotation, positions of corners, and the world coordinate pose. Note that some of this information are included for redundancy to facilitate convenience and additional verification downstream.
+The Bounding Box is not only used by the app for user feedback but also used on the backend for the [Background Culling Step](https://github.com/JoshuaG-K/wayfair23-serverV2/tree/0c18a4c03812e3ea25ba12c6602aecbd8c0dc9c5?tab=readme-ov-file#rendering). To send the Bounding Box data to the server, we save the Bounding Box to a file called `boundingbox.json` using [`JSONEncoder` from Swift](https://developer.apple.com/documentation/foundation/jsonencoder). Since this is a common use case of `JSONEncoder` and the comprehensive documentation available, we will keep the description brief. The encoder processes classes that conform to the `Codable` protocol. Therefore, we created the class `BoundingBoxManifest` to include the information about the Bounding Box that we want to send to the server, specifically the center, rotation, positions of corners, and the world coordinate pose. Note that some of this information are included for redundancy to facilitate convenience and additional verification downstream.
 
-As usual, `BoundingBox.swift` implements the low level conversion from Bounding Box parameters to a `BoundingBoxManifest` object through the `encode_as_json` function. `ARViewModel.swift` implements the `update_boundingbox_manfiest` function, which updates the current manifest to `datsetWriter.boundingBoxManifest` whenever user inputs changes the properties of the box. Finally, `DatasetWriter.swift` implements the `finalizeSession` function which uses the `JSONEncoder` to save the bounding box to `NeRF Capture/{projectName}/boundingbox.json`, which will later be zipped up and ready to send to the server when the user clicks on the [`Finalize Dataset`](#finalize-dataset) button in the `GalleryView`.
-
+As usual, `BoundingBox.swift` implements the low level conversion from Bounding Box parameters to a `BoundingBoxManifest` object through the `encode_as_json` function. `ARViewModel.swift` implements the `update_boundingbox_manifest` function, which updates the current manifest to `datasetWriter.boundingBoxManifest` whenever user inputs changes the properties of the box. Finally, `DatasetWriter.swift` implements the `finalizeSession` function which uses the `JSONEncoder` to save the bounding box to `NeRF Capture/{projectName}/boundingbox.json`, which will later be zipped up and ready to send to the server when the user clicks on the [`Finalize Dataset`](#finalize-dataset) button in the `GalleryView`.
 
 ## Switching Between Views
 
 All user facing code is contained in various [`Views`](https://developer.apple.com/documentation/swiftui/view). Before discussing the views of our app, we will first explain how the app decides which `View` to display.
 
-The foundation for switching between views is implemented in the `ContentView.swift` file. The key is the `NavigationStack` and the switch statement inside of the Stack. The relavant code is below:
+The foundation for switching between views is implemented in the `ContentView.swift` file. The key is the `NavigationStack` and the switch statement inside of the Stack. The relevant code is below:
 
 ```
 @State private var currentView: NavigationDestination = .introInstructionsView
@@ -472,13 +479,14 @@ NavigationStack {
 The view being displayed is decided by the value of the currentView parameter. We pass a binding to this variable to every view, so that each view can update this variable and decide the next view the user sees. This is as simple as `currentView = .boundingBoxSMView` to switch from the `IntroInstructionsView` to `BoundingBoxSMView`. To add a new view, simply add a new value to the `NavigationDestination` enum and complete the switch statement for the new value of `NavigationDestination`.
 
 ## The Views / UI
+
 ### Intro Instructions View
+
 This contains the `Instructions View` and the `Start Project Button`. When the `Start Project Button` is pressed, an alert is created. This alert contains a submit button, which takes the user to the `BoundingBoxSMView`.
 
 #### Helper View: Instructions View
 
 This area just contains text that is stored in 2 lists of strings. One list contains a list of instructions on taking images, and the other list contains a list of best practices for getting quality images
-
 
 ### Bounding Box State Machine View
 
@@ -489,9 +497,9 @@ The states are rendered in the order of `IdentifyFloor` -> `InputDimensions` -> 
 #### State: `IdentifyFloor`
 
 The goal of this state is to allow the user to place the Bounding Box on the same surface as the object they are capturing.
-The behavior related to this state is implemented in `BoundingBoxSMView.swift` and `BoundingBoxSM-IdentifyFloor.swift`. 
+The behavior related to this state is implemented in `BoundingBoxSMView.swift` and `BoundingBoxSM-IdentifyFloor.swift`.
 
-In `BoundingBoxSMView.swift`, there exists a tap gesture recognizer (`.onTapGesture`). When the user taps on the screen and the app is in `IdentifyFloor` state, the app calls `viewModel.findFloorHeight(at: location, frame: frame)` and `viewModel.raycast_bounding_box_center(at:location, frame: frame)`. A more indepth discussion of these functions can be found [in the Raycasting Section](#raycasting).
+In `BoundingBoxSMView.swift`, there exists a tap gesture recognizer (`.onTapGesture`). When the user taps on the screen and the app is in `IdentifyFloor` state, the app calls `viewModel.findFloorHeight(at: location, frame: frame)` and `viewModel.raycast_bounding_box_center(at:location, frame: frame)`. A more in-depth discussion of these functions can be found [in the Raycasting Section](#raycasting).
 
 Within `BoundingBoxSM-IdentityFloor`, only logic to initially render the Bounding Box in the `init` function and provide textual instructions to the user.
 
@@ -502,15 +510,15 @@ The goal of this state is to allow the user to input the dimension of the object
 
 #### State: `PlaceBox`
 
-The goal of this state is to perform finetuning of the Bounding Box (The name `PlaceBox` is outdated since it does a lot more than just placing the box!) `PlaceBox` gives the user five modes to edit the bounding box: 1) teleport 2) translate 3) rotate 4) scale 5) extend. 
+The goal of this state is to perform finetuning of the Bounding Box (The name `PlaceBox` is outdated since it does a lot more than just placing the box!) `PlaceBox` gives the user five modes to edit the bounding box: 1) teleport 2) translate 3) rotate 4) scale 5) extend.
 
 Teleport is implemented by the same gesture control for `IdentifyFloor` in the file `BoundingBoxSMView.swift` using the function `viewModel.raycast_bounding_box_center`. Whenever the user taps the screen, the screen location is passed to the function and the box is placed at x,z coordinate of the intersection between the ray from the tapped position and a surface in the physical world. Since only the x,z coordinates are changed, the box will appear to slide along the "floor" indicated by the user in `IdentifyFloor`.
 
 The rest of the edit methods are implemented as helper views in `BoundingBox.swift`.
 
-##### Helper View: `MovementControlsView` 
+##### Helper View: `MovementControlsView`
 
-This view controls the translation of the box. The box will translate in the reference frame of the camera, which is not neccessarily axis aligned to the world coordinates. This means it respects the orientation of the device. It calls the [`ARViewModel.set_center` method](#changing-parameters) to modify the Bounding Box parameters.
+This view controls the translation of the box. The box will translate in the reference frame of the camera, which is not necessarily axis aligned to the world coordinates. This means it respects the orientation of the device. It calls the [`ARViewModel.set_center` method](#changing-parameters) to modify the Bounding Box parameters.
 
 ##### Helper View: `RotateControlsView`
 
@@ -536,14 +544,16 @@ Notice that `box_center` is set to the return value of the function. Methods in 
 (box_center, slider_xyz) = viewModel.extend_sides(offset: [0,0,-0.1])
 ```
 
-Therefore, it is important for use the return values of the `ARViewModel` to update the corresponding states in `BoundingBoxSMView`. (You might have noticed that this is only neccessary when the input to the function is some sort of offset, but it is safer to assume all methods of `ARViewModel` can update the parameters of the box).
+Therefore, it is important for use the return values of the `ARViewModel` to update the corresponding states in `BoundingBoxSMView`. (You might have noticed that this is only necessary when the input to the function is some sort of offset, but it is safer to assume all methods of `ARViewModel` can update the parameters of the box).
 
 The final implementation detail of this state is the switching between different modes. To switch between modes 2 to 5, a `Picker` UI is used to pick values of an Enum `MovementModes`. The UI will respond to the value of `MovementModes` and display the correct helper vew. Mode 1 is always active, so the user can always tap onscreen to teleport the Bounding Box.
 
 ### Taking Images View
 
-#### Buttons 
+#### Buttons
+
 ##### `Begin Capture`
+
 Appears when the image taking session is in the `.SessionNotStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `initializeProject()` from the `datasetWriter` class. This function creates a directory that has the name that was set in the `IntroInstructionsView`. The function also sets the `SessionState` to `.SessionStarted`.
@@ -553,6 +563,7 @@ When this button is pressed, it calls the `initializeProject()` from the `datase
 `startAutomaticCapture()` from the `ARViewModel` class is also called. This function starts a timer that calls a function called `changeInterval()` every time the timer goes off. `changeInterval` causes the screen to flash white, indicating to the user that an image is taken. The function also shortens the timer if the device starts moving faster and lengthens the timer if the device starts moving slower.
 
 ##### `Pause Automatic Capture`
+
 Appears when the image taking session is in the `.SessionStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `writeFrameToTopic(frame)` from the `ddsWriter` class. This function create the image frame and depth file to be added to the directory for the project.
@@ -566,12 +577,14 @@ When this button is pressed, it calls the `writeFrameToTopic(frame)` from the `d
 `stopAutomaticCapture()` from the `ARViewModel` class is also called. This function turns the screen flash to false and stops the timer that is run in the automatic capture process.
 
 ##### `Continue Automatic Capture`
+
 Appears when the image taking session is in the `.SessionPaused` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 This button will call `startAutomaticCapture()` and `trackVelocity()` which were previously defined. It will also set the SessionState to `.SessionStarted`.
 
 ##### `View Gallery`
-Appears no matter what the session state is. 
+
+Appears no matter what the session state is.
 
 This button will call `finalizeSession()` from the `datasetWriter` class. This will add the transforms and bounding box files to the project directory.
 
@@ -582,11 +595,13 @@ This button will call `finalizeSession()` from the `datasetWriter` class. This w
 The `currentView` is then switched to the `.gridView`.
 
 #### Feature: Image Tracking
+
 This is done using a `currentFrameCounter` which increases every time a frame is written to the disk.
 
 #### Feature: Image Distribution
+
 The code for this can be found in the `side()` function inside of the `ARView` class.
-The Image Distribution is diplayed on the faces of the bounding box, but is done using `RealityKit`'s `hitTest(point)` using the center of the screen as the point of the hitTest. This returns an array of hit results, which are represented by entities. Since we only want to check if the center of the screen hits the bounding box face closest to the device, we only check the first hit result. We then check if the entity of the first hit result matches and of the plane entities of the bounding box. If it does match, the count associated with that face increases. Based on its count, this is how a bound box face color is determined:
+The Image Distribution is displayed on the faces of the bounding box, but is done using `RealityKit`'s `hitTest(point)` using the center of the screen as the point of the hitTest. This returns an array of hit results, which are represented by entities. Since we only want to check if the center of the screen hits the bounding box face closest to the device, we only check the first hit result. We then check if the entity of the first hit result matches and of the plane entities of the bounding box. If it does match, the count associated with that face increases. Based on its count, this is how a bound box face color is determined:
 
 ```
 let progress = Float(boundingbox.plane_counts[i]) / Float(goal)
@@ -620,36 +635,43 @@ if progress == 1.0 {
 }
 ```
 
-As you can see the text has the same position and orientation as the bounding box face that it replaces. The `boundingbox.plane_cneters` and `boundingbox.plane_orientations` are created in the `BoundingBox` class when the box is first created. They are both created by the locations of the corners of the bounding box.
+As you can see the text has the same position and orientation as the bounding box face that it replaces. The `boundingbox.plane_centers` and `boundingbox.plane_orientations` are created in the `BoundingBox` class when the box is first created. They are both created by the locations of the corners of the bounding box.
 
 ### Image Gallery View
 
 #### Helper View: Grid Item
+
 Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
 
 #### Buttons
+
 ##### `Delete Images`
-Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` buttton which takes the user back to the grid view.
+
+Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` button which takes the user back to the grid view.
 
 ##### `Back To Camera`
+
 Appears when the user first enters the grid view. This button switches the `currentView` to the `.takingImagesView`.
 
 ##### `Finalize Dataset`
-Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causign the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
+
+Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causing the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
 
 ### Send to Server View
-The goal of this View is to enable app to server communication. Data zipped up in [`Finalize Dataset`](#`Finalize-Dataset`) are sent to the server. A preview video and Web Viewer url are recieved from the server.
+
+The goal of this View is to enable app to server communication. Data zipped up in [`Finalize Dataset`](#`Finalize-Dataset`) are sent to the server. A preview video and Web Viewer url are received from the server.
 
 #### Server Endpoints
+
 The server is currently accessible at `http://osiris.cs.hmc.edu:15002/`. The following endpoints are used by the app.
 | Server Endpoint | Purpose |
 | :---------------- | :------ |
 | `/status` | GET server status |
-| `/upload_device_data` | POST all data (in zip) + splatt name, and starts rendering |
-| `/download_video/{splatt_name}` | GET rendered preview video |
-| `/get_webviewer_link/{splatt_name}` | GET Web Viewer url |
+| `/upload_device_data` | POST all data (in zip) + splat name, and starts rendering |
+| `/download_video/{splat_name}` | GET rendered preview video |
+| `/get_webviewer_link/{splat_name}` | GET Web Viewer url |
 
-These are standard endpoints and you can interface with them in manys ways. Here is how we do it in the app using helper functions that internally call `URLSession.shared.dataTask`:
+These are standard endpoints and you can interface with them in many ways. Here is how we do it in the app using helper functions that internally call `URLSession.shared.dataTask`:
 
 Example Endpoint Usage:
 
@@ -671,14 +693,14 @@ let zipPath = convertDirectoryPathToZipPath(directoryPath: directoryPath.absolut
 uploadZipFile(urlString: urlString, zipFilePath: URL(string: zipPath)!, splatName: viewModel.datasetWriter.projectName)
 ```
 
-- `/download_video/{splatt_name}`
+- `/download_video/{splat_name}`
 
 ```
 let videoUrlString = "http://osiris.cs.hmc.edu:15002/download_video/\(viewModel.datasetWriter.projName)"
 downloadVideo(urlString: videoUrlString, splatName: viewModel.datasetWriter.projName)
 ```
 
-- `get_webviewer_link/{splatt_name}`
+- `get_webviewer_link/{splat_name}`
 
 ```
 let webViewerUrlString = "http://osiris.cs.hmc.edu:15002/get_webviewer_link/\(viewModel.datasetWriter.projName)"
@@ -692,75 +714,93 @@ getWebViewerUrl(urlString: webViewerUrlString, splatName: viewModel.datasetWrite
     }
 }
 ```
+
 #### Buttons
 
 ##### `Begin Rendering`
-Always visible in the Send to Server View. This button first uses the project name to be the name of the splatt (3D model). Then, it calls the `convertDirectoryPathToZipPath` function to generate the path of the zip file generated by [`Finalize Dataset`](#`Finalize-Dataset`). Finally, it calls the `uploadZipFile` function to POST the zip file and splatt name to the server. **This button does not directly give any indication that data is sent.** So the user needs to wait for the [server status](#feature-tracking-server-status) to show that the data is being processed. It might be a good idea to add some direct indication that the button is pressed to give immediate user feedback.
+
+Always visible in the Send to Server View. This button first uses the project name to be the name of the splat (3D model). Then, it calls the `convertDirectoryPathToZipPath` function to generate the path of the zip file generated by [`Finalize Dataset`](#`Finalize-Dataset`). Finally, it calls the `uploadZipFile` function to POST the zip file and splat name to the server. **This button does not directly give any indication that data is sent.** So the user needs to wait for the [server status](#feature-tracking-server-status) to show that the data is being processed. It might be a good idea to add some direct indication that the button is pressed to give immediate user feedback.
 
 ##### `View Results`
+
 Always visible in the Send to Server View. This button simply moves the user to the Video Vew by setting `currentView` to be `.videoView`.
-<!-- Functionally, this view is quite simple. The app continuously polls the `/status` endpoint every `1s` (can be configured) and prints the server status at the top of the screen. The user can press a button called "Begin Rendering" to post the zip file containing all the app data (boundingbox.json, images, etc) with ` viewModel.datasetWriter.projName` as the splatt name to the server. This triggers all rendering steps on the server, starting with preprocessing and ending with generating the preview video. While the server is working, the app's status message will track the progress every `1s`. After checking the status and detecting the status as `rendering_ended`, the app will automatically send GET requests to `/download_video/{splatt_name}` and `get_webviewer_link/{splatt_name}` to get the preview video and url. Here, there is the assumption that both the preview video and webviewer_link are available when rendering ends, which is currently true. The preview video will be saved at `NeRF Capture/{splatt_name}.mp4` in the file directory, and the url will be saved within the `viewModel` object (`viewModel.datasetWriter.webViewerUrl`). -->
+
+<!-- Functionally, this view is quite simple. The app continuously polls the `/status` endpoint every `1s` (can be configured) and prints the server status at the top of the screen. The user can press a button called "Begin Rendering" to post the zip file containing all the app data (boundingbox.json, images, etc) with ` viewModel.datasetWriter.projName` as the splat name to the server. This triggers all rendering steps on the server, starting with preprocessing and ending with generating the preview video. While the server is working, the app's status message will track the progress every `1s`. After checking the status and detecting the status as `rendering_ended`, the app will automatically send GET requests to `/download_video/{splat_name}` and `get_webviewer_link/{splat_name}` to get the preview video and url. Here, there is the assumption that both the preview video and webviewer_link are available when rendering ends, which is currently true. The preview video will be saved at `NeRF Capture/{splat_name}.mp4` in the file directory, and the url will be saved within the `viewModel` object (`viewModel.datasetWriter.webViewerUrl`). -->
 
 #### Feature: Tracking Server Status
-The app will contnuously poll the `/status` endpoint every `1s` using a `Timer` object. When the `Timer` goes off, the app will call the `pollServerStatus` function to get the server status from `/status` endpoint. It saves the status in `ServerStatus` and any error in `serverError`.In the View body, a call to `testForStatus` is made to convert the status into a user friendly description of the server status, rendered at the top of the screen.
 
+The app will continuously poll the `/status` endpoint every `1s` using a `Timer` object. When the `Timer` goes off, the app will call the `pollServerStatus` function to get the server status from `/status` endpoint. It saves the status in `ServerStatus` and any error in `serverError`.In the View body, a call to `testForStatus` is made to convert the status into a user friendly description of the server status, rendered at the top of the screen.
 
 #### Feature: Requesting Preview Video and Web Viewer URL
-When the app detects the `ServerStatus` is `rendering_ended`, it will call the `downloadVideo` and `getWebViewerUrl` functions to request the preview video and url data, respectvely. The preview video will be saved at `NeRF Capture/{splatt_name}.mp4` in the file directory. The url will be saved within the `viewmodel` object (`viewModel.datasetWriter.webViewerUrl`).
 
+When the app detects the `ServerStatus` is `rendering_ended`, it will call the `downloadVideo` and `getWebViewerUrl` functions to request the preview video and url data, respectively. The preview video will be saved at `NeRF Capture/{splat_name}.mp4` in the file directory. The url will be saved within the `viewmodel` object (`viewModel.datasetWriter.webViewerUrl`).
 
 ### Video View
 
 #### Buttons
 
 ##### `Open Web Viewer`
+
 This button is always visible near the top of the screen. It visually resembles a blue link, and when the user presses this button, they will exit the app and go to the WebViewer website. The page displayed will be an interactive view of the 3D model the user created.
 
 #### `Back`
+
 This button is always visible and will take the user back to the Send to Server View by setting `currentView` to `.sendImagesToServerView`.
 
 #### `Return to Start`
-This button is always visible. When pressed, it will set `showAlert` to be true and display a text indicating that this button will restart the app and there is no way to navigate back to this particular view for the current model afterwards. If the user presses "Cancel," nothing will happen. If the user presses "Confirm," the app will call `appDeletegate.resetApplication()` which will create a new `ARViewModel` and `ContentView`, and set the current window to display the new `ContentView` object. This should effectively restart the app. However, there is a current bug where certain views are still using outdated values. More on this in the [bugs section](#Known-Bugs).
+
+This button is always visible. When pressed, it will set `showAlert` to be true and display a text indicating that this button will restart the app and there is no way to navigate back to this particular view for the current model afterwards. If the user presses "Cancel," nothing will happen. If the user presses "Confirm," the app will call `appDelegate.resetApplication()` which will create a new `ARViewModel` and `ContentView`, and set the current window to display the new `ContentView` object. This should effectively restart the app. However, there is a current bug where certain views are still using outdated values. More on this in the [bugs section](#Known-Bugs).
 
 #### Feature: Display Video
-The `VideoPlayer` takes up most of the screen and it will play the video located at  `NeRF Capture/{splatt_name}.mp4` in the fle directory. Note that the `VideoPlayer` isn't the most reliable after pressing the `Return to Start` button. More on this in the [bugs section](#Known-Bugs).
 
+The `VideoPlayer` takes up most of the screen and it will play the video located at `NeRF Capture/{splat_name}.mp4` in the fle directory. Note that the `VideoPlayer` isn't the most reliable after pressing the `Return to Start` button. More on this in the [bugs section](#Known-Bugs).
 
-<!-- The goal of this view is to relay information from the server to the user. It plays the preview video saved at `NeRF Capture/{splatt_name}.mp4`, has a clickable link leading to the url saved at `viewModel.datasetWriter.webViewerUrl`. Finally, the user can on a button called "Return to Start" to return to the `IntroInstructionView`. Since there is no current way to view data from another session, returning to the start will be treated as an entirely new session. Also note that this functionality is currently bugged, specifically, on the second run, whil image data is saved to a project bearing the project name of the new session, the `SendImagesToServerView` and `VideoView` sometimes still use the name of the initial project. More on this in the [bugs section](#Known-Bugs). -->
+<!-- The goal of this view is to relay information from the server to the user. It plays the preview video saved at `NeRF Capture/{splat_name}.mp4`, has a clickable link leading to the url saved at `viewModel.datasetWriter.webViewerUrl`. Finally, the user can on a button called "Return to Start" to return to the `IntroInstructionView`. Since there is no current way to view data from another session, returning to the start will be treated as an entirely new session. Also note that this functionality is currently bugged, specifically, on the second run, while image data is saved to a project bearing the project name of the new session, the `SendImagesToServerView` and `VideoView` sometimes still use the name of the initial project. More on this in the [bugs section](#Known-Bugs). -->
 
 ## Known Bug
 
 ### `VideoView` Not Playing Video
-The `VideoView` does not reliably play the video depsite the video appears to be saved at `NeRF Capture/{splatt_name}.mp4` in the files app. Otherwise, the video will appear once but quickly disappear. In these cases, we often see the error message "Could not zip" which can be traced back to the `finalizeProject` function. We started seeing this error after combining the zipping step and proceeding to the `SendImagesToServerView` inside the same button in the `GridView`. Since then, we separated the logic into one "Finalize Dataset" button and another "Send Data to Server" button. Now, the video does not disappear after appearing, but could still not show the video at all. Since we encountered this error right before code freeze, we were able not able to fully investigate it. However, the way forward would likely be programmatically seeing if the video exists at `NeRF Capture/{splatt_name}` when the user is in the `VideoView` view.
+
+The `VideoView` does not reliably play the video despite the video appears to be saved at `NeRF Capture/{splat_name}.mp4` in the files app. Otherwise, the video will appear once but quickly disappear. In these cases, we often see the error message "Could not zip" which can be traced back to the `finalizeProject` function. We started seeing this error after combining the zipping step and proceeding to the `SendImagesToServerView` inside the same button in the `GridView`. Since then, we separated the logic into one "Finalize Dataset" button and another "Send Data to Server" button. Now, the video does not disappear after appearing, but could still not show the video at all. Since we encountered this error right before code freeze, we were able not able to fully investigate it. However, the way forward would likely be programmatically seeing if the video exists at `NeRF Capture/{splat_name}` when the user is in the `VideoView` view.
 
 ### `Return to Start` does not Fully Reset App
-The "Return to Start" button does not seem to work completely. While it does change the view to the `IntroInstructionsView` and works properly up until the `GalleryView` (meaning we can see the new data stored in a zip file with the appropriate name: `projectname.zip`), `SendImagesToServerView` and `VideoView` continues to use the old splatt name. This can cause a number of issues from the splatt failing to generate on the server and also not displaying the video for the new splatt. The most obvious issue is that the title of the `VideoView` uses the old splatt name. Note that this bug is specific to runs of the app after clicking "Return to Start," meaning that the initial run is typically successful (unless you encounter bug 1). Because this is only an issue on subsequent runs, we suspect the problematic views are simply not updated. This [stackoverflow](https://stackoverflow.com/questions/56561630/swiftui-forcing-an-update) post suggests that the problem might be the `viewModel` not being an `ObservableObject/ObservedObject`. However, we found this post after the code freeze, so we could not test it. Returning to the start was not a feature we discussed until near the develop of app development, so we weren't able to get this feature completed without bugs. For now, the user needs to close out of the app completely before proceeding onto the next splatt creation.
+
+The "Return to Start" button does not seem to work completely. While it does change the view to the `IntroInstructionsView` and works properly up until the `GalleryView` (meaning we can see the new data stored in a zip file with the appropriate name: `projectname.zip`), `SendImagesToServerView` and `VideoView` continues to use the old splat name. This can cause a number of issues from the splat failing to generate on the server and also not displaying the video for the new splat. The most obvious issue is that the title of the `VideoView` uses the old splat name. Note that this bug is specific to runs of the app after clicking "Return to Start," meaning that the initial run is typically successful (unless you encounter bug 1). Because this is only an issue on subsequent runs, we suspect the problematic views are simply not updated. This [Stack Overflow](https://stackoverflow.com/questions/56561630/swiftui-forcing-an-update) post suggests that the problem might be the `viewModel` not being an `ObservableObject/ObservedObject`. However, we found this post after the code freeze, so we could not test it. Returning to the start was not a feature we discussed until near the develop of app development, so we weren't able to get this feature completed without bugs. For now, the user needs to close out of the app completely before proceeding onto the next splat creation.
 
 ### _side completed_ Text Not Scaling
-   The text that says _side completed_ on the faces of the bounding box doesn't scale up or down when the bounding box is scaled up or down. Fixes to this would likely have to happen in the `ARViewModel` class, specifically inside of the private function `side()`. Inside this function a `ModelEntity()` called `GeneratedText` is created. This `ModelEntity()` would need to be scaled when the bounding box is scaled.
+
+The text that says _side completed_ on the faces of the bounding box doesn't scale up or down when the bounding box is scaled up or down. Fixes to this would likely have to happen in the `ARViewModel` class, specifically inside of the private function `side()`. Inside this function a `ModelEntity()` called `GeneratedText` is created. This `ModelEntity()` would need to be scaled when the bounding box is scaled.
 
 ### _side completed_ Not Matching Top and Bottom Rotation
-   The text on the top and bottom faces of the bounding box doesn't rotate based on where the device is relative to the bounding box, so it isn't always easy to read from every angle. Fixes to this issue would also probably need to be done to the `GeneratedText` inside of the `side()` function, inside the `ARViewModel` class.
+
+The text on the top and bottom faces of the bounding box doesn't rotate based on where the device is relative to the bounding box, so it isn't always easy to read from every angle. Fixes to this issue would also probably need to be done to the `GeneratedText` inside of the `side()` function, inside the `ARViewModel` class.
 
 ## Pitfalls
+
 ### `NavigationLink` is Difficult to Program Advanced Navigation
-To switch between views of the app, we initially used `NavigationLink`. This became a problem when we wanted to skip between multiple views. We attempted to use a `NavigationPath` object to pragrammatically control the views on the `NavigationStack` object as described [here](https://developer.apple.com/documentation/swiftui/navigationstack#Navigate-to-different-view-types). However, we were not able to use this combination to skip to an arbitrary view. Instead, we went with a custom solution described [in the Switching Between Views section](#Switching-Between-Views).
+
+To switch between views of the app, we initially used `NavigationLink`. This became a problem when we wanted to skip between multiple views. We attempted to use a `NavigationPath` object to programmatically control the views on the `NavigationStack` object as described [here](https://developer.apple.com/documentation/swiftui/navigationstack#Navigate-to-different-view-types). However, we were not able to use this combination to skip to an arbitrary view. Instead, we went with a custom solution described [in the Switching Between Views section](#Switching-Between-Views).
 
 ### Views can Call Class Methods Directly
-Our app is built upon an open sourced project called "NeRF Capture." When we were first exploring how to call methods in the `ARViewModel.swift` file from Views, we stumbled on Swift's `PassthroughSubject`. Using `PassthroughSubject`, one can setup a publisher-subscriber network. In our case, the Views would be the publisher, and the `ARViewModel` would be the subscriber, performing the neccessary actions. We realized later that returning a value from a subcriber to a View is complicated. Afterwards, we simply called methods in the `ARViewModel` class directly. In hindsight, this should have been the obvious thing to do.
+
+Our app is built upon an open sourced project called "NeRF Capture." When we were first exploring how to call methods in the `ARViewModel.swift` file from Views, we stumbled on Swift's `PassthroughSubject`. Using `PassthroughSubject`, one can setup a publisher-subscriber network. In our case, the Views would be the publisher, and the `ARViewModel` would be the subscriber, performing the necessary actions. We realized later that returning a value from a subscriber to a View is complicated. Afterwards, we simply called methods in the `ARViewModel` class directly. In hindsight, this should have been the obvious thing to do.
 
 ## Future Work
 
 Besides fixing the bugs, future directions for the app includes:
 
 ### Improve Image Distribution Feedback
-Image distribution feedback can be improved by spltting the bounding box plane into smaller planes. Each subplane can have their own color. This will give the user more feedback on the distribution of images already captured. Another idea is to try a more circular shape to provide feedback on the distrbution. This can better convey the distribution of angles captured.
 
-### Improve User Input in  `InputDimensionsView`
-Update the `InputDimensionsView` to let users input values in a textbox rather than a slider. This will give the users more finegrain control.
+Image distribution feedback can be improved by splitting the bounding box plane into smaller planes. Each sub-plane can have their own color. This will give the user more feedback on the distribution of images already captured. Another idea is to try a more circular shape to provide feedback on the distribution. This can better convey the distribution of angles captured.
+
+### Improve User Input in `InputDimensionsView`
+
+Update the `InputDimensionsView` to let users input values in a textbox rather than a slider. This will give the users more fine-grain control.
 
 ### Add More Fine-grain Server States to `SendImagesToServerView`
+
 In conjunction with the server, add more server states. We noticed that uploading the zip file containing images can take a long time, so more states to indicate to the user that _something is happening_ on the server will improve usability.
 
 ### Switch to `SIMD` Types in `BoundingBox.swift`
+
 Reimplement all calculations in the `BoundingBox.swift` file to use [`simd` types](https://developer.apple.com/documentation/accelerate/simd) for computational efficiency.
