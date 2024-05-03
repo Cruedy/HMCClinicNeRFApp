@@ -133,8 +133,6 @@ Follow this guide to get the project in your xcode:
 <br>
 Once the repository is cloned into your xcode, set the device that you want to run this app on as the run destination. Then run the app by pressing the traingle-shaped button in the top left.
 
-## File Directory Overview
-
 ## Breaking Down the Code
 
 ### Switching Between Views
@@ -167,7 +165,7 @@ The view being displayed is decided by the value of the currentView parameter. W
 This area just contains text that is stored in 2 lists of strings. One list contains a list of instructions on taking images, and the other list contains a list of best practices for getting quality images
 
 #### Intro Instructions View
-This contains the *Instructions View* and the *Start Project Button*. When the *Start Project Button* is pressed, an alert is created. This alert contains a submit button, which takes the user to the *BoundingBoxSMView*
+This contains the `Instructions View` and the `Start Project Button`. When the `Start Project Button` is pressed, an alert is created. This alert contains a submit button, which takes the user to the `BoundingBoxSMView`.
 
 ### Bounding Box State Machine View
  `BoundingBoxSMView.swift`, its related files  `BoundingBoxSMView-*.swift`, and the `BoundingBoxSMView.swift` contains all the user-facing code for placing and editing the bounding box. The UI consists of three states -- `IdentifyFloor`, `InputDimensions`, and `PlaceBox`. Each state will render within the `BoundingBoxSMView` their own view `IdentifyFloorView`, `InputDimensionsView`, and `PlaceBoxView`. To switch between views, change `BoundingBoxSMView.content` to one of the states. For example, to rendering `IdentityFloor`, do `BoundingBoxSMView.content = BoundingBoxPlacementStates.IdentifyFloor`.
@@ -205,7 +203,7 @@ The final implementation detail of this state is switching between different mod
 ### Taking Images View 
 
 #### Buttons 
-##### Begin Capture
+##### `Begin Capture`
 Appears when the image taking session is in the `.SessionNotStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `initializeProject()`  from the `datasetWriter` class. This function creates a directory that has the name that was set in the `IntroInstructionsView`. The function also sets the `SessionState` to `.SessionStarted`.
@@ -214,7 +212,7 @@ When this button is pressed, it calls the `initializeProject()`  from the `datas
 
 `startAutomaticCapture()` from the `ARViewModel` class is also called. This function starts a timer that calls a function called `changeInterval()` every time the timer goes off. `changeInterval` causes the screen to flash white, indicating to the user that an image is taken. The function also shortens the timer if the device starts moving faster and lengthens the timer if the device starts moving slower. 
 
-##### Pause Automatic Capture
+##### `Pause Automatic Capture`
 Appears when the image taking session is in the `.SessionStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `writeFrameToTopic(frame)`  from the `ddsWriter` class. This function create the image frame and depth file to be added to the directory for the project.
@@ -227,12 +225,12 @@ When this button is pressed, it calls the `writeFrameToTopic(frame)`  from the `
 
 `stopAutomaticCapture()` from the `ARViewModel` class is also called. This function turns the screen flash to false and stops the timer that is run in the automatic capture process.
 
-##### Continue Automatic Capture
+##### `Continue Automatic Capture`
 Appears when the image taking session is in the `.SessionPaused` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 This button will call `startAutomaticCapture()` and `trackVelocity()` which were previously defined. It will also set the SessionState to `.SessionStarted`.
 
-##### View Gallery
+##### `View Gallery`
 Appears no matter what the session state is. 
 
 This button will call `finalizeSession()` from the `datasetWriter` class. This will add the transforms and bounding box files to the project directory. 
@@ -284,13 +282,13 @@ As you can see the text has the same position and orientation as the bounding bo
 Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
 
 #### Buttons
-##### Delete Images
+##### `Delete Images`
 Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` buttton which takes the user back to the grid view.
 
-##### Back To Camera
+##### `Back To Camera`
 Appears when the user first enters the grid view. This button switches the `currentView` to the `.takingImagesView`.
 
-##### Finalize Dataset
+##### `Finalize Dataset`
 Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causign the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
 
 ### Send to Server View
