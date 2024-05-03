@@ -26,7 +26,7 @@ The user can enter any name they want for the project, then press the submit but
 
 The user is first prompted to place the bounding box the same surface that the product is on:
 <br>
-<img src="docs/assets_readme/PlaceBBox1.PNG" height="342"/>
+<img src="docs/assets_readme/PlaceBBox1.png" height="342"/>
 <br>
 
 This is done by tapping on the screen:
