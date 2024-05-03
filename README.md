@@ -166,54 +166,55 @@ Once the repository is cloned into your xcode, set the device that you want to r
 ## File Structure and File Description
 Here are the key files for the app
 HMCClinicNeRFApp
-│---README.md   
-│
-└───NeRFCapture
-│   └──Models
-|      └──AppState.swift
-|      └──BoundingBoxManifest.swift
-|      └──Manifest.swift
-|   └──Networking
-|   └──Resources
-|      └──Disappear.mp3
-|      └──Sparkle.mov
-|   └──ViewModels
-|      └──ARVewModel.swift
-|   └──Views
-|      └──ARViewContainer.swift
-|      └──BoundingBox-SummaryView.swift
-|      └──BoundingBoxSM-IdentifyFloor.swift
-|      └──BoundingBoxSM-InputDimension
-|      └──BoundingBoxSM-PlaceBox.swift
-|      └──BoundingBoxSMView.swift
-|      └──BoundingBoxView.swift
-|      └──ContentView.swift
-|      └──ContentViewSwitcher.swift
-|      └──CustomerARView.swift
-|      └──DetailView.swift
-|      └──GridItemView.swift
-|      └──GridView.swift
-|      └──IntroinstructionsView.swift
-|      └──SendImagesToServerView.swift
-|      └──SwiftUIView.swift
-|      └──TakingImagesView.swift
-|      └──VideoView.swift
-|      └──originalContentView.swift
-|   |---AppDelegate.swift
-|   |---BoundingBox.swift
-|   |---ColumnStepper.swift
-|   |---DDSWriter.swift
-|   |---DataModel.swift
-|   |---DataWriter.swift
-|   |---FileManagerExtensions.swift
-|   |---ImageGalleryApp.swift
-|   |---Info.plist
-|   |---Item.swift
-|   |---PhotoPicker.swift
-|   |---PointCloudBoundingBoxUtils.swift
-|   |---Shaders.metal
-|   |---Utils.swift
-|---LICENCE
+│   ├── README.md   
+│   │
+│   └── NeRFCapture
+│       ├── Models
+│       │   ├── AppState.swift
+│       │   ├── BoundingBoxManifest.swift
+│       │   └── Manifest.swift
+│       ├── Networking
+│       ├── Resources
+│       │   ├── Disappear.mp3
+│       │   └── Sparkle.mov
+│       ├── ViewModels
+│       │   └── ARViewModel.swift
+│       ├── Views
+│       │   ├── ARViewContainer.swift
+│       │   ├── BoundingBox-SummaryView.swift
+│       │   ├── BoundingBoxSM-IdentifyFloor.swift
+│       │   ├── BoundingBoxSM-InputDimension.swift
+│       │   ├── BoundingBoxSM-PlaceBox.swift
+│       │   ├── BoundingBoxSMView.swift
+│       │   ├── BoundingBoxView.swift
+│       │   ├── ContentView.swift
+│       │   ├── ContentViewSwitcher.swift
+│       │   ├── CustomerARView.swift
+│       │   ├── DetailView.swift
+│       │   ├── GridItemView.swift
+│       │   ├── GridView.swift
+│       │   ├── IntroInstructionsView.swift
+│       │   ├── SendImagesToServerView.swift
+│       │   ├── SwiftUIView.swift
+│       │   ├── TakingImagesView.swift
+│       │   ├── VideoView.swift
+│       │   └── originalContentView.swift
+│       ├── AppDelegate.swift
+│       ├── BoundingBox.swift
+│       ├── ColumnStepper.swift
+│       ├── DDSWriter.swift
+│       ├── DataModel.swift
+│       ├── DataWriter.swift
+│       ├── FileManagerExtensions.swift
+│       ├── ImageGalleryApp.swift
+│       ├── Info.plist
+│       ├── Item.swift
+│       ├── PhotoPicker.swift
+│       ├── PointCloudBoundingBoxUtils.swift
+│       ├── Shaders.metal
+│       └── Utils.swift
+└── LICENCE
+
 
 Here is a high-level description of relavant directory/files:
 1. `NeRFCapture/Models/*`: These files all model data that can be saved. `Manifest.swift` handles saving images. `BoundingBoxManifest.swift` handles saving Bounding Box. `AppState.swift` is mostly unused and a remenant of the original NeRF Capture project.
