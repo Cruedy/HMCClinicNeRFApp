@@ -236,6 +236,38 @@ The `currentView` is then switched to the `.gridView`.
 ##### Image Tracking
 This is done using a `currentFrameCounter` which increases every time a frame is written to the disk. 
 
+##### Image Distribution
+The code for this can be found in the `side()` function inside of the `ARView` class.
+The Image Distribution is diplayed on the faces of the bounding box, but is done using `RealityKit`'s `hitTest(point)` using the center of the screen as the point of the hitTest. This returns an array of hit results, which are represented by entities. Since we only want to check if the center of the screen hits the bounding box face closest to the device, we only check the first hit result. We then check if the entity of the first hit result matches and of the plane entities of the bounding box. If it does match, the count associated with that face increases. Based on its count, this is how a bound box face color is determined:
+```
+let progress = Float(boundingbox.plane_counts[i]) / Float(goal)
+let rgb = SIMD3<Float>(1, 1, 0)
+let final_rgb = SIMD3<Float>(0, 1, 1)
+let new_rgb = (progress * final_rgb) + ((1.0 - progress) * rgb)
+let color = UIColor(red: CGFloat(new_rgb.x), green: CGFloat(new_rgb.y), blue: CGFloat(new_rgb.z), alpha: CGFloat(opacity))
+```
+The color of each face becomes more green as `boundingbox.plane_counts[i]` gets closer to the `goal` value. The opacity of the plane also increases as the `boundingbox.plane_counts[i]` value increases. This means that the opacity is also determined based on the progress, this is how:
+```
+var opacity = Float(0.0)
+if progress < 1.0{
+    opacity = 0.25 + (progress * 0.5)
+}
+else if progress == 1.0{
+    boundingbox.playFinishedSound()
+    opacity = 0.0
+}
+```
+Once the goal number of images for a face is reached, that bounding box face becomes clear and is replaced by a text while a sound plays. This generatedText is a ModelEntity that is a child of the plane entity. This how that text is added to the face of the bounding box:
+```
+if progress == 1.0 {
+    let generatedText = boundingbox.textGen(textString: "side completed")
+    plane.entity.addChild(generatedText)
+    generatedText.position = boundingbox.plane_centers[plane.index]
+    generatedText.orientation = boundingbox.plane_orientations[plane.index]
+}
+```
+As you can see the text has the same position and orientation as the bounding box face that it replaces. The `boundingbox.plane_cneters` and `boundingbox.plane_orientations` are created in the `BoundingBox` class when the box is first created. They are both created by the locations of the corners of the bounding box.
+
 #### Image Gallery View
 ##### Butttons
 ###### Delete Images
