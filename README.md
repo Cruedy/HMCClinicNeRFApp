@@ -403,27 +403,50 @@ The `raycast_bounding_box_center` method also uses `arView.raycast` to find the 
 We found that the Raycast functions are very intuitive. Specifically, `raycast_bounding_box_center` simplifies the task of repositioning the bounding box much more than manual translation. Since the raycast positions the center of the box at the intersection point, you can be confident that the bounding box properly overlaps with the object of interest. On the other hand, manually translating the box often makes it challenging to determine whether the box is merely in front of the object or actually enclosing it, due to issues with perspective.
 
 #### Rendering
-The rendering of the bounding box is handled in the `BoundingBox.swift` and `ARViewModel.swift` files.
+The rendering of the bounding box is handled in the `BoundingBox.swift` and `ARViewModel.swift` files. We construct the bounding box edge by edge to provide maximum flexibility. [Here is a helpful tutorial for doing this in RealityKit.](https://maxxfrazer.medium.com/getting-started-with-realitykit-procedural-geometries-5dd9eca659ef)
+
+The steps to render an object is in three steps:
+1. Create a `MeshDescriptor`
+2. Create an `AnchorEntity`
+3. Add the `AnchorEntity` to the `arView.scene.anchors`
 
 `BoundingBox.swift`
 Within `BoundingBox.swift`, rendering of the bounding box is structured into multiple helper functions that manage different aspects of the bounding box's appearance and behavior in a 3D or augmented reality environment. Key functions include:
 
-`createLine`:
-This function generates lines by thickening them into planes. Since RealityKit does not support rendering 1D objects, the lines are represented as very thin planes to make them visible. For each line, the function adjusts positions around the specified corners with a small thickness offset, effectively creating a plane. These are configured to ensure visibility from all viewing angles by duplicating and positioning the offset points counterclockwise.
+`createLine(corners: [[Float]], thickness: Float) -> MeshDescriptor`:
+This function takes two corners in the `corners` parameter and creates a `MeshDescriptor` object that draws a line between the two corners. Since RealityKit does not support rending 1D objects, we create a thin rectangular prism to represent the line. The width of the base of the prism is controlled by the `thickness` parameter. We use the `.polygons` function from RealityKit to render create the primitives for the MeshDescriptor. 
+
+
+>The documention on ".polygons" is sparse, therefore, we will briefly describe how to use the function here. More information can be found in this [article](https://maxxfrazer.medium.com/getting-started-with-realitykit-procedural-geometries-5dd9eca659ef). It accepts two parameters, the first is an array describing how many points to use to form a plane, and the second is an array describing the index of the points themselves.
+
+>For example, if you want to want to create a square and a triangle do the following:
+```
+var descr = MeshDescriptor(name: "demo")
+descr.positions = MeshBuffers.Positions(positions[0...7])
+descr.primitives = .polygons([4, 3], [1, 2, 0, 3, 3, 0, 2, ])
+``````
+
+>The elements of descr.primitives at index 0,3,1,2 will be joined into a square and the elements at index 3,0,2 will be joined into a triangle.
+
+
+Finally, we supply the vertices for each face of the plane in the `.polygons` call in both clockwise and counterclockwise manner. This is neccessary because the face is only viewable when it is drawn counterclockwise facing the direction of the camera. Therefore, to ensure all faces of the edges are viewable from every camera location, we render each face twice.
+
 `createPlaneFromCorners`:
 To represent bounding box faces, this function takes corner points and creates plane surfaces. It compensates for the inability to render 1D objects by offsetting points slightly in 3D space, ensuring no dimension collapses to zero. The planes are slightly shrunk towards their centroid before rendering to distinguish edges and faces visually.
-`createBoundingBox`:
-Combines lines and planes to form a complete bounding box. It calculates the necessary descriptors for each face and line of the box, applies orientations, and ensures all components connect to form a coherent bounding structure.
 
-`createLine` to render the lines.
-`createPlaneFromCorners` to render the planes
-`createBoundingBox`
-`addNewBoxToScene`
+`createBoundingBox(corners: [[Float]], thickness: Float) -> ([MeshDescriptor], [MeshDescriptor])`
+This function calls `createLine` and `createPlaneFromCorners` for every edge and face of the bounding box based on input corner points. This input is typically just `BoundingBox.positions`. It returns two arrays of `MeshDescriptor`, one for the edges and one for the faces.
 
-ARViewModel
-`display_box`
+`addNewBoxToScene() -> AnchorEntity`
+The previous methods all deal with creating `MeshDescriptor`. This method creates a singular `AnchorEntity` that represents the whole Bounding Box. `addNewBoxToScene` calls `createBoundingBox` to generate all the neccessary meshs, then it gives each mesh their color using an `UnlitMaterial`, which is nonreflective. It also attaches a `collisionComponent` to each face of the Bounding Box. This step allows the face to interact with other virtual objects and used to track the number of images taken from a particular face of the bounding box.
 
+`ARViewModel.swift`
+`display_box(boxVisible: Bool)`
+There is only one method in `ARViewModel.swift` that handles rendering, but this is an important one. `display_box` calls `BoundingBox.addNewBoxToScene` when the input `boxVisible` is `true`. It removes the `EntityAnchor` for an existing Bounding Box if one exists and adds the new `EntityAnchor` returned by `BoundingBox.addNewBoxToScene` to `arView.scene.anchors`. After this function is called with `boxVisible=true`, the Bounding Box will be visible.
 
 #### Saving
+The Bounding Box is not only used by the app for user feedback but also used on the backend for the [Background Culling Step](https://github.com/JoshuaG-K/wayfair23-serverV2/tree/0c18a4c03812e3ea25ba12c6602aecbd8c0dc9c5?tab=readme-ov-file#rendering). To send the Bounding Box data to the server, we save the Bounding Box to a file called `boundingbox.json`. We do so using [`JSONEncoder` from Swift](https://developer.apple.com/documentation/foundation/jsonencoder). Since this is a common usecase of `JSONEncoder` and the Swift documentation is complete, we will keep the description brief. The `JSONEncoder` encodes classes that are `Codable`. Therefore, we created the class `BoundingBoxManifest` in the file by the same name to include the information about the Bounding Box we want to send to the server, specifically the center, rotation, positions fo corners, and world coordinate pose. Note that some of this information is redundant but sent for convience and another level of verification downstream. 
+
+As usual, `BoundingBox.swift` implements the low level conversion from bounding box parameters to an object of the `BoundingBoxManifest` type within the `encode_as_json` function. `ARViewModel.swift` implements the `update_boundingbox_manfiest` function saves the current manifest to `datsetWriter.boundingBoxManifest` whenever user inputs changes the properties of the box. Finally, `DatasetWriter.swift` implements the `finalizeSession` function which uses the `JSONEncoder` to save the bounding box to `NeRF Capture/{projectName}/boundingbox.json`, which will later be zipped up and ready to send to the server when the user clicks on the "Finalize Dataset" button in the `GalleryView`.
 
 ## Known Bugs
