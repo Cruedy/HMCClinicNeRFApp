@@ -204,8 +204,8 @@ The final implementation detail of this state is switching between different mod
 
 ### Taking Images View 
 
-##### Buttons 
-###### Begin Capture
+#### Buttons 
+##### Begin Capture
 Appears when the image taking session is in the `.SessionNotStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `initializeProject()`  from the `datasetWriter` class. This function creates a directory that has the name that was set in the `IntroInstructionsView`. The function also sets the `SessionState` to `.SessionStarted`.
@@ -214,7 +214,7 @@ When this button is pressed, it calls the `initializeProject()`  from the `datas
 
 `startAutomaticCapture()` from the `ARViewModel` class is also called. This function starts a timer that calls a function called `changeInterval()` every time the timer goes off. `changeInterval` causes the screen to flash white, indicating to the user that an image is taken. The function also shortens the timer if the device starts moving faster and lengthens the timer if the device starts moving slower. 
 
-###### Pause Automatic Capture
+##### Pause Automatic Capture
 Appears when the image taking session is in the `.SessionStarted` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 When this button is pressed, it calls the `writeFrameToTopic(frame)`  from the `ddsWriter` class. This function create the image frame and depth file to be added to the directory for the project.
@@ -227,12 +227,12 @@ When this button is pressed, it calls the `writeFrameToTopic(frame)`  from the `
 
 `stopAutomaticCapture()` from the `ARViewModel` class is also called. This function turns the screen flash to false and stops the timer that is run in the automatic capture process.
 
-###### Continue Automatic Capture
+##### Continue Automatic Capture
 Appears when the image taking session is in the `.SessionPaused` state. The various states are defined in the `SessionState` enum in the `DatasetWriter` class.
 
 This button will call `startAutomaticCapture()` and `trackVelocity()` which were previously defined. It will also set the SessionState to `.SessionStarted`.
 
-<!-- ###### View Gallery
+##### View Gallery
 Appears no matter what the session state is. 
 
 This button will call `finalizeSession()` from the `datasetWriter` class. This will add the transforms and bounding box files to the project directory. 
@@ -243,13 +243,10 @@ This button will call `finalizeSession()` from the `datasetWriter` class. This w
 
 The `currentView` is then switched to the `.gridView`.
 
-##### Grid Item
-Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
+#### Image Tracking
+This is done using a `currentFrameCounter` which increases every time a frame is written to the disk.
 
-##### Image Tracking
-This is done using a `currentFrameCounter` which increases every time a frame is written to the disk.  -->
-
-##### Image Distribution
+#### Image Distribution
 The code for this can be found in the `side()` function inside of the `ARView` class.
 The Image Distribution is diplayed on the faces of the bounding box, but is done using `RealityKit`'s `hitTest(point)` using the center of the screen as the point of the hitTest. This returns an array of hit results, which are represented by entities. Since we only want to check if the center of the screen hits the bounding box face closest to the device, we only check the first hit result. We then check if the entity of the first hit result matches and of the plane entities of the bounding box. If it does match, the count associated with that face increases. Based on its count, this is how a bound box face color is determined:
 ```
@@ -282,14 +279,18 @@ if progress == 1.0 {
 As you can see the text has the same position and orientation as the bounding box face that it replaces. The `boundingbox.plane_cneters` and `boundingbox.plane_orientations` are created in the `BoundingBox` class when the box is first created. They are both created by the locations of the corners of the bounding box.
 
 ### Image Gallery View
-##### Butttons
-###### Delete Images
+
+#### Grid Item
+Each image in the grid is represented as a navigation link to a `DetailView(item)`, but is displayed as `GridItemView(size, item)` until it is selected. Once the navigation link is pressed, the image scales to fit.
+
+#### Butttons
+##### Delete Images
 Appears when the user first enters the grid view. When this button is pressed, the session switches to an `isEditing` mode. This sets the var `isEditing` to true and adds a white and red x mark to each image. If an x mark for a image is pressed, then the image is removed the from `dataModel`. In the `isEditing` mode the `Delete Images` button toggles to a `Done` buttton which takes the user back to the grid view.
 
-###### Back To Camera
+##### Back To Camera
 Appears when the user first enters the grid view. This button switches the `currentView` to the `.takingImagesView`.
 
-###### Finalize Dataset
+##### Finalize Dataset
 Appears when the user first enters the grid view. This button calls the `finalizeProject()` function. This function copies all the files and directory inside of the project folder over to a new zip file. `finalizedDataset` is then set to true, causign the `Finalize Dataset` button to toggle to a `Send Data to Server` button. Once this new button is pressed, the `currentView` is then set to `.sendImagesToServerView`.
 
 ### Send to Server View
